@@ -11,14 +11,12 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.CollectionReference;
-import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.HashMap;
-import java.util.Objects;
 
 import androidx.annotation.NonNull;
 
@@ -37,10 +35,9 @@ public class UserController {
         query.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                if(task.getResult() != null && task.getResult().size() > 0){
+                if (task.getResult() != null && task.getResult().size() > 0) {
                     Toast.makeText(context, "This username is taken", Toast.LENGTH_SHORT).show();
-                }
-                else{
+                } else {
                     //add a new user to Firestore database
                     signUpUser(enteredUser);
                 }
@@ -67,9 +64,10 @@ public class UserController {
                         Intent i = new Intent(context, ListActivity.class);
                         // TODO: pass user to activity
                         context.startActivity(i);
-                        ((Activity)context).finish();
+                        ((Activity) context).finish();
                     }
-                }).addOnFailureListener(new OnFailureListener() {
+                }).
+                addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
                         Log.d(TAG, "Error has occurred " + e.getMessage());
@@ -94,18 +92,15 @@ public class UserController {
                                     Intent i = new Intent(context, ListActivity.class);
                                     // TODO: pass user to activity
                                     context.startActivity(i);
-                                    ((Activity)context).finish();
-                                }
-                                else {
+                                    ((Activity) context).finish();
+                                } else {
                                     Toast.makeText(context, "Incorrect password", Toast.LENGTH_SHORT).show();
                                 }
-                            }
-                            else {
+                            } else {
                                 Toast.makeText(context, "This username does not exist", Toast.LENGTH_SHORT).show();
                             }
 
-                        }
-                        else {
+                        } else {
                             String ex = "";
                             if (task.getException() != null) {
                                 ex = task.getException().getMessage();
@@ -113,6 +108,6 @@ public class UserController {
                             Log.d(TAG, "Error reading user data " + ex);
                         }
                     }
-        });
+                });
     }
 }

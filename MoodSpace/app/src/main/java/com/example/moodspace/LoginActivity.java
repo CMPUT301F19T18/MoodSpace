@@ -8,11 +8,7 @@ import androidx.appcompat.widget.AppCompatTextView;
 
 import android.os.Bundle;
 import android.view.View;
-import android.widget.Button;
-import android.widget.EditText;
 import android.widget.Toast;
-
-import com.google.firebase.auth.FirebaseAuth;
 
 public class LoginActivity extends AppCompatActivity {
     AppCompatButton loginButton;
@@ -45,8 +41,7 @@ public class LoginActivity extends AppCompatActivity {
                     loginButton.setText("Sign Up");
                     signUpLink.setText("Already registered? LOGIN");
                     inLoginState = false;
-                }
-                else {
+                } else {
                     loginButton.setText("Login");
                     signUpLink.setText("New user? SIGN UP");
                     inLoginState = true;
@@ -63,12 +58,10 @@ public class LoginActivity extends AppCompatActivity {
                 if (usernameText.length() > 0 && passwordText.length() > 0) {
                     if (inLoginState) {
                         uc.loginUser(new User(usernameText, passwordText));
-                    }
-                    else {
+                    } else {
                         uc.checkUserExists(new User(usernameText, passwordText));
                     }
-                }
-                else {
+                } else {
                     Toast.makeText(LoginActivity.this, "Please enter a username and a password", Toast.LENGTH_SHORT).show();
                 }
             }
