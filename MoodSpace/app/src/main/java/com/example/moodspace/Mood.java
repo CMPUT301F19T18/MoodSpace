@@ -9,16 +9,12 @@ import java.util.Date;
 public class Mood implements Serializable {
 
     //Combined Date and time to datetime, which will be formatted with DateUtils to the respective forms when the app runs.
-    private String mood;
+    private Emotion emotion;
     private Date dateTime;
-    private String reason;
-    private String emotionalState;
 
-    public Mood(String mood, Date dateTime, String reason, String emotionalState) {
-        this.mood = mood;
+    public Mood(Date dateTime, Emotion emotion) {
+        this.emotion = emotion;
         this.dateTime = dateTime;
-        this.reason = reason;
-        this.emotionalState = emotionalState;
     }
 
     //Getters and Setters for Mood
@@ -31,29 +27,12 @@ public class Mood implements Serializable {
         this.dateTime = dateTime;
     }
 
-    public String getMood() {
-        return mood;
+    public Emotion getEmotion() {
+        return emotion;
     }
 
-    public void setMood(String mood) {
-        this.mood = mood;
+    public void setEmotion(Emotion emotion) {
+        this.emotion = emotion;
     }
-
-    public String getReason() {
-        return reason;
-    }
-
-    public void setReason(String reason) {
-        this.reason = reason;
-    }
-
-    public String getEmotionalState() {
-        return emotionalState;
-    }
-
-    public void setEmotionalState(String emotionalState) {
-        this.emotionalState = emotionalState;
-    }
-
 
 }

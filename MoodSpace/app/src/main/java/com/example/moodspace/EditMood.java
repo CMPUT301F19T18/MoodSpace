@@ -16,7 +16,7 @@ import java.util.List;
  * This intent is used to add a new mood to the mood list, it takes in certain parameters and upon clicking the add mood, will create a new Mood object
  * and return it to the main activity, otherwise, it will catch any exceptions and notify the user.
  */
-public class AddMood extends AppCompatActivity {
+public class EditMood extends AppCompatActivity {
 
     private List<Emotion> emotionList;
     private MoodAdapter mAdapter;
@@ -24,35 +24,45 @@ public class AddMood extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_add_mood);
+        setContentView(R.layout.activity_edit_mood);
 
         initList();
         final Spinner spinnerEmotions = findViewById(R.id.emotionSelector);
+        mAdapter = new MoodAdapter(this, emotionList);
+        spinnerEmotions.setAdapter(mAdapter);
 
-        Button setMood = findViewById(R.id.saveBtn);
+        Button saveMood = findViewById(R.id.saveBtn);
+        Button backBtn = findViewById(R.id.backBtn);
+
+        Mood currentMood = (Mood) getIntent().getSerializableExtra("MOOD");
+        final int position = (int)getIntent().getSerializableExtra("POSITION");
+        int emotionIndex = mAdapter.getPosition(currentMood.getEmotion());
+        spinnerEmotions.setSelection(emotionIndex);
 
         //Upon clicking the okay button, there will be an intent to another activity to fill out the required information.
-        setMood.setOnClickListener(new View.OnClickListener() {
+        saveMood.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
                 Intent intent = new Intent();
 
-                intent.putExtra("newMood",
+                intent.putExtra("updatedMood",
                         new Mood(
                                 new Date(),
                                 (Emotion) spinnerEmotions.getSelectedItem()
                         )
                 );
+                intent.putExtra("position", position);
                 setResult(RESULT_OK, intent);
                 finish();
             }
         });
 
-
-
-        mAdapter = new MoodAdapter(this, emotionList);
-        spinnerEmotions.setAdapter(mAdapter);
+        backBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
+            }
+        });
     }
 
     private void initList() {

@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
@@ -37,17 +38,12 @@ public class ListActivity extends AppCompatActivity {
         moodAdapter = new CustomList(this, moodDataList);
 
         moodList.setAdapter(moodAdapter);
-//        moodList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-//            @Override
-//            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-//                int currentSelected = position;
-//                Mood mood = moodDataList.get(currentSelected);
-//                Intent intent2 = new Intent(getApplicationContext(), UpdateOrDeleteRide.class);
-//                intent2.putExtra("MOOD", mood);
-//                intent2.putExtra("POSITION", currentSelected);
-//                startActivityForResult(intent2, 2);
-//            }
-//        });
+        moodList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                openEditMood(position);
+            }
+        });
     }
 
     /**
@@ -58,6 +54,16 @@ public class ListActivity extends AppCompatActivity {
         startActivityForResult(intent, 1);
     }
 
+    /**
+     * Opens edit Mood intent.
+     */
+    public void openEditMood(int position) {
+        Mood mood = moodDataList.get(position);
+        Intent intent2 = new Intent(getApplicationContext(), EditMood.class);
+        intent2.putExtra("MOOD", mood);
+        intent2.putExtra("POSITION", position);
+        startActivityForResult(intent2, 2);
+    }
     /**
      * First request code is for adding moods, will take the returned string mood, cast it and add it to the mood list.
      * @param requestCode
@@ -76,13 +82,13 @@ public class ListActivity extends AppCompatActivity {
 
         //Result code will be RESULT_OK when user selects save Mood info, it will take the updated mood and replace the mood indexed from returned position.
         //Will also notify the adapter of the changes.
-        else if (resultCode == RESULT_OK) {
-            Serializable strUpdatedMood = data.getSerializableExtra("updatedMood");
-            Serializable strPosition = data.getSerializableExtra("position");
-            moodDataList.set((int) strPosition, (Mood) strUpdatedMood);
-            moodAdapter.notifyDataSetChanged();
+        if (requestCode == 2) {
+            if (resultCode == RESULT_OK) {
+                Serializable strUpdatedMood = data.getSerializableExtra("updatedMood");
+                Serializable strPosition = data.getSerializableExtra("position");
+                moodDataList.set((int) strPosition, (Mood) strUpdatedMood);
+                moodAdapter.notifyDataSetChanged();
+            }
         }
-
     }
-
 }

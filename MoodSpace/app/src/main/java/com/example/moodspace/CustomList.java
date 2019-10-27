@@ -41,9 +41,13 @@ public class CustomList extends ArrayAdapter<Mood> {
         TextView date = view.findViewById(R.id.mood_date);
         TextView time = view.findViewById(R.id.mood_time);
 
-        moodInfo.setText(String.valueOf(mood.getMood()));
+        Emotion emotion = mood.getEmotion();
+        moodInfo.setText(emotion.getEmojiString());
         date.setText(DateUtils.formatDate(mood.getDateTime()));
-        time.setText(DateUtils.formatTime(mood.getDateTime()));
+        time.setText(DateUtils.formatTime(mood.getDateTime()
+        ));
+
+        view.setBackgroundColor(emotion.getColor());
 
         return view;
     }
