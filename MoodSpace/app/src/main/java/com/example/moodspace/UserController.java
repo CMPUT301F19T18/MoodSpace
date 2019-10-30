@@ -90,6 +90,8 @@ public class UserController {
                             if (task.getResult().exists()) {
                                 if (task.getResult().get("password").equals(password)) {
                                     Intent i = new Intent(context, ListActivity.class);
+                                    i.putExtra("Username",username);
+
                                     // TODO: pass user to activity
                                     context.startActivity(i);
                                     ((Activity) context).finish();

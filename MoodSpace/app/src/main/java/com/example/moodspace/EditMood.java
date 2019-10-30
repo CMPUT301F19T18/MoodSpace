@@ -35,7 +35,7 @@ public class EditMood extends AppCompatActivity {
         Button backBtn = findViewById(R.id.backBtn);
 
         Mood currentMood = (Mood) getIntent().getSerializableExtra("MOOD");
-        final int position = (int)getIntent().getSerializableExtra("POSITION");
+        final int position = (int) getIntent().getSerializableExtra("POSITION");
         int emotionIndex = mAdapter.getPosition(currentMood.getEmotion());
         spinnerEmotions.setSelection(emotionIndex);
 
