@@ -1,5 +1,7 @@
 package com.example.moodspace;
 
+import com.google.firebase.firestore.Exclude;
+
 import java.io.Serializable;
 import java.util.Date;
 
@@ -9,22 +11,33 @@ import java.util.Date;
 public class Mood implements Serializable {
 
     //Combined Date and time to datetime, which will be formatted with DateUtils to the respective forms when the app runs.
+    private String id;
     private Emotion emotion;
-    private Date dateTime;
+    private Date date;
 
-    public Mood(Date dateTime, Emotion emotion) {
+    public Mood(String id, Date date, Emotion emotion) {
+        this.id = id;
         this.emotion = emotion;
-        this.dateTime = dateTime;
+        this.date = date;
     }
 
     //Getters and Setters for Mood
 
-    public Date getDateTime() {
-        return dateTime;
+    @Exclude
+    public String getId() {
+        return id;
     }
 
-    public void setDateTime(Date dateTime) {
-        this.dateTime = dateTime;
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public Date getDate() {
+        return date;
+    }
+
+    public void setDate(Date date) {
+        this.date = date;
     }
 
     public Emotion getEmotion() {

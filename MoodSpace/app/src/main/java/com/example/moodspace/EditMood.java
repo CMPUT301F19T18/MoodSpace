@@ -30,29 +30,30 @@ public class EditMood extends AppCompatActivity {
         final Spinner spinnerEmotions = findViewById(R.id.emotionSelector);
         mAdapter = new MoodAdapter(this, emotionList);
         spinnerEmotions.setAdapter(mAdapter);
+        final String username = getIntent().getStringExtra("USERNAME");
 
         Button saveMood = findViewById(R.id.saveBtn);
         Button backBtn = findViewById(R.id.backBtn);
 
-        Mood currentMood = (Mood) getIntent().getSerializableExtra("MOOD");
-        final int position = (int) getIntent().getSerializableExtra("POSITION");
+        final Mood currentMood = (Mood) getIntent().getSerializableExtra("MOOD");
         int emotionIndex = mAdapter.getPosition(currentMood.getEmotion());
         spinnerEmotions.setSelection(emotionIndex);
+
+        final AddEditController controller = new AddEditController();
 
         //Upon clicking the okay button, there will be an intent to another activity to fill out the required information.
         saveMood.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent();
 
-                intent.putExtra("updatedMood",
+                controller.updateMood(
+                        username,
                         new Mood(
-                                new Date(),
+                                currentMood.getId(),
+                                currentMood.getDate(),
                                 (Emotion) spinnerEmotions.getSelectedItem()
                         )
                 );
-                intent.putExtra("position", position);
-                setResult(RESULT_OK, intent);
                 finish();
             }
         });

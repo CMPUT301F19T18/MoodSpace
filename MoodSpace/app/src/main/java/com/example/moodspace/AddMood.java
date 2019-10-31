@@ -25,26 +25,25 @@ public class AddMood extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_mood);
-
+        final String username = getIntent().getStringExtra("USERNAME");
         initList();
         final Spinner spinnerEmotions = findViewById(R.id.emotionSelector);
 
         Button setMood = findViewById(R.id.saveBtn);
+        final AddEditController controller = new AddEditController();
 
         //Upon clicking the okay button, there will be an intent to another activity to fill out the required information.
         setMood.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
-                Intent intent = new Intent();
-
-                intent.putExtra("newMood",
+                controller.addMood(
+                        username,
                         new Mood(
+                                null,
                                 new Date(),
                                 (Emotion) spinnerEmotions.getSelectedItem()
                         )
                 );
-                setResult(RESULT_OK, intent);
                 finish();
             }
         });
