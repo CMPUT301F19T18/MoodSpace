@@ -39,7 +39,7 @@ public class EditMood extends AppCompatActivity {
         int emotionIndex = mAdapter.getPosition(currentMood.getEmotion());
         spinnerEmotions.setSelection(emotionIndex);
 
-        final AddEditController controller = new AddEditController();
+        final AddEditController controller = new AddEditController(this);
 
         //Upon clicking the okay button, there will be an intent to another activity to fill out the required information.
         saveMood.setOnClickListener(new View.OnClickListener() {

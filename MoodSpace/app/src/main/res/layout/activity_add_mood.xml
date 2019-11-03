@@ -56,15 +56,15 @@
                 android:orientation="horizontal">
 
                 <ImageButton
-                    android:id="@+id/imageButton"
+                    android:id="@+id/image_button"
                     android:layout_width="32dp"
                     android:layout_height="32dp"
-                    android:background="@color/colorAccent"
                     android:layout_gravity="center"
                     android:layout_marginStart="10dp"
-                    android:layout_marginEnd="0dp"
                     android:layout_marginLeft="0dp"
+                    android:layout_marginEnd="0dp"
                     android:layout_marginRight="0dp"
+                    android:background="@drawable/image_button"
                     app:srcCompat="@drawable/ic_image_white_24dp" />
 
                 <com.google.android.material.textfield.TextInputLayout
@@ -81,9 +81,9 @@
                         android:id="@+id/reason_text"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:maxLength="20"
                         android:hint="@string/ae_reason_text"
                         android:inputType="textPersonName"
+                        android:maxLength="20"
                         android:textColor="@color/colorWhite"
                         android:textSize="16sp" />
                 </com.google.android.material.textfield.TextInputLayout>
