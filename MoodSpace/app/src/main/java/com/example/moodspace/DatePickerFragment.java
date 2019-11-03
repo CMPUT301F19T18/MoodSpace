@@ -10,7 +10,8 @@ import androidx.fragment.app.DialogFragment;
 import java.util.Calendar;
 
 /**
- * This class is responsible for providing the date picker interface for the user, in which they select what date they want for the new/current ride.
+ * This class is responsible for providing the date picker interface for the user,
+ * in which they select what date they want for the new/current ride.
  */
 public class DatePickerFragment extends DialogFragment {
 

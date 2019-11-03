@@ -6,7 +6,7 @@ import java.io.Serializable;
 import java.util.Date;
 
 /**
- * This class contains the required parameters to create a Moode Object and their respective constructors to initialize.
+ * This class contains the required parameters to create a Mood Object and their respective constructors to initialize.
  */
 public class Mood implements Serializable {
 

@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">MoodSpace</string>
+    <string name="ae_reason_text">Reason</string>
+    <string name="ae_reason_hint">Add a reason…</string>
 </resources>

@@ -2,7 +2,6 @@ package com.example.moodspace;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -24,8 +23,8 @@ import java.util.Date;
 
 public class ListActivity extends AppCompatActivity {
     ListView moodList;
-    ArrayAdapter<com.example.moodspace.Mood> moodAdapter;
-    ArrayList<com.example.moodspace.Mood> moodDataList;
+    ArrayAdapter<Mood> moodAdapter;
+    ArrayList<Mood> moodDataList;
     private FloatingActionButton button;
     private final FirebaseFirestore db = FirebaseFirestore.getInstance();
 

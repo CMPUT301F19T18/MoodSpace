@@ -38,11 +38,7 @@ public class AddMood extends AppCompatActivity {
             public void onClick(View v) {
                 controller.addMood(
                         username,
-                        new Mood(
-                                null,
-                                new Date(),
-                                (Emotion) spinnerEmotions.getSelectedItem()
-                        )
+                        new Mood(null, new Date(), (Emotion) spinnerEmotions.getSelectedItem())
                 );
                 finish();
             }
