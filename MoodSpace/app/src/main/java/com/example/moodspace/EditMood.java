@@ -7,6 +7,7 @@ import android.widget.Button;
 import android.widget.Spinner;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 
 import java.util.Arrays;
 import java.util.Date;
@@ -17,7 +18,7 @@ import java.util.List;
  * and return it to the main activity, otherwise, it will catch any exceptions and notify the user.
  */
 public class EditMood extends AppCompatActivity {
-
+    private Toolbar toolbar;
     private List<Emotion> emotionList;
     private MoodAdapter mAdapter;
 
@@ -25,6 +26,9 @@ public class EditMood extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_edit_mood);
+        toolbar = findViewById(R.id.toolbar);
+        toolbar.setTitle("Edit Mood");
+        setSupportActionBar(toolbar);
 
         initList();
         final Spinner spinnerEmotions = findViewById(R.id.emotionSelector);

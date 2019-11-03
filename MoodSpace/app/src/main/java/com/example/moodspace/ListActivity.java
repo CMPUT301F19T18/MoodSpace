@@ -3,6 +3,7 @@ package com.example.moodspace;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Menu;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -10,6 +11,7 @@ import android.widget.ListView;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.firestore.EventListener;
@@ -23,6 +25,7 @@ import java.util.ArrayList;
 import java.util.Date;
 
 public class ListActivity extends AppCompatActivity {
+    Toolbar toolbar;
     ListView moodList;
     ArrayAdapter<com.example.moodspace.Mood> moodAdapter;
     ArrayList<com.example.moodspace.Mood> moodDataList;
@@ -33,6 +36,8 @@ public class ListActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_list);
+        toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
         moodList = findViewById(R.id.moodList);
         button = findViewById(R.id.addMoodButton);
         final String username = getIntent().getExtras().getString("Username");
@@ -97,5 +102,12 @@ public class ListActivity extends AppCompatActivity {
         intent2.putExtra("MOOD", mood);
         intent2.putExtra("USERNAME", username);
         startActivity(intent2);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.toolbar_menu, menu);
+        return true;
     }
 }
