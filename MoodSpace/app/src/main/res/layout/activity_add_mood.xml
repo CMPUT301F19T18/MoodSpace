@@ -65,16 +65,16 @@
                 android:orientation="horizontal">
 
                 <ImageButton
-                    android:id="@+id/image_button"
+                    android:id="@+id/social_sit_button"
                     android:layout_width="32dp"
                     android:layout_height="32dp"
                     android:layout_gravity="center"
                     android:layout_marginStart="10dp"
-                    android:layout_marginLeft="0dp"
+                    android:layout_marginLeft="10dp"
                     android:layout_marginEnd="0dp"
                     android:layout_marginRight="0dp"
-                    android:background="@drawable/image_button"
-                    app:srcCompat="@drawable/ic_image_white_24dp" />
+                    android:background="@drawable/social_sit_button"
+                    app:srcCompat="@drawable/ic_person_white_24dp" />
 
                 <com.google.android.material.textfield.TextInputLayout
                     android:layout_width="match_parent"
@@ -97,9 +97,102 @@
                         android:textSize="16sp" />
                 </com.google.android.material.textfield.TextInputLayout>
 
-
             </LinearLayout>
 
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <!-- primary color right square -->
+                <View
+                    android:id="@+id/right_square_view"
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginLeft="8dp"
+                    android:layout_marginEnd="4dp"
+                    android:layout_marginRight="4dp"
+                    android:background="@color/colorPrimary"
+                    android:textColor="@color/colorWhite"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintDimensionRatio="1:1"
+                    app:layout_constraintEnd_toStartOf="@+id/left_square_view"
+                    app:layout_constraintHorizontal_bias="0.0"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <ImageView
+                    android:id="@+id/image_view"
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:layout_margin="8dp"
+                    app:layout_constraintBottom_toBottomOf="@+id/right_square_view"
+                    app:layout_constraintLeft_toLeftOf="@+id/right_square_view"
+                    app:layout_constraintRight_toRightOf="@+id/right_square_view"
+                    app:layout_constraintTop_toTopOf="@+id/right_square_view"
+                    app:srcCompat="@drawable/ic_image_white_24dp" />
+
+                <ImageButton
+                    android:id="@+id/remove_image_button"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:layout_margin="4dp"
+                    android:layout_gravity="center"
+                    app:layout_constraintRight_toRightOf="@+id/right_square_view"
+                    app:layout_constraintTop_toTopOf="@+id/right_square_view"
+                    android:background="@color/colorAccent"
+                    app:srcCompat="@drawable/ic_close_white_24dp" />
+
+                <Button
+                    android:id="@+id/image_button"
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:background="@color/colorPrimary"
+                    android:text="@string/ae_add_photo_text"
+                    android:textColor="@color/colorWhite"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+                    app:layout_constraintBottom_toBottomOf="@+id/right_square_view"
+                    app:layout_constraintLeft_toLeftOf="@+id/right_square_view"
+                    app:layout_constraintRight_toRightOf="@+id/right_square_view"
+                    app:layout_constraintTop_toTopOf="@+id/right_square_view" />
+
+                <!-- primary color left square -->
+                <View
+                    android:id="@+id/left_square_view"
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:layout_marginStart="4dp"
+                    android:layout_marginLeft="4dp"
+                    android:layout_marginEnd="8dp"
+                    android:layout_marginRight="8dp"
+                    android:background="@color/colorPrimary"
+                    android:textColor="@color/colorWhite"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintDimensionRatio="1:1"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_bias="0.0"
+                    app:layout_constraintStart_toEndOf="@+id/right_square_view"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <Button
+                    android:id="@+id/map_button"
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:background="@color/colorPrimary"
+                    android:text="@string/ae_add_location_text"
+                    android:textColor="@color/colorWhite"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+                    app:layout_constraintBottom_toBottomOf="@+id/left_square_view"
+                    app:layout_constraintLeft_toLeftOf="@+id/left_square_view"
+                    app:layout_constraintRight_toRightOf="@+id/left_square_view"
+                    app:layout_constraintTop_toTopOf="@+id/left_square_view" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
 
         </LinearLayout>
     </ScrollView>
@@ -113,7 +206,7 @@
         android:layout_marginBottom="10dp"
         android:background="@color/colorAccent"
         android:textColor="@color/colorWhite"
-        android:text="Ok"
+        android:text="@string/am_ok_text"
         android:textSize="18sp"
         android:textStyle="bold"
         app:layout_constraintBottom_toBottomOf="parent"

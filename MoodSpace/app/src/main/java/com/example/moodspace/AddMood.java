@@ -3,10 +3,14 @@ package com.example.moodspace;
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.Toast;
 
@@ -32,8 +36,6 @@ public class AddMood extends AppCompatActivity {
 
     public static final int PICK_IMAGE = 1;
     private Toolbar toolbar;
-    private List<Emotion> emotionList;
-    private MoodAdapter mAdapter;
     private String inputPhotoPath = null;
     private static final int GALLERY_PERMISSIONS_REQUEST = 1;
     private AddEditController aec;
@@ -51,11 +53,11 @@ public class AddMood extends AppCompatActivity {
         final Spinner spinnerEmotions = findViewById(R.id.emotionSelector);
         aec = new AddEditController(this);
 
-        initList();
-        Button setMood = findViewById(R.id.saveBtn);
 
+        // sets up OK button
         // upon clicking the okay button, there will be an intent
         // to another activity to fill out the required information.
+        final Button setMood = findViewById(R.id.saveBtn);
         setMood.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -94,11 +96,33 @@ public class AddMood extends AppCompatActivity {
             }
         });
 
-        mAdapter = new MoodAdapter(this, emotionList);
+        // creates emotion spinner
+        List<Emotion> emotionList = Arrays.asList(Emotion.values());
+        MoodAdapter mAdapter = new MoodAdapter(this, emotionList);
         spinnerEmotions.setAdapter(mAdapter);
 
+        // TODO: social situation button dropdown
+        final ImageButton socialSitbutton = findViewById(R.id.social_sit_button);
+        socialSitbutton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // DEBUG: toggles visibility of image button
+                /*
+                Button imageButton = findViewById(R.id.image_button);
+                if (imageButton.getVisibility() == View.GONE) {
+                    imageButton.setVisibility(View.VISIBLE);
+                } else {
+                    imageButton.setVisibility(View.GONE);
+                }
+                 */
+
+                Toast.makeText(AddMood.this, "Placeholder social situation",
+                        Toast.LENGTH_SHORT).show();
+            }
+        });
+
         // sets the select image intent to the image button
-        ImageButton imageButton = findViewById(R.id.image_button);
+        final Button imageButton = findViewById(R.id.image_button);
         imageButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -129,8 +153,36 @@ public class AddMood extends AppCompatActivity {
             }
         });
 
+        // sets up removes image button
+        // note: only active if there is an image
+        final ImageButton removeImageButton = findViewById(R.id.remove_image_button);
+        removeImageButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                AddMood.this.inputPhotoPath = null;
+
+                imageButton.setVisibility(View.VISIBLE);
+                removeImageButton.setVisibility(View.GONE);
+                ImageView imageView = findViewById(R.id.image_view);
+                imageView.setImageDrawable(null);
+            }
+        });
+
+        // TODO location
+        Button mapButton = findViewById(R.id.map_button);
+        mapButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Toast.makeText(AddMood.this, "Placeholder map button",
+                        Toast.LENGTH_SHORT).show();
+            }
+        });
+
     }
 
+    /**
+     * Called when permissions are accepted/denied after the request
+     */
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
                                            @NonNull int[] grantResults) {
@@ -159,17 +211,26 @@ public class AddMood extends AppCompatActivity {
     }
 
     /**
-     * Called when a photo is selected
+     * Called when a photo is selected (leaving the activity)
      */
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == PICK_IMAGE && resultCode == RESULT_OK) {
             this.inputPhotoPath = aec.getPhotoPath(data, getContentResolver());
-        }
-    }
 
-    private void initList() {
-        emotionList = Arrays.asList(Emotion.values());
+            // TODO: preview image in add/edit
+            Log.d("EPIC", "start decode");
+            Bitmap bm = BitmapFactory.decodeFile(inputPhotoPath);
+            Log.d("EPIC", "finish decode");
+            ImageView imageView = findViewById(R.id.image_view);
+            imageView.setImageBitmap(bm);
+
+            Button imageButton = findViewById(R.id.image_button);
+            imageButton.setVisibility(View.GONE);
+            ImageButton removeImageButton = findViewById(R.id.remove_image_button);
+            removeImageButton.setVisibility(View.VISIBLE);
+
+        }
     }
 }

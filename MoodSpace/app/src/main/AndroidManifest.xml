@@ -20,7 +20,9 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".AddMood" />
+        <activity android:name=".AddMood"
+            android:configChanges="orientation|screenSize|keyboard">
+        </activity>
     </application>
 
 </manifest>
