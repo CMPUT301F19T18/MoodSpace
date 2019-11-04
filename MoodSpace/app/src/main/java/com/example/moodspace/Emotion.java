@@ -24,4 +24,8 @@ public enum Emotion {
     String getEmojiString() {
         return new String(Character.toChars(emojiCode));
     }
+
+    public String getEmojiName() {
+        return emojiName;
+    }
 }
