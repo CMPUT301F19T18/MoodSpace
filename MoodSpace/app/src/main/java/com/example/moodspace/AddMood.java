@@ -4,7 +4,6 @@ import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
@@ -15,6 +14,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.appcompat.widget.Toolbar;
 
 import java.util.Arrays;
 import java.util.Date;
@@ -28,6 +28,7 @@ import java.util.List;
 public class AddMood extends AppCompatActivity {
 
     public static final int PICK_IMAGE = 1;
+    private Toolbar toolbar;
     private List<Emotion> emotionList;
     private MoodAdapter mAdapter;
     private String photoPath = null;
@@ -38,6 +39,10 @@ public class AddMood extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_mood);
+
+        toolbar = findViewById(R.id.toolbar);
+        toolbar.setTitle("Add Mood");
+        setSupportActionBar(toolbar);
 
         final String username = getIntent().getStringExtra("USERNAME");
         final Spinner spinnerEmotions = findViewById(R.id.emotionSelector);
