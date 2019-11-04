@@ -3,14 +3,21 @@ package com.example.moodspace;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.ContextMenu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -24,18 +31,21 @@ import java.util.Date;
 
 public class ListActivity extends AppCompatActivity {
     ListView moodList;
+    String moodId;
     ArrayAdapter<com.example.moodspace.Mood> moodAdapter;
     ArrayList<com.example.moodspace.Mood> moodDataList;
+    private String username;
     private FloatingActionButton button;
+    private static final String TAG = ListActivity.class.getSimpleName();
     private final FirebaseFirestore db = FirebaseFirestore.getInstance();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_list);
+        username = getIntent().getExtras().getString("Username");
         moodList = findViewById(R.id.moodList);
         button = findViewById(R.id.addMoodButton);
-        final String username = getIntent().getExtras().getString("Username");
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -77,6 +87,51 @@ public class ListActivity extends AppCompatActivity {
                         moodAdapter.notifyDataSetChanged();
                     }
                 });
+
+        registerForContextMenu(moodList);
+    }
+
+    @Override
+    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+        super.onCreateContextMenu(menu, v, menuInfo);
+        AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo)menuInfo;
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.menu_list, menu);
+        int index = info.position;
+        Log.d(TAG, moodDataList.get(index).getId());
+        moodId = moodDataList.get(index).getId();
+    }
+
+    @Override
+    public boolean onContextItemSelected(@NonNull MenuItem item) {
+        AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
+        switch (item.getItemId()) {
+            case R.id.delete:
+                Toast.makeText(this, "deleted", Toast.LENGTH_LONG).show();
+                moodDataList.remove(info.position);
+                db.collection("users")
+                        .document(username)
+                        .collection("Moods")
+                        .document(moodId)
+                        .delete()
+                        .addOnSuccessListener(new OnSuccessListener<Void>() {
+                            @Override
+                            public void onSuccess(Void aVoid) {
+                                Log.d(TAG, "Data deletion successful");
+                            }
+                        })
+                        .addOnFailureListener(new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+                                Log.d(TAG, "Data deletion failed" + e.toString());
+                            }
+                        });
+                moodAdapter.notifyDataSetChanged();
+                return true;
+
+            default:
+                return super.onContextItemSelected(item);
+        }
     }
 
     /**
