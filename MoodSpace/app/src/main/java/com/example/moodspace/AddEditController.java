@@ -1,6 +1,5 @@
 package com.example.moodspace;
 
-import android.app.Activity;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
@@ -23,7 +22,6 @@ import com.google.firebase.storage.UploadTask;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.InputStream;
 
 public class AddEditController {
     private static final String TAG = AddEditController.class.getSimpleName();
