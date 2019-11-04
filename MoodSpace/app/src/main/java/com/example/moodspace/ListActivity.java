@@ -76,7 +76,10 @@ public class ListActivity extends AppCompatActivity {
                             Date ts = doc.getTimestamp("date").toDate();
                             Emotion emotion = Emotion.valueOf(doc.getString("emotion"));
                             String reason = doc.getString("reasonText");
-                            boolean hasPhoto = doc.getBoolean("hasPhoto");
+                            Boolean hasPhoto = doc.getBoolean("hasPhoto");
+                            if (hasPhoto == null) { // backwards compatibility
+                                hasPhoto = false;
+                            }
                             Mood newMood = new Mood(id, ts, emotion, reason, hasPhoto);
                             newMood.setId(doc.getId());
                             moodDataList.add(newMood);
@@ -91,7 +94,7 @@ public class ListActivity extends AppCompatActivity {
      * Opens add Mood intent.
      */
     public void openAddMood(String username) {
-        Intent intent = new Intent(this, com.example.moodspace.AddMood.class);
+        Intent intent = new Intent(this, com.example.moodspace.AddEditActivity.class);
         intent.putExtra("USERNAME", username);
         startActivity(intent);
     }
@@ -101,10 +104,10 @@ public class ListActivity extends AppCompatActivity {
      */
     public void openEditMood(String username, int position) {
         Mood mood = moodDataList.get(position);
-        Intent intent2 = new Intent(getApplicationContext(), EditMood.class);
-        intent2.putExtra("MOOD", mood);
-        intent2.putExtra("USERNAME", username);
-        startActivity(intent2);
+        Intent intent = new Intent(getApplicationContext(), AddEditActivity.class);
+        intent.putExtra("MOOD", mood);
+        intent.putExtra("USERNAME", username);
+        startActivity(intent);
     }
 
     @Override

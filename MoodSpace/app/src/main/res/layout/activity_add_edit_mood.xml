@@ -3,8 +3,8 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:background="@color/colorPrimaryDark"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="@color/colorPrimaryDark">
 
     <include
         android:id="@+id/toolbar"
@@ -83,8 +83,7 @@
                     android:layout_marginEnd="10dp"
                     android:textColorHint="@color/colorWhite"
                     app:counterEnabled="true"
-                    app:counterMaxLength="20"
-                    app:counterTextAppearance="@style/CounterStyle">
+                    app:counterMaxLength="20">
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/reason_text"
@@ -138,11 +137,11 @@
                     android:id="@+id/remove_image_button"
                     android:layout_width="24dp"
                     android:layout_height="24dp"
-                    android:layout_margin="4dp"
                     android:layout_gravity="center"
+                    android:layout_margin="4dp"
+                    android:background="@color/colorAccent"
                     app:layout_constraintRight_toRightOf="@+id/right_square_view"
                     app:layout_constraintTop_toTopOf="@+id/right_square_view"
-                    android:background="@color/colorAccent"
                     app:srcCompat="@drawable/ic_close_white_24dp" />
 
                 <Button
@@ -198,20 +197,41 @@
     </ScrollView>
 
     <Button
-        android:id="@+id/saveBtn"
-        android:layout_width="250dp"
+        android:id="@+id/backBtn"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal|center_vertical"
-        android:layout_margin="10dp"
-        android:layout_marginBottom="10dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginEnd="4dp"
+        android:layout_marginRight="4dp"
+        android:layout_marginBottom="8dp"
+        android:background="@color/colorAccent"
+        android:text="@string/am_cancel_text"
+        android:textColor="@color/colorWhite"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/saveBtn"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <Button
+        android:id="@+id/saveBtn"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="4dp"
+        android:layout_marginLeft="4dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginRight="8dp"
+        android:layout_marginBottom="8dp"
         android:background="@color/colorAccent"
         android:textColor="@color/colorWhite"
-        android:text="@string/am_ok_text"
         android:textSize="18sp"
         android:textStyle="bold"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.496"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toEndOf="@+id/backBtn" />
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>

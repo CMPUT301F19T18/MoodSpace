@@ -18,7 +18,6 @@ import java.util.List;
  * and return it to the main activity, otherwise, it will catch any exceptions and notify the user.
  */
 public class EditMood extends AppCompatActivity {
-    private Toolbar toolbar;
     private List<Emotion> emotionList;
     private MoodAdapter mAdapter;
 
@@ -26,9 +25,18 @@ public class EditMood extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_edit_mood);
-        toolbar = findViewById(R.id.toolbar);
+
+        // sets up toolbar
+        Toolbar toolbar = findViewById(R.id.toolbar);
         toolbar.setTitle("Edit Mood");
         setSupportActionBar(toolbar);
+
+        final Button saveBtn = findViewById(R.id.saveBtn);
+        saveBtn.setText(getString(R.string.em_ok_text));
+        final Button backBtn = findViewById(R.id.backBtn);
+        backBtn.setText(getString(R.string.em_cancel_text));
+
+
 
         initList();
         final Spinner spinnerEmotions = findViewById(R.id.emotionSelector);
@@ -36,8 +44,10 @@ public class EditMood extends AppCompatActivity {
         spinnerEmotions.setAdapter(mAdapter);
         final String username = getIntent().getStringExtra("USERNAME");
 
+        /*
         Button saveMood = findViewById(R.id.saveBtn);
         Button backBtn = findViewById(R.id.backBtn);
+         */
 
         final Mood currentMood = (Mood) getIntent().getSerializableExtra("MOOD");
         int emotionIndex = mAdapter.getPosition(currentMood.getEmotion());
@@ -46,7 +56,7 @@ public class EditMood extends AppCompatActivity {
         final AddEditController controller = new AddEditController(this);
 
         //Upon clicking the okay button, there will be an intent to another activity to fill out the required information.
-        saveMood.setOnClickListener(new View.OnClickListener() {
+        saveBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
