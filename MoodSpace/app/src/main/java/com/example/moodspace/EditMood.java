@@ -50,12 +50,16 @@ public class EditMood extends AppCompatActivity {
             @Override
             public void onClick(View v) {
 
+                // TODO: add photo and reason text to edit mood activity
                 controller.updateMood(
                         username,
                         new Mood(
                                 currentMood.getId(),
                                 currentMood.getDate(),
-                                (Emotion) spinnerEmotions.getSelectedItem()
+                                (Emotion) spinnerEmotions.getSelectedItem(),
+                                // TODO: update reason text & photo
+                                currentMood.getReasonText(),
+                                currentMood.getHasPhoto()
                         )
                 );
                 finish();

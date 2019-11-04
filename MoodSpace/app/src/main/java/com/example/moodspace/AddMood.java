@@ -16,10 +16,13 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.appcompat.widget.Toolbar;
 
+import com.google.android.material.textfield.TextInputEditText;
+
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
+import java.util.UUID;
 
 /**
  * This intent is used to add a new mood to the mood list, it takes in certain parameters and upon clicking the add mood, will create a new Mood object
@@ -31,7 +34,7 @@ public class AddMood extends AppCompatActivity {
     private Toolbar toolbar;
     private List<Emotion> emotionList;
     private MoodAdapter mAdapter;
-    private String photoPath = null;
+    private String inputPhotoPath = null;
     private static final int GALLERY_PERMISSIONS_REQUEST = 1;
     private AddEditController aec;
 
@@ -56,14 +59,37 @@ public class AddMood extends AppCompatActivity {
         setMood.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                TextInputEditText reasonEditText = findViewById(R.id.reason_text);
+                String reasonText;
+                if (reasonEditText.getText() == null) {
+                    reasonText = null;
+                } else {
+                    reasonText = reasonEditText.getText().toString();
 
-                // uploads image to firebase
-                aec.uploadPhoto(photoPath);
+                    // validates reasonText input (checks <= 3 words, 20 characters enforced by ui)
+                    // https://stackoverflow.com/a/5864174
+                    String trim = reasonText.trim();
+                    if (!trim.isEmpty() && trim.split("\\s+").length > 3) {
+                        Toast.makeText(AddMood.this, "Reason must be less than 4 words",
+                                Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                }
 
-                aec.addMood(
-                        username,
-                        new Mood(null, new Date(), (Emotion) spinnerEmotions.getSelectedItem())
-                );
+                // currently set as string to prevent merge conflicts
+                // might be better to store as UUID type?
+                String id = UUID.randomUUID().toString();
+                Date date = new Date();
+                Emotion emotion = (Emotion) spinnerEmotions.getSelectedItem();
+                boolean hasPhoto = (inputPhotoPath != null);
+
+                // uploads mood before picture since it's more important to do so
+                Mood mood = new Mood(id, date, emotion, reasonText, hasPhoto);
+                aec.addMood(username, mood);
+                if (hasPhoto) {
+                    aec.uploadPhoto(inputPhotoPath, id);
+                }
+
                 finish();
             }
         });
@@ -139,7 +165,7 @@ public class AddMood extends AppCompatActivity {
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == PICK_IMAGE && resultCode == RESULT_OK) {
-            this.photoPath = aec.getPhotoPath(data, getContentResolver());
+            this.inputPhotoPath = aec.getPhotoPath(data, getContentResolver());
         }
     }
 

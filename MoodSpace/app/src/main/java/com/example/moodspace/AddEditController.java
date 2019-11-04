@@ -17,6 +17,7 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.OnProgressListener;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
@@ -27,7 +28,7 @@ public class AddEditController {
     private static final String TAG = AddEditController.class.getSimpleName();
     private Context context;
     private final FirebaseFirestore db = FirebaseFirestore.getInstance();
-    private FirebaseStorage fbs = FirebaseStorage.getInstance();
+    private FirebaseStorage fbStorage = FirebaseStorage.getInstance();
 
     public AddEditController(Context context) {
         this.context = context;
@@ -37,7 +38,7 @@ public class AddEditController {
         db.collection("users")
                 .document(username)
                 .collection("Moods")
-                .document()
+                .document(newMood.getId())
                 .set(newMood)
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
@@ -113,14 +114,31 @@ public class AddEditController {
         return photoPath;
     }
 
-    public void uploadPhoto(String photoPath) {
-        Bitmap src = BitmapFactory.decodeFile(photoPath);
+    /**
+     * uploads photo to firebase
+     *
+     * @param inputPhotoPath path locally on phone to photo
+     * @param id mood event id
+     */
+    public void uploadPhoto(String inputPhotoPath, final String id) {
+        Bitmap src = BitmapFactory.decodeFile(inputPhotoPath);
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         src.compress(Bitmap.CompressFormat.PNG, 100, baos);
         byte[] data = baos.toByteArray();
 
-        String path = "dank_meme.png";
-        StorageReference imgRef = fbs.getReference(path);
+        String path = "mood_photos/" + id + ".png";
+        StorageReference imgRef = fbStorage.getReference(path);
         UploadTask uploadTask = imgRef.putBytes(data);
+
+        // adds a bunch of listeners for logging purposes
+        // TODO: display on the UI
+        uploadTask.addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
+            @Override
+            public void onProgress(@NonNull UploadTask.TaskSnapshot taskSnapshot) {
+                double progress = (100.0 * taskSnapshot.getBytesTransferred())
+                        / taskSnapshot.getTotalByteCount();
+                Log.d(TAG, "progress of " + id + ": " + progress);
+            }
+        });
     }
 }

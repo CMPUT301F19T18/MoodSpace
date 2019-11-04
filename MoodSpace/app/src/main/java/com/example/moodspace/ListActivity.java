@@ -2,6 +2,7 @@ package com.example.moodspace;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.View;
 import android.widget.AdapterView;
@@ -70,10 +71,13 @@ public class ListActivity extends AppCompatActivity {
                     ) {
                         moodDataList.clear();
                         for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
-                            Emotion emotion = Emotion.valueOf(doc.getString("emotion"));
-                            Date ts = doc.getTimestamp("date").toDate();
+                            Log.d("EPIC", "wtf " + doc.getId());
                             String id = doc.getId();
-                            Mood newMood = new Mood(id, ts, emotion);
+                            Date ts = doc.getTimestamp("date").toDate();
+                            Emotion emotion = Emotion.valueOf(doc.getString("emotion"));
+                            String reason = doc.getString("reasonText");
+                            boolean hasPhoto = doc.getBoolean("hasPhoto");
+                            Mood newMood = new Mood(id, ts, emotion, reason, hasPhoto);
                             newMood.setId(doc.getId());
                             moodDataList.add(newMood);
                         }
