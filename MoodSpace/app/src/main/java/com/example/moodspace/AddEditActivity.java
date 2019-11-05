@@ -138,7 +138,6 @@ public class AddEditActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 // requests read permissions first (camera might be added later)
-                // https://developer.android.com/training/permissions/requesting
                 String[] galleryPermissions = {
                         Manifest.permission.READ_EXTERNAL_STORAGE
                 };
@@ -226,7 +225,6 @@ public class AddEditActivity extends AppCompatActivity {
         }
 
         setSupportActionBar(toolbar);
-
     }
 
     private boolean isAddActivity() {
