@@ -6,12 +6,16 @@ import java.util.Date;
 import java.util.Locale;
 
 /**
- * This class is used to format date and time to a desired form to use as display in list view or in the add/edit mood form.
+ * This class is used to format date and time to a desired form to use as display
+ * in list view or in the add/edit mood form.
  */
 public final class DateUtils {
-    private static final SimpleDateFormat DATE_FORMATTER = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
-    private static final SimpleDateFormat TIME_FORMATTER = new SimpleDateFormat("HH:mm", Locale.US);
-    private static final SimpleDateFormat DATETIME_FORMATTER = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.US);
+    private static final SimpleDateFormat DATE_FORMATTER
+            = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
+    private static final SimpleDateFormat TIME_FORMATTER
+            = new SimpleDateFormat("HH:mm", Locale.US);
+    private static final SimpleDateFormat DATETIME_FORMATTER
+            = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.US);
 
     private DateUtils() {
         // do nothing

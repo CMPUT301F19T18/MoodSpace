@@ -3,6 +3,7 @@ package com.example.moodspace;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Menu;
 import android.view.ContextMenu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -15,6 +16,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -30,12 +32,12 @@ import java.util.ArrayList;
 import java.util.Date;
 
 public class ListActivity extends AppCompatActivity {
+    Toolbar toolbar;
     ListView moodList;
+    ArrayAdapter<Mood> moodAdapter;
+    ArrayList<Mood> moodDataList;
     String moodId;
-    ArrayAdapter<com.example.moodspace.Mood> moodAdapter;
-    ArrayList<com.example.moodspace.Mood> moodDataList;
     private String username;
-    private FloatingActionButton button;
     private static final String TAG = ListActivity.class.getSimpleName();
     private final FirebaseFirestore db = FirebaseFirestore.getInstance();
 
@@ -43,10 +45,13 @@ public class ListActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_list);
+        toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
         username = getIntent().getExtras().getString("Username");
         moodList = findViewById(R.id.moodList);
-        button = findViewById(R.id.addMoodButton);
-        button.setOnClickListener(new View.OnClickListener() {
+
+        FloatingActionButton addBtn = findViewById(R.id.addMoodButton);
+        addBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 openAddMood(username);
@@ -76,10 +81,16 @@ public class ListActivity extends AppCompatActivity {
                     ) {
                         moodDataList.clear();
                         for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
-                            Emotion emotion = Emotion.valueOf(doc.getString("emotion"));
-                            Date ts = doc.getTimestamp("date").toDate();
+                            Log.d("EPIC", "wtf " + doc.getId());
                             String id = doc.getId();
-                            Mood newMood = new Mood(id, ts, emotion);
+                            Date ts = doc.getTimestamp("date").toDate();
+                            Emotion emotion = Emotion.valueOf(doc.getString("emotion"));
+                            String reason = doc.getString("reasonText");
+                            Boolean hasPhoto = doc.getBoolean("hasPhoto");
+                            if (hasPhoto == null) { // backwards compatibility
+                                hasPhoto = false;
+                            }
+                            Mood newMood = new Mood(id, ts, emotion, reason, hasPhoto);
                             newMood.setId(doc.getId());
                             moodDataList.add(newMood);
                         }
@@ -107,7 +118,7 @@ public class ListActivity extends AppCompatActivity {
         AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
         switch (item.getItemId()) {
             case R.id.delete:
-                Toast.makeText(this, "deleted", Toast.LENGTH_LONG).show();
+                Toast.makeText(this, "Deleted mood", Toast.LENGTH_LONG).show();
                 moodDataList.remove(info.position);
                 db.collection("users")
                         .document(username)
@@ -138,7 +149,7 @@ public class ListActivity extends AppCompatActivity {
      * Opens add Mood intent.
      */
     public void openAddMood(String username) {
-        Intent intent = new Intent(this, com.example.moodspace.AddMood.class);
+        Intent intent = new Intent(this, com.example.moodspace.AddEditActivity.class);
         intent.putExtra("USERNAME", username);
         startActivity(intent);
     }
@@ -148,9 +159,16 @@ public class ListActivity extends AppCompatActivity {
      */
     public void openEditMood(String username, int position) {
         Mood mood = moodDataList.get(position);
-        Intent intent2 = new Intent(getApplicationContext(), EditMood.class);
-        intent2.putExtra("MOOD", mood);
-        intent2.putExtra("USERNAME", username);
-        startActivity(intent2);
+        Intent intent = new Intent(getApplicationContext(), AddEditActivity.class);
+        intent.putExtra("MOOD", mood);
+        intent.putExtra("USERNAME", username);
+        startActivity(intent);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.toolbar_menu, menu);
+        return true;
     }
 }

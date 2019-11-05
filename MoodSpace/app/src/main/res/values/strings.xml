@@ -1,4 +1,15 @@
 <resources>
     <string name="app_name">MoodSpace</string>
+
+    <string name="ae_reason_text">Reason</string>
+    <string name="ae_add_photo_text">Add photo</string>
+    <string name="ae_add_location_text">Placeholder Location</string>
+
+    <!-- am = add mood, em = edit mood -->
+    <string name="am_ok_text">Post</string>
+    <string name="am_cancel_text">Cancel</string>
+    <string name="em_ok_text">Save</string>
+    <string name="em_cancel_text">Cancel</string>
+
     <string name="menu_delete">Delete</string>
 </resources>
