@@ -124,7 +124,8 @@ public class ListActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.filter:
-                new FilterFragment().show(getSupportFragmentManager(), "FILTER");
+                new FilterFragment(getIntent().getExtras().getString("Username"))
+                        .show(getSupportFragmentManager(), "FILTER");
                 return true;
             default:
                 // If we got here, the user's action was not recognized.

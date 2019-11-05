@@ -8,16 +8,27 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.ListView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 public class FilterFragment extends DialogFragment {
     private OnFragmentInteractionListener listener;
+    private String username;
+    private List<Emotion> emotionList;
 
     public FilterFragment() {
 
+    }
+
+    public FilterFragment(String user) {
+        this.username = user;
     }
 
     public interface OnFragmentInteractionListener {
@@ -38,11 +49,22 @@ public class FilterFragment extends DialogFragment {
     @NonNull
     @Override
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
-        View view = LayoutInflater.from(getActivity()).inflate(R.layout.fragment_filter, null);
-
+        final ArrayList selectedItems = new ArrayList();
+        String[] emotionList = Emotion.HAPPY.getEmojiList();
         AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+        builder.setMultiChoiceItems(emotionList, null, new DialogInterface.OnMultiChoiceClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which, boolean isChecked) {
+                if (isChecked) {
+                    // If the user checked the item, add it to the selected items
+                    selectedItems.add(which);
+                } else if (selectedItems.contains(which)) {
+                    // Else, if the item is already in the array, remove it
+                    selectedItems.remove(Integer.valueOf(which));
+                }
+            }
+        });
         return builder
-                .setView(view)
                 .setTitle("Filter Moods")
                 .setNegativeButton("Cancel", null)
                 .setPositiveButton("OK", new DialogInterface.OnClickListener() {

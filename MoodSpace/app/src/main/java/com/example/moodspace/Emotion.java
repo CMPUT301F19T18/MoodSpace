@@ -2,6 +2,10 @@ package com.example.moodspace;
 
 import android.graphics.Color;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 public enum Emotion {
     HAPPY(0x1F604, "#badc58", "Happy"),
     ANGRY(0x1F621, "#eb4d4b", "Angry"),
@@ -17,15 +21,24 @@ public enum Emotion {
         this.emojiName = emojiName;
     }
 
-    int getColor() {
+    public int getColor() {
         return Color.parseColor(colorCode);
     }
 
-    String getEmojiString() {
+    public String getEmojiString() {
         return new String(Character.toChars(emojiCode));
     }
 
     public String getEmojiName() {
         return emojiName;
+    }
+
+    public String[] getEmojiList() {
+        List<Emotion> emotionList = Arrays.asList(Emotion.values());
+        String[] emotionArray = new String[emotionList.size()];
+        for (int i = 0; i < emotionList.size(); i++) {
+            emotionArray[i] = emotionList.get(i).getEmojiName() + " " + emotionList.get(i).getEmojiString();
+        }
+        return emotionArray;
     }
 }
