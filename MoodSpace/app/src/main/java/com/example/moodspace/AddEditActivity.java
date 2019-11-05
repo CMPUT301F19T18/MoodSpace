@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -27,7 +26,6 @@ import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
-import java.net.URL;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashSet;
@@ -37,8 +35,12 @@ import java.util.UUID;
 public class AddEditActivity extends AppCompatActivity {
     public static final int PICK_IMAGE = 1;
     private static final int GALLERY_PERMISSIONS_REQUEST = 1;
-    private static final long MAX_DOWNLOAD_LIMIT = 8 * 1024 * 1024;
+    // TODO: change back down to 8 when jpgs can be uploaded properly
+    private static final long MAX_DOWNLOAD_LIMIT = 30 * 1024 * 1024;
+    // can be null if reusing a downloaded photo while editing
     private String inputPhotoPath = null;
+    private boolean hasPhoto = false;
+    private boolean changedPhoto = false;
     private AddEditController aec;
     private Mood currentMood = null;
     private FirebaseStorage fbStorage = FirebaseStorage.getInstance();
@@ -77,17 +79,29 @@ public class AddEditActivity extends AppCompatActivity {
                     }
                 }
 
-                // currently set as string to prevent merge conflicts
-                // might be better to store as UUID type?
-                String id = UUID.randomUUID().toString();
-                Date date = new Date();
+                String id;
+                Date date;
+                boolean hasPhoto = AddEditActivity.this.hasPhoto;
                 Emotion emotion = (Emotion) spinnerEmotions.getSelectedItem();
-                boolean hasPhoto = (inputPhotoPath != null);
 
-                // uploads mood before picture since it's more important to do so
+                // reuses parameters if editing
+                if (AddEditActivity.this.isAddActivity()) {
+                    id = UUID.randomUUID().toString();
+                    date = new Date();
+                } else {
+                    id = currentMood.getId();
+                    date = currentMood.getDate();
+                }
+
                 Mood mood = new Mood(id, date, emotion, reasonText, hasPhoto);
-                aec.addMood(username, mood);
-                if (hasPhoto) {
+                if (AddEditActivity.this.isAddActivity()) {
+                    aec.addMood(username, mood);
+                } else {
+                    aec.updateMood(username, mood);
+                }
+
+                // only uploads if the photo hasn't changed for optimization purposes
+                if (hasPhoto && AddEditActivity.this.changedPhoto) {
                     aec.uploadPhoto(inputPhotoPath, id);
                 }
 
@@ -113,16 +127,6 @@ public class AddEditActivity extends AppCompatActivity {
         socialSitbutton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                // DEBUG: toggles visibility of image button
-                /*
-                Button imageButton = findViewById(R.id.image_button);
-                if (imageButton.getVisibility() == View.GONE) {
-                    imageButton.setVisibility(View.VISIBLE);
-                } else {
-                    imageButton.setVisibility(View.GONE);
-                }
-                 */
-
                 Toast.makeText(AddEditActivity.this, "Placeholder social situation",
                         Toast.LENGTH_SHORT).show();
             }
@@ -166,12 +170,8 @@ public class AddEditActivity extends AppCompatActivity {
         removeImageButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                AddEditActivity.this.removePreviewImage();
                 AddEditActivity.this.inputPhotoPath = null;
-
-                imageButton.setVisibility(View.VISIBLE);
-                removeImageButton.setVisibility(View.GONE);
-                ImageView imageView = findViewById(R.id.image_view);
-                imageView.setImageDrawable(null);
             }
         });
 
@@ -204,21 +204,25 @@ public class AddEditActivity extends AppCompatActivity {
 
             // downloads photo: can't figure out how to separate this task into the controller
             // Create a storage reference from our app
-            String path = "TODO";
-            StorageReference storageRef = fbStorage.getReference().child(path);
+            if (currentMood.getHasPhoto()) {
+                String path = "mood_photos/" + currentMood.getId() + ".png";
+                StorageReference storageRef = fbStorage.getReference().child(path);
 
-            storageRef.getBytes(MAX_DOWNLOAD_LIMIT).addOnSuccessListener(new OnSuccessListener<byte[]>() {
-                @Override
-                public void onSuccess(byte[] bytes) {
-                    Bitmap bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
-                }
-            }).addOnFailureListener(new OnFailureListener() {
-                @Override
-                public void onFailure(@NonNull Exception exception) {
-                    // Handle any errors
-                }
-            });
-
+                storageRef.getBytes(MAX_DOWNLOAD_LIMIT).addOnSuccessListener(new OnSuccessListener<byte[]>() {
+                    @Override
+                    public void onSuccess(byte[] bytes) {
+                        Bitmap bm = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
+                        AddEditActivity.this.setPreviewImage(bm, false);
+                    }
+                }).addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception exception) {
+                        // TODO: retry
+                        Toast.makeText(AddEditActivity.this, "Failed to load existing photo",
+                                Toast.LENGTH_SHORT).show();
+                    }
+                });
+            }
         }
 
         setSupportActionBar(toolbar);
@@ -272,14 +276,34 @@ public class AddEditActivity extends AppCompatActivity {
             Log.d("EPIC", "start decode");
             Bitmap bm = BitmapFactory.decodeFile(inputPhotoPath);
             Log.d("EPIC", "finish decode");
-            ImageView imageView = findViewById(R.id.image_view);
-            imageView.setImageBitmap(bm);
-
-            Button imageButton = findViewById(R.id.image_button);
-            imageButton.setVisibility(View.GONE);
-            ImageButton removeImageButton = findViewById(R.id.remove_image_button);
-            removeImageButton.setVisibility(View.VISIBLE);
+            this.setPreviewImage(bm, true);
 
         }
+    }
+
+    private void removePreviewImage() {
+        ImageView imageView = findViewById(R.id.image_view);
+        Button imageButton = findViewById(R.id.image_button);
+        ImageButton removeImageButton = findViewById(R.id.remove_image_button);
+
+        imageView.setImageDrawable(null);
+        imageButton.setVisibility(View.VISIBLE);
+        removeImageButton.setVisibility(View.GONE);
+
+        this.hasPhoto = false;
+    }
+
+    private void setPreviewImage(Bitmap bm, boolean changedPhoto) {
+        ImageView imageView = findViewById(R.id.image_view);
+        Button imageButton = findViewById(R.id.image_button);
+        ImageButton removeImageButton = findViewById(R.id.remove_image_button);
+
+        imageView.setImageBitmap(bm);
+        imageButton.setVisibility(View.GONE);
+        removeImageButton.setVisibility(View.VISIBLE);
+
+        // if ever true, then changedPhoto is true
+        this.changedPhoto |= changedPhoto;
+        this.hasPhoto = true;
     }
 }

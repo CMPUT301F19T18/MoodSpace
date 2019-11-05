@@ -62,6 +62,7 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
+                android:focusableInTouchMode="true"
                 android:orientation="horizontal">
 
                 <ImageButton
@@ -81,7 +82,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="10dp"
                     android:layout_marginEnd="10dp"
-                    android:textColorHint="@color/colorWhite"
+                    android:textColorHint="@color/colorHint"
                     app:counterEnabled="true"
                     app:counterMaxLength="20">
 
@@ -90,7 +91,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:hint="@string/ae_reason_text"
-                        android:inputType="textPersonName"
+                        android:inputType="text"
                         android:maxLength="20"
                         android:textColor="@color/colorWhite"
                         android:textSize="16sp" />
