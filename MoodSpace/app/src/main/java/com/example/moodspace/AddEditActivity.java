@@ -37,6 +37,7 @@ public class AddEditActivity extends AppCompatActivity {
     private static final int GALLERY_PERMISSIONS_REQUEST = 1;
     // TODO: change back down to 8 when jpgs can be uploaded properly
     private static final long MAX_DOWNLOAD_LIMIT = 30 * 1024 * 1024;
+    private static final String TAG = AddEditActivity.class.getSimpleName();
     // can be null if reusing a downloaded photo while editing
     private String inputPhotoPath = null;
     private boolean hasPhoto = false;
@@ -271,9 +272,9 @@ public class AddEditActivity extends AppCompatActivity {
             this.inputPhotoPath = aec.getPhotoPath(data, getContentResolver());
 
             // TODO: preview image in add/edit
-            Log.d("EPIC", "start decode");
+            Log.d(TAG, "start decode");
             Bitmap bm = BitmapFactory.decodeFile(inputPhotoPath);
-            Log.d("EPIC", "finish decode");
+            Log.d(TAG, "finish decode");
             this.setPreviewImage(bm, true);
 
         }

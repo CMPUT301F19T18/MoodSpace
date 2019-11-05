@@ -81,7 +81,6 @@ public class ListActivity extends AppCompatActivity {
                     ) {
                         moodDataList.clear();
                         for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
-                            Log.d("EPIC", "wtf " + doc.getId());
                             String id = doc.getId();
                             Date ts = doc.getTimestamp("date").toDate();
                             Emotion emotion = Emotion.valueOf(doc.getString("emotion"));

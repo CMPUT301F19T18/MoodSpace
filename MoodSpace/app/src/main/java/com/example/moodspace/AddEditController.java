@@ -83,7 +83,6 @@ public class AddEditController {
         // converts uri to file path
         // https://www.viralpatel.net/pick-image-from-galary-android-app/
         Uri photoUri = data.getData();
-        Log.d("EPIC", "" + photoUri);
         if (photoUri == null) {
             Toast.makeText(context, "Unexpected error: photo data shouldn't be null",
                     Toast.LENGTH_LONG).show();
