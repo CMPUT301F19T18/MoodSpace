@@ -69,6 +69,7 @@ public class ListActivity extends AppCompatActivity {
             }
         });
 
+        // TODO change this to view controller
         db.collection("users")
                 .document(username)
                 .collection("Moods")
