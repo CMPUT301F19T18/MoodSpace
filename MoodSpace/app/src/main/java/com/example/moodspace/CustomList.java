@@ -31,7 +31,7 @@ public class CustomList extends ArrayAdapter<Mood> {
     public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
         View view = convertView;
 
-        if(view == null) {
+        if (view == null) {
             view = LayoutInflater.from(context).inflate(R.layout.content, parent, false);
         }
 
@@ -44,8 +44,7 @@ public class CustomList extends ArrayAdapter<Mood> {
         Emotion emotion = mood.getEmotion();
         moodInfo.setText(emotion.getEmojiString());
         date.setText(DateUtils.formatDate(mood.getDate()));
-        time.setText(DateUtils.formatTime(mood.getDate()
-        ));
+        time.setText(DateUtils.formatTime(mood.getDate()));
 
         view.setBackgroundColor(emotion.getColor());
 

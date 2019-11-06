@@ -4,11 +4,16 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
+
+import android.view.ContextMenu;
+import android.view.MenuInflater;
+
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -17,6 +22,10 @@ import androidx.appcompat.widget.Toolbar;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.EventListener;
@@ -34,24 +43,25 @@ import java.util.List;
 public class ListActivity extends AppCompatActivity implements FilterFragment.OnFragmentInteractionListener {
     Toolbar toolbar;
     ListView moodList;
-    ArrayAdapter<com.example.moodspace.Mood> moodAdapter;
-    ArrayList<com.example.moodspace.Mood> moodDataList;
-    private FloatingActionButton button;
+    ArrayAdapter<Mood> moodAdapter;
+    ArrayList<Mood> moodDataList;
+    String moodId;
+    private String username;
+    private static final String TAG = ListActivity.class.getSimpleName();
     private final FirebaseFirestore db = FirebaseFirestore.getInstance();
     final List<Emotion> emotionList = Arrays.asList(Emotion.values());
     final boolean[] checkedItems = new boolean[emotionList.size()];
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        final String username = getIntent().getExtras().getString("Username");
+        username = getIntent().getExtras().getString("Username");
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_list);
         toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         moodList = findViewById(R.id.moodList);
-        button = findViewById(R.id.addMoodButton);
-        //final String username = getIntent().getExtras().getString("Username");
-        button.setOnClickListener(new View.OnClickListener() {
+        FloatingActionButton addBtn = findViewById(R.id.addMoodButton);
+        addBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 openAddMood(username);
@@ -86,19 +96,62 @@ public class ListActivity extends AppCompatActivity implements FilterFragment.On
                             filterList.add(emotion);
                         }
                     }
-
                 }
                 update(username, filterList);
             }
         });
 
+        registerForContextMenu(moodList);
+    }
+
+    @Override
+    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+        super.onCreateContextMenu(menu, v, menuInfo);
+        AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo)menuInfo;
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.menu_list, menu);
+        int index = info.position;
+        Log.d(TAG, moodDataList.get(index).getId());
+        moodId = moodDataList.get(index).getId();
+    }
+
+    @Override
+    public boolean onContextItemSelected(@NonNull MenuItem item) {
+        AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
+        switch (item.getItemId()) {
+            case R.id.delete:
+                Toast.makeText(this, "Deleted mood", Toast.LENGTH_LONG).show();
+                moodDataList.remove(info.position);
+                db.collection("users")
+                        .document(username)
+                        .collection("Moods")
+                        .document(moodId)
+                        .delete()
+                        .addOnSuccessListener(new OnSuccessListener<Void>() {
+                            @Override
+                            public void onSuccess(Void aVoid) {
+                                Log.d(TAG, "Data deletion successful");
+                            }
+                        })
+                        .addOnFailureListener(new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+                                Log.d(TAG, "Data deletion failed" + e.toString());
+                            }
+                        });
+                moodAdapter.notifyDataSetChanged();
+                return true;
+
+            default:
+                return super.onContextItemSelected(item);
+        }
     }
 
     /**
      * Opens add Mood intent.
      */
     public void openAddMood(String username) {
-        Intent intent = new Intent(this, com.example.moodspace.AddMood.class);
+        Intent intent = new Intent(this, com.example.moodspace.AddEditActivity.class);
         intent.putExtra("USERNAME", username);
         startActivity(intent);
     }
@@ -108,10 +161,10 @@ public class ListActivity extends AppCompatActivity implements FilterFragment.On
      */
     public void openEditMood(String username, int position) {
         Mood mood = moodDataList.get(position);
-        Intent intent2 = new Intent(getApplicationContext(), EditMood.class);
-        intent2.putExtra("MOOD", mood);
-        intent2.putExtra("USERNAME", username);
-        startActivity(intent2);
+        Intent intent = new Intent(getApplicationContext(), AddEditActivity.class);
+        intent.putExtra("MOOD", mood);
+        intent.putExtra("USERNAME", username);
+        startActivity(intent);
     }
 
     /**
@@ -131,7 +184,6 @@ public class ListActivity extends AppCompatActivity implements FilterFragment.On
      */
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        final String username = getIntent().getExtras().getString("Username");
         switch (item.getItemId()) {
             case R.id.filter:
                 new FilterFragment(username, checkedItems)
@@ -160,8 +212,13 @@ public class ListActivity extends AppCompatActivity implements FilterFragment.On
                         for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
                             Emotion emotion = Emotion.valueOf(doc.getString("emotion"));
                             Date ts = doc.getTimestamp("date").toDate();
+                            String reason = doc.getString("reasonText");
+                            Boolean hasPhoto = doc.getBoolean("hasPhoto");
+                            if (hasPhoto == null) { // backwards compatibility
+                                hasPhoto = false;
+                            }
                             String id = doc.getId();
-                            final Mood newMood = new Mood(id, ts, emotion);
+                            Mood newMood = new Mood(id, ts, emotion, reason, hasPhoto);
                             newMood.setId(doc.getId());
                             if (filterList.contains(emotion)){
                                 moodDataList.add(newMood);
