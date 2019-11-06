@@ -9,7 +9,7 @@ public enum Emotion {
 
     private final int emojiCode;
     private final String colorCode;
-    public final String emojiName;
+    private final String emojiName;
 
     Emotion(int emojiCode, String colorCode, String emojiName) {
         this.emojiCode = emojiCode;
@@ -17,11 +17,15 @@ public enum Emotion {
         this.emojiName = emojiName;
     }
 
-    int getColor() {
+    public int getColor() {
         return Color.parseColor(colorCode);
     }
 
-    String getEmojiString() {
+    public String getEmojiString() {
         return new String(Character.toChars(emojiCode));
+    }
+
+    public String getEmojiName() {
+        return this.emojiName;
     }
 }

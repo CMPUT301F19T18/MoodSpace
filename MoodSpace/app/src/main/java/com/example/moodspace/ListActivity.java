@@ -32,23 +32,24 @@ import java.util.ArrayList;
 import java.util.Date;
 
 public class ListActivity extends AppCompatActivity {
-    Toolbar toolbar;
-    ListView moodList;
-    ArrayAdapter<Mood> moodAdapter;
-    ArrayList<Mood> moodDataList;
-    String moodId;
-    private String username;
     private static final String TAG = ListActivity.class.getSimpleName();
     private final FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+    ViewController vc = new ViewController();
+    ArrayAdapter<Mood> moodAdapter;
+    ArrayList<Mood> moodDataList;
+
+    private String moodId;
+    private String username;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_list);
-        toolbar = findViewById(R.id.toolbar);
+        Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         username = getIntent().getExtras().getString("Username");
-        moodList = findViewById(R.id.moodList);
+        ListView moodList = findViewById(R.id.moodList);
 
         FloatingActionButton addBtn = findViewById(R.id.addMoodButton);
         addBtn.setOnClickListener(new View.OnClickListener() {

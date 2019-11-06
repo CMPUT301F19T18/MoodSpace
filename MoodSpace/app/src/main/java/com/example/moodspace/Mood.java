@@ -15,7 +15,7 @@ public class Mood implements Serializable {
     private Emotion emotion;
     private Date date;
     private String reasonText;
-    private Boolean hasPhoto;
+    private boolean hasPhoto;
 
     public Mood(String id, Date date, Emotion emotion, String reasonText, boolean hasPhoto) {
         this.id = id;

@@ -12,6 +12,9 @@ import androidx.annotation.Nullable;
 
 import java.util.List;
 
+/**
+ * Used for the mood spinner
+ */
 public class MoodAdapter extends ArrayAdapter<Emotion> {
 
     public MoodAdapter(Context context, List<Emotion> moodList) {
@@ -42,7 +45,7 @@ public class MoodAdapter extends ArrayAdapter<Emotion> {
 
         if (currentItem != null) {
             emojiField.setText(currentItem.getEmojiString());
-            nameField.setText(currentItem.emojiName);
+            nameField.setText(currentItem.getEmojiName());
             convertView.setBackgroundColor(currentItem.getColor());
         }
         return convertView;

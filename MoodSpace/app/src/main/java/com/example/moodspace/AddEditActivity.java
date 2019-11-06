@@ -33,16 +33,18 @@ import java.util.List;
 import java.util.UUID;
 
 public class AddEditActivity extends AppCompatActivity {
-    public static final int PICK_IMAGE = 1;
+    private static final int PICK_IMAGE = 1;
     private static final int GALLERY_PERMISSIONS_REQUEST = 1;
     // TODO: change back down to 8 when jpgs can be uploaded properly
     private static final long MAX_DOWNLOAD_LIMIT = 30 * 1024 * 1024;
     private static final String TAG = AddEditActivity.class.getSimpleName();
+
+    AddEditController aec;
+
     // can be null if reusing a downloaded photo while editing
     private String inputPhotoPath = null;
     private boolean hasPhoto = false;
     private boolean changedPhoto = false;
-    private AddEditController aec;
     private Mood currentMood = null;
     private FirebaseStorage fbStorage = FirebaseStorage.getInstance();
 
