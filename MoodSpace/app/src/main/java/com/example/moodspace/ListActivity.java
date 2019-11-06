@@ -25,7 +25,7 @@ import com.google.firebase.firestore.QuerySnapshot;
 import java.util.ArrayList;
 import java.util.Date;
 
-public class ListActivity extends AppCompatActivity {
+public class ListActivity extends AppCompatActivity implements FilterFragment.OnFragmentInteractionListener {
     Toolbar toolbar;
     ListView moodList;
     ArrayAdapter<com.example.moodspace.Mood> moodAdapter;
@@ -75,8 +75,9 @@ public class ListActivity extends AppCompatActivity {
                             Emotion emotion = Emotion.valueOf(doc.getString("emotion"));
                             Date ts = doc.getTimestamp("date").toDate();
                             String id = doc.getId();
-                            Mood newMood = new Mood(id, ts, emotion);
+                            final Mood newMood = new Mood(id, ts, emotion);
                             newMood.setId(doc.getId());
+                            // NEED TO CHECK IF IN FILTER
                             moodDataList.add(newMood);
                         }
 
@@ -133,5 +134,9 @@ public class ListActivity extends AppCompatActivity {
                 return super.onOptionsItemSelected(item);
 
         }
+    }
+
+    public void onOkPressed(){
+
     }
 }
