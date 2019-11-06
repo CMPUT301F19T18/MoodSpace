@@ -45,7 +45,7 @@ public class FilterFragment extends DialogFragment {
     }
 
     public interface OnFragmentInteractionListener {
-        void onOkPressed();
+        void onOkPressed(boolean[] checkedItems);
     }
 
     @Override
@@ -80,11 +80,14 @@ public class FilterFragment extends DialogFragment {
         });
         return builder
                 .setTitle("Filter Moods")
-                .setNegativeButton("Cancel", null)
                 .setPositiveButton("OK", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
-                        listener.onOkPressed();
+                        listener.onOkPressed(getCheckedItems());
                     }}).create();
+    }
+
+    public boolean[] getCheckedItems(){
+        return this.checkedItems;
     }
 }

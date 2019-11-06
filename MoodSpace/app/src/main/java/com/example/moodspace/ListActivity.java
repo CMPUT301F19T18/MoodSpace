@@ -38,22 +38,26 @@ public class ListActivity extends AppCompatActivity implements FilterFragment.On
     ArrayList<com.example.moodspace.Mood> moodDataList;
     private FloatingActionButton button;
     private final FirebaseFirestore db = FirebaseFirestore.getInstance();
+    final List<Emotion> emotionList = Arrays.asList(Emotion.values());
+    final boolean[] checkedItems = new boolean[emotionList.size()];
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        final String username = getIntent().getExtras().getString("Username");
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_list);
         toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         moodList = findViewById(R.id.moodList);
         button = findViewById(R.id.addMoodButton);
-        final String username = getIntent().getExtras().getString("Username");
+        //final String username = getIntent().getExtras().getString("Username");
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 openAddMood(username);
             }
         });
+        final List<Emotion> filterList = new ArrayList<Emotion>();
 
         moodDataList = new ArrayList<>();
         moodAdapter = new CustomList(this, moodDataList);
@@ -66,30 +70,28 @@ public class ListActivity extends AppCompatActivity implements FilterFragment.On
             }
         });
 
-        db.collection("users")
+        Arrays.fill(checkedItems, true);
+        final CollectionReference cRef = db.collection("users")
                 .document(username)
-                .collection("Moods")
-                .orderBy("date", Query.Direction.DESCENDING)
-                .addSnapshotListener(new EventListener<QuerySnapshot>() {
-                    @Override
-                    public void onEvent(
-                            @Nullable QuerySnapshot queryDocumentSnapshots,
-                            @Nullable FirebaseFirestoreException e
-                    ) {
-                        moodDataList.clear();
-                        for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
-                            Emotion emotion = Emotion.valueOf(doc.getString("emotion"));
-                            Date ts = doc.getTimestamp("date").toDate();
-                            String id = doc.getId();
-                            final Mood newMood = new Mood(id, ts, emotion);
-                            newMood.setId(doc.getId());
-                            // NEED TO CHECK IF IN FILTER
-                            moodDataList.add(newMood);
+                .collection("Filter");
+        cRef.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                for (QueryDocumentSnapshot doc : task.getResult()){
+                    Emotion emotion = Emotion.valueOf(doc.getString("emotion"));
+                    for (int i = 0; i < emotionList.size(); i++){
+                        if (emotionList.get(i) == emotion){
+                            Log.w("LOOP", "equal");
+                            checkedItems[i] = false;
+                            filterList.add(emotion);
                         }
-
-                        moodAdapter.notifyDataSetChanged();
                     }
-                });
+
+                }
+                update(username, filterList);
+            }
+        });
+
     }
 
     /**
@@ -132,31 +134,8 @@ public class ListActivity extends AppCompatActivity implements FilterFragment.On
         final String username = getIntent().getExtras().getString("Username");
         switch (item.getItemId()) {
             case R.id.filter:
-                final List<Emotion> emotionList = Arrays.asList(Emotion.values());
-
-                final boolean[] checkedItems = new boolean[emotionList.size()];
-                Arrays.fill(checkedItems, true);
-                final CollectionReference cRef = db.collection("users")
-                        .document(username)
-                        .collection("Filter");
-
-                cRef.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                        for (QueryDocumentSnapshot doc : task.getResult()){
-                            Emotion emotion = Emotion.valueOf(doc.getString("emotion"));
-                            for (int i = 0; i < emotionList.size(); i++){
-                                if (emotionList.get(i) == emotion){
-                                    Log.w("LOOP", "equal");
-                                    checkedItems[i] = false;
-                                }
-                            }
-
-                        }
-                        new FilterFragment(username, checkedItems)
-                                .show(getSupportFragmentManager(), "FILTER");
-                    }
-                });
+                new FilterFragment(username, checkedItems)
+                        .show(getSupportFragmentManager(), "FILTER");
                 return true;
             default:
                 // If we got here, the user's action was not recognized.
@@ -166,7 +145,41 @@ public class ListActivity extends AppCompatActivity implements FilterFragment.On
         }
     }
 
-    public void onOkPressed(){
+    public void update(String username, final List<Emotion> filterList){
+        db.collection("users")
+                .document(username)
+                .collection("Moods")
+                .orderBy("date", Query.Direction.DESCENDING)
+                .addSnapshotListener(new EventListener<QuerySnapshot>() {
+                    @Override
+                    public void onEvent(
+                            @Nullable QuerySnapshot queryDocumentSnapshots,
+                            @Nullable FirebaseFirestoreException e
+                    ) {
+                        moodDataList.clear();
+                        for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
+                            Emotion emotion = Emotion.valueOf(doc.getString("emotion"));
+                            Date ts = doc.getTimestamp("date").toDate();
+                            String id = doc.getId();
+                            final Mood newMood = new Mood(id, ts, emotion);
+                            newMood.setId(doc.getId());
+                            if (filterList.contains(emotion)){
+                                moodDataList.add(newMood);
+                            }
+                        }
+                        moodAdapter.notifyDataSetChanged();
+                    }
+                });
+    }
 
+    public void onOkPressed(boolean[] checkedItems){
+        final String username = getIntent().getExtras().getString("Username");
+        List<Emotion> filterList = new ArrayList<Emotion>();
+        for (int i = 0; i < checkedItems.length; i++){
+            if (checkedItems[i] == false){
+                filterList.add(emotionList.get(i));
+            }
+        }
+        update(username, filterList);
     }
 }
