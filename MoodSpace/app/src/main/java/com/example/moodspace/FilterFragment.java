@@ -15,6 +15,13 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
 
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.EventListener;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -25,13 +32,16 @@ public class FilterFragment extends DialogFragment {
     private String username;
     private List<Emotion> emotionList;
     FilterController fc;
+    private final FirebaseFirestore db = FirebaseFirestore.getInstance();
+    private boolean[] checkedItems;
 
     public FilterFragment() {
 
     }
 
-    public FilterFragment(String user) {
+    public FilterFragment(String user, boolean[] checkedItems) {
         this.username = user;
+        this.checkedItems = checkedItems;
     }
 
     public interface OnFragmentInteractionListener {
@@ -53,15 +63,10 @@ public class FilterFragment extends DialogFragment {
     @Override
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
         fc = new FilterController(FilterFragment.this.getActivity());
-        String[] emotionList = Emotion.HAPPY.getEmojiList();
-        List<Emotion> emotions = Arrays.asList(Emotion.values());
-        boolean[] checkedItems = new boolean[emotionList.length];
-        for (int i = 0; i < checkedItems.length; i++) {
-            checkedItems[i] = fc.getChecked(username, emotions.get(i));
-        }
+        String[] emotionStrings = Emotion.HAPPY.getEmojiList();
         Log.w(TAG, java.util.Arrays.toString(checkedItems));
         AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
-        builder.setMultiChoiceItems(emotionList, checkedItems, new DialogInterface.OnMultiChoiceClickListener() {
+        builder.setMultiChoiceItems(emotionStrings, checkedItems, new DialogInterface.OnMultiChoiceClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which, boolean isChecked) {
                 if (isChecked) {

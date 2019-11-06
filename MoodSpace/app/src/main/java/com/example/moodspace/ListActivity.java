@@ -10,11 +10,15 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
@@ -23,7 +27,9 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
 
 public class ListActivity extends AppCompatActivity implements FilterFragment.OnFragmentInteractionListener {
     Toolbar toolbar;
@@ -123,10 +129,34 @@ public class ListActivity extends AppCompatActivity implements FilterFragment.On
      */
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+        final String username = getIntent().getExtras().getString("Username");
         switch (item.getItemId()) {
             case R.id.filter:
-                new FilterFragment(getIntent().getExtras().getString("Username"))
-                        .show(getSupportFragmentManager(), "FILTER");
+                final List<Emotion> emotionList = Arrays.asList(Emotion.values());
+
+                final boolean[] checkedItems = new boolean[emotionList.size()];
+                Arrays.fill(checkedItems, true);
+                final CollectionReference cRef = db.collection("users")
+                        .document(username)
+                        .collection("Filter");
+
+                cRef.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        for (QueryDocumentSnapshot doc : task.getResult()){
+                            Emotion emotion = Emotion.valueOf(doc.getString("emotion"));
+                            for (int i = 0; i < emotionList.size(); i++){
+                                if (emotionList.get(i) == emotion){
+                                    Log.w("LOOP", "equal");
+                                    checkedItems[i] = false;
+                                }
+                            }
+
+                        }
+                        new FilterFragment(username, checkedItems)
+                                .show(getSupportFragmentManager(), "FILTER");
+                    }
+                });
                 return true;
             default:
                 // If we got here, the user's action was not recognized.
