@@ -8,6 +8,7 @@ import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -122,7 +123,38 @@ public class AddEditActivity extends AppCompatActivity {
         List<Emotion> emotionList = Arrays.asList(Emotion.values());
         MoodAdapter mAdapter = new MoodAdapter(this, emotionList);
         spinnerEmotions.setAdapter(mAdapter);
-
+//        spinnerEmotions.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+//            @Override
+//            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+//                if (parent.getItemAtPosition(position).equals("NULL")) {
+//                    // do nothing
+//                }
+//                else {
+//                    //on Selecting a spinner item
+//                    Emotion emotion = parent.getItemAtPosition(position)
+//
+//                    //Show selected spinner item
+//                    Toast.makeText(parent.get)
+//                }
+//            }
+//
+//            @Override
+//            public void onNothingSelected(AdapterView<?> parent) {
+//
+//            }
+//        });
+//            @Override
+//            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+//                String selectedItemText = (String) parent.getItemAtPosition(position);
+//                // If user change the default selection
+//                // First item is disable and it is used for hint
+//                if(position > 0){
+//                    // Notify the selected item text
+//                    Toast.makeText
+//                            (getApplicationContext(), "Selected : " + selectedItemText, Toast.LENGTH_SHORT)
+//                            .show();
+//                }
+//            }
         // TODO: social situation button dropdown
         final ImageButton socialSitbutton = findViewById(R.id.social_sit_button);
         socialSitbutton.setOnClickListener(new View.OnClickListener() {
