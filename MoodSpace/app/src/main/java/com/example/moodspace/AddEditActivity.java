@@ -144,7 +144,10 @@ public class AddEditActivity extends AppCompatActivity {
 
         // creates emotion spinner
         // if it's the editactivity, will not have an option to select the null emotion
-        List<Emotion> emotionList = Emotion.getValuesNonNull();
+        List<Emotion> emotionList = new ArrayList<>(Arrays.asList(Emotion.values()));
+        if (!this.isAddActivity()) {
+            emotionList.remove(Emotion.NULL);
+        }
         MoodAdapter mAdapter = new MoodAdapter(this, emotionList);
         spinnerEmotions.setAdapter(mAdapter);
 
