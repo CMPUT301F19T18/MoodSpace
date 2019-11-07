@@ -110,7 +110,7 @@ public class AddEditActivity extends AppCompatActivity {
                 Date date;
                 boolean hasPhoto = AddEditActivity.this.hasPhoto;
                 Emotion emotion = (Emotion) spinnerEmotions.getSelectedItem();
-                String socialSit = spinnerSocialSituation.getSelectedItem().toString();
+                int socialSit = spinnerSocialSituation.getSelectedItemPosition();
 
 
                 // reuses parameters if editing
@@ -252,7 +252,10 @@ public class AddEditActivity extends AppCompatActivity {
 
             // fills in fields with previous values
             int emotionIndex = mAdapter.getPosition(currentMood.getEmotion());
+            int socialSitIndex = currentMood.getSocialSit();
+
             spinnerEmotions.setSelection(emotionIndex);
+            spinnerSocialSituation.setSelection(socialSitIndex);
             reasonEditText.setText(currentMood.getReasonText());
 
             // downloads photo: can't figure out how to separate this task into the controller
