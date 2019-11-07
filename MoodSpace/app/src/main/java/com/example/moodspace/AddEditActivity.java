@@ -31,6 +31,7 @@ import com.google.firebase.storage.StorageReference;
 
 import org.w3c.dom.Text;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashSet;
@@ -142,7 +143,12 @@ public class AddEditActivity extends AppCompatActivity {
         });
 
         // creates emotion spinner
-        List<Emotion> emotionList = Arrays.asList(Emotion.values());
+        // if it's the editactivity, will not have an option to select the null emotion
+        // yet again another hack
+        List<Emotion> emotionList = new ArrayList<>(Arrays.asList(Emotion.values()));
+        if (!this.isAddActivity()) {
+            emotionList.remove(Emotion.NULL);
+        }
         MoodAdapter mAdapter = new MoodAdapter(this, emotionList);
         spinnerEmotions.setAdapter(mAdapter);
 
