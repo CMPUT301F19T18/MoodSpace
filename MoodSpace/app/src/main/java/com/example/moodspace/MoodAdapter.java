@@ -39,14 +39,18 @@ public class MoodAdapter extends ArrayAdapter<Emotion> {
             );
         }
         TextView emojiField = convertView.findViewById(R.id.emoji);
-        TextView nameField = convertView.findViewById(R.id.emotionName);
-
         Emotion currentItem = getItem(position);
 
         if (currentItem != null) {
-            emojiField.setText(currentItem.getEmojiString());
-            nameField.setText(currentItem.getEmojiName());
-            convertView.setBackgroundColor(currentItem.getColor());
+            if (currentItem.equals(Emotion.NULL)) {
+                emojiField.setText("Please select a mood");
+                convertView.setBackgroundColor(currentItem.getColor());
+            }
+            else {
+                String parsedText = currentItem.getEmojiString() + "      " +  currentItem.getEmojiName();
+                emojiField.setText(parsedText);
+                convertView.setBackgroundColor(currentItem.getColor());
+            }
         }
         return convertView;
     }

@@ -12,6 +12,7 @@ import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -87,10 +88,12 @@ public class AddEditActivity extends AppCompatActivity {
                 boolean hasPhoto = AddEditActivity.this.hasPhoto;
                 Emotion emotion = (Emotion) spinnerEmotions.getSelectedItem();
 
+
                 // reuses parameters if editing
                 if (AddEditActivity.this.isAddActivity()) {
                     id = UUID.randomUUID().toString();
                     date = new Date();
+
                 } else {
                     id = currentMood.getId();
                     date = currentMood.getDate();
@@ -225,6 +228,14 @@ public class AddEditActivity extends AppCompatActivity {
                     }
                 });
             }
+
+            // displays date and time
+            TextView dateInfo = findViewById(R.id.date);
+            TextView timeInfo = findViewById(R.id.time);
+            String parsedDate = DateUtils.formatDate(currentMood.getDate());
+            String parsedTime = DateUtils.formatTime(currentMood.getDate());
+            dateInfo.setText(parsedDate);
+            timeInfo.setText(parsedTime);
         }
 
         setSupportActionBar(toolbar);

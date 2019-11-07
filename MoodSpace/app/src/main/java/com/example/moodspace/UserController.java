@@ -16,7 +16,9 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 
 import androidx.annotation.NonNull;
 
@@ -24,6 +26,7 @@ public class UserController {
     private static final String TAG = UserController.class.getSimpleName();
     private Context context;
     private final FirebaseFirestore db = FirebaseFirestore.getInstance();
+    private List<Emotion> emotionList;
 
     public UserController(Context context) {
         this.context = context;
@@ -46,7 +49,7 @@ public class UserController {
     }
 
     public void signUpUser(User user) {
-        String username = user.getUsername();
+        final String username = user.getUsername();
         String password = user.getPassword();
 
         HashMap<String, Object> userMap = new HashMap<>();
@@ -63,6 +66,7 @@ public class UserController {
                         Log.d(TAG, "User was successfully added");
                         Intent i = new Intent(context, ListActivity.class);
                         // TODO: pass user to activity
+                        i.putExtra("Username",username);
                         context.startActivity(i);
                         ((Activity) context).finish();
                     }
@@ -73,6 +77,29 @@ public class UserController {
                         Log.d(TAG, "Error has occurred " + e.getMessage());
                     }
                 });
+        // create the default filter with all emotions
+        emotionList = Arrays.asList(Emotion.values());
+        HashMap<String, Object> data = new HashMap<>();
+        for (int i = 0; i < emotionList.size(); i++) {
+            data.put("emotion", emotionList.get(i));
+            db.collection("users")
+                    .document(username)
+                    .collection("Filter")
+                    .document(emotionList.get(i).getEmojiName())
+                    .set(data)
+                    .addOnSuccessListener(new OnSuccessListener<Void>() {
+                        @Override
+                        public void onSuccess(Void aVoid) {
+                            Log.d(TAG, "Data addition successful");
+                        }
+                    })
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            Log.d(TAG, "Data addition failed" + e.toString());
+                        }
+                    });
+        }
     }
 
     public void loginUser(User user) {
