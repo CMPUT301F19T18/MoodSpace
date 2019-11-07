@@ -4,8 +4,10 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
+
 import android.view.ContextMenu;
 import android.view.MenuInflater;
+
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
@@ -18,9 +20,14 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
@@ -29,9 +36,11 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
 
-public class ListActivity extends AppCompatActivity {
+public class ListActivity extends AppCompatActivity implements FilterFragment.OnFragmentInteractionListener {
     Toolbar toolbar;
     ListView moodList;
     ArrayAdapter<Mood> moodAdapter;
@@ -40,16 +49,17 @@ public class ListActivity extends AppCompatActivity {
     private String username;
     private static final String TAG = ListActivity.class.getSimpleName();
     private final FirebaseFirestore db = FirebaseFirestore.getInstance();
+    final List<Emotion> emotionList = Arrays.asList(Emotion.values());
+    final boolean[] checkedItems = new boolean[emotionList.size()];
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        username = getIntent().getExtras().getString("Username");
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_list);
         toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        username = getIntent().getExtras().getString("Username");
         moodList = findViewById(R.id.moodList);
-
         FloatingActionButton addBtn = findViewById(R.id.addMoodButton);
         addBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -57,6 +67,7 @@ public class ListActivity extends AppCompatActivity {
                 openAddMood(username);
             }
         });
+        final List<Emotion> filterList = new ArrayList<Emotion>();
 
         moodDataList = new ArrayList<>();
         moodAdapter = new CustomList(this, moodDataList);
@@ -69,35 +80,25 @@ public class ListActivity extends AppCompatActivity {
             }
         });
 
-        // TODO change this to view controller
-        db.collection("users")
+        Arrays.fill(checkedItems, true);
+        final CollectionReference cRef = db.collection("users")
                 .document(username)
-                .collection("Moods")
-                .orderBy("date", Query.Direction.DESCENDING)
-                .addSnapshotListener(new EventListener<QuerySnapshot>() {
-                    @Override
-                    public void onEvent(
-                            @Nullable QuerySnapshot queryDocumentSnapshots,
-                            @Nullable FirebaseFirestoreException e
-                    ) {
-                        moodDataList.clear();
-                        for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
-                            String id = doc.getId();
-                            Date ts = doc.getTimestamp("date").toDate();
-                            Emotion emotion = Emotion.valueOf(doc.getString("emotion"));
-                            String reason = doc.getString("reasonText");
-                            Boolean hasPhoto = doc.getBoolean("hasPhoto");
-                            if (hasPhoto == null) { // backwards compatibility
-                                hasPhoto = false;
-                            }
-                            Mood newMood = new Mood(id, ts, emotion, reason, hasPhoto);
-                            newMood.setId(doc.getId());
-                            moodDataList.add(newMood);
+                .collection("Filter");
+        cRef.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                for (QueryDocumentSnapshot doc : task.getResult()){
+                    Emotion emotion = Emotion.valueOf(doc.getString("emotion"));
+                    for (int i = 0; i < emotionList.size(); i++){
+                        if (emotionList.get(i) == emotion){
+                            checkedItems[i] = false;
+                            filterList.add(emotion);
                         }
-
-                        moodAdapter.notifyDataSetChanged();
                     }
-                });
+                }
+                update(username, filterList);
+            }
+        });
 
         registerForContextMenu(moodList);
     }
@@ -165,10 +166,76 @@ public class ListActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
+    /**
+     * Creates the toolbar.
+     */
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.toolbar_menu, menu);
         return true;
+    }
+
+    /**
+     * Defines on click behaviour for the toolbar.
+     * @param item
+     * @return
+     */
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.filter:
+                new FilterFragment(username, checkedItems)
+                        .show(getSupportFragmentManager(), "FILTER");
+                return true;
+            default:
+                // If we got here, the user's action was not recognized.
+                // Invoke the superclass to handle it.
+                return super.onOptionsItemSelected(item);
+
+        }
+    }
+
+    public void update(String username, final List<Emotion> filterList){
+        db.collection("users")
+                .document(username)
+                .collection("Moods")
+                .orderBy("date", Query.Direction.DESCENDING)
+                .addSnapshotListener(new EventListener<QuerySnapshot>() {
+                    @Override
+                    public void onEvent(
+                            @Nullable QuerySnapshot queryDocumentSnapshots,
+                            @Nullable FirebaseFirestoreException e
+                    ) {
+                        moodDataList.clear();
+                        for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
+                            Emotion emotion = Emotion.valueOf(doc.getString("emotion"));
+                            Date ts = doc.getTimestamp("date").toDate();
+                            String reason = doc.getString("reasonText");
+                            Boolean hasPhoto = doc.getBoolean("hasPhoto");
+                            if (hasPhoto == null) { // backwards compatibility
+                                hasPhoto = false;
+                            }
+                            String id = doc.getId();
+                            Mood newMood = new Mood(id, ts, emotion, reason, hasPhoto);
+                            newMood.setId(doc.getId());
+                            if (filterList.contains(emotion)){
+                                moodDataList.add(newMood);
+                            }
+                        }
+                        moodAdapter.notifyDataSetChanged();
+                    }
+                });
+    }
+
+    public void onOkPressed(boolean[] checkedItems){
+        final String username = getIntent().getExtras().getString("Username");
+        List<Emotion> filterList = new ArrayList<Emotion>();
+        for (int i = 0; i < checkedItems.length; i++){
+            if (checkedItems[i] == false){
+                filterList.add(emotionList.get(i));
+            }
+        }
+        update(username, filterList);
     }
 }
