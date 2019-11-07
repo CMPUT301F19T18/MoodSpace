@@ -56,8 +56,8 @@ public class AddEditActivity extends AppCompatActivity {
         final Spinner spinnerEmotions = findViewById(R.id.emotionSelector);
 
         final Spinner spinnerSocialSituation =  findViewById(R.id.situationSelector);
-        ArrayAdapter<String> situationAdapter = new ArrayAdapter<>(AddEditActivity.this,
-                R.layout.support_simple_spinner_dropdown_item, getResources().getStringArray(R.array.situations) );
+        ArrayAdapter<SocialSituation> situationAdapter = new ArrayAdapter<>(AddEditActivity.this,
+                R.layout.support_simple_spinner_dropdown_item, SocialSituation.values() );
         situationAdapter.setDropDownViewResource(R.layout.support_simple_spinner_dropdown_item);
         spinnerSocialSituation.setAdapter(situationAdapter);
 
@@ -133,14 +133,7 @@ public class AddEditActivity extends AppCompatActivity {
         spinnerEmotions.setAdapter(mAdapter);
 
         // TODO: social situation button dropdown
-        final ImageButton socialSitbutton = findViewById(R.id.social_sit_button);
-        socialSitbutton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Toast.makeText(AddEditActivity.this, "Placeholder social situation",
-                        Toast.LENGTH_SHORT).show();
-            }
-        });
+        
 
         // sets the select image intent to the image button
         final Button imageButton = findViewById(R.id.image_button);

@@ -12,11 +12,5 @@
     <string name="em_cancel_text">Cancel</string>
 
     <string name="menu_delete">Delete</string>
-    <string-array name="situations">
-        <item>Not Provided</item>
-        <item>Alone</item>
-        <item>With another person</item>
-        <item>With two to several people</item>
-        <item>With a crowd</item>
-    </string-array>
+
 </resources>
