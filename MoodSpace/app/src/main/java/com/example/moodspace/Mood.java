@@ -16,13 +16,15 @@ public class Mood implements Serializable {
     private Date date;
     private String reasonText;
     private Boolean hasPhoto;
+    private String socialSit;
 
-    public Mood(String id, Date date, Emotion emotion, String reasonText, boolean hasPhoto) {
+    public Mood(String id, Date date, Emotion emotion, String reasonText, boolean hasPhoto, String socialSit) {
         this.id = id;
         this.emotion = emotion;
         this.date = date;
         this.reasonText = reasonText;
         this.hasPhoto = hasPhoto;
+        this.socialSit = socialSit;
     }
 
     @Exclude
@@ -32,6 +34,10 @@ public class Mood implements Serializable {
 
     public void setId(String id) {
         this.id = id;
+    }
+
+    public String getSocialSit() {
+        return socialSit;
     }
 
     public Date getDate() {
