@@ -9,7 +9,10 @@ import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+
 import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -62,6 +65,13 @@ public class AddEditActivity extends AppCompatActivity {
 
         final String username = getIntent().getStringExtra("USERNAME");
         final Spinner spinnerEmotions = findViewById(R.id.emotionSelector);
+
+        final Spinner spinnerSocialSituation =  findViewById(R.id.situationSelector);
+        ArrayAdapter<SocialSituation> situationAdapter = new ArrayAdapter<>(AddEditActivity.this,
+                R.layout.support_simple_spinner_dropdown_item, SocialSituation.values() );
+        situationAdapter.setDropDownViewResource(R.layout.support_simple_spinner_dropdown_item);
+        spinnerSocialSituation.setAdapter(situationAdapter);
+
         aec = new AddEditController(this);
         currentMood = (Mood) getIntent().getSerializableExtra("MOOD");
         if (currentMood != null) {
@@ -106,7 +116,7 @@ public class AddEditActivity extends AppCompatActivity {
                     Toast.makeText(AddEditActivity.this, "Select an Emotion", Toast.LENGTH_SHORT).show();
                     return;
                 }
-
+                int socialSit = spinnerSocialSituation.getSelectedItemPosition();
 
                 // reuses parameters if editing
                 if (AddEditActivity.this.isAddActivity()) {
@@ -118,7 +128,7 @@ public class AddEditActivity extends AppCompatActivity {
                     date = currentMood.getDate();
                 }
 
-                Mood mood = new Mood(id, date, emotion, reasonText, hasPhoto);
+                Mood mood = new Mood(id, date, emotion, reasonText, hasPhoto, socialSit);
                 if (AddEditActivity.this.isAddActivity()) {
                     aec.addMood(username, mood);
                 } else {
@@ -152,14 +162,7 @@ public class AddEditActivity extends AppCompatActivity {
         spinnerEmotions.setAdapter(mAdapter);
 
         // TODO: social situation button dropdown
-        final ImageButton socialSitbutton = findViewById(R.id.social_sit_button);
-        socialSitbutton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Toast.makeText(AddEditActivity.this, "Placeholder social situation",
-                        Toast.LENGTH_SHORT).show();
-            }
-        });
+        
 
         // sets the select image intent to the image button
         final Button imageButton = findViewById(R.id.image_button);
@@ -227,7 +230,10 @@ public class AddEditActivity extends AppCompatActivity {
 
             // fills in fields with previous values
             int emotionIndex = mAdapter.getPosition(currentMood.getEmotion());
+            int socialSitIndex = currentMood.getSocialSit();
+
             spinnerEmotions.setSelection(emotionIndex);
+            spinnerSocialSituation.setSelection(socialSitIndex);
             reasonEditText.setText(currentMood.getReasonText());
 
             // downloads photo: can't figure out how to separate this task into the controller
