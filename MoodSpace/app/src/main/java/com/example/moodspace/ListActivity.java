@@ -91,7 +91,6 @@ public class ListActivity extends AppCompatActivity implements FilterFragment.On
                     Emotion emotion = Emotion.valueOf(doc.getString("emotion"));
                     for (int i = 0; i < emotionList.size(); i++){
                         if (emotionList.get(i) == emotion){
-                            Log.w("LOOP", "equal");
                             checkedItems[i] = false;
                             filterList.add(emotion);
                         }
