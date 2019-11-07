@@ -1,7 +1,6 @@
 package com.example.moodspace;
 
 import android.graphics.Color;
-import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.Arrays;
