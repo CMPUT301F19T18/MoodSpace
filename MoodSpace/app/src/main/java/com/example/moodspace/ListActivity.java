@@ -49,7 +49,7 @@ public class ListActivity extends AppCompatActivity implements FilterFragment.On
     private String username;
     private static final String TAG = ListActivity.class.getSimpleName();
     private final FirebaseFirestore db = FirebaseFirestore.getInstance();
-    final List<Emotion> emotionList = Arrays.asList(Emotion.values());
+    final List<Emotion> emotionList = Emotion.getValuesNonNull();
     final boolean[] checkedItems = new boolean[emotionList.size()];
 
     @Override

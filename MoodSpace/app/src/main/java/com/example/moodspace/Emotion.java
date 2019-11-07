@@ -34,6 +34,13 @@ public enum Emotion {
         return emojiName;
     }
 
+    // yet again another temporary hack
+    public static List<Emotion> getValuesNonNull() {
+        List<Emotion> emotionList = new ArrayList<>(Arrays.asList(Emotion.values()));
+        emotionList.remove(Emotion.NULL);
+        return emotionList;
+    }
+
     public String[] getEmojiList() {
         List<Emotion> emotionList = new ArrayList<>(Arrays.asList(Emotion.values()));
         // hack to remove null from filters
