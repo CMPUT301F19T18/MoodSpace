@@ -1,7 +1,6 @@
 package com.example.moodspace;
 
 import android.Manifest;
-import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
@@ -9,7 +8,6 @@ import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -29,16 +27,11 @@ import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
-import org.w3c.dom.Text;
-
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.UUID;
-
-import static android.view.View.GONE;
-import static com.example.moodspace.DateUtils.formatDate;
 
 public class AddEditActivity extends AppCompatActivity {
     public static final int PICK_IMAGE = 1;
@@ -63,14 +56,6 @@ public class AddEditActivity extends AppCompatActivity {
         final Spinner spinnerEmotions = findViewById(R.id.emotionSelector);
         aec = new AddEditController(this);
         currentMood = (Mood) getIntent().getSerializableExtra("MOOD");
-        if (currentMood != null) {
-            TextView dateInfo = findViewById(R.id.date);
-            TextView timeInfo = findViewById(R.id.time);
-            String parsedDate = DateUtils.formatDate(currentMood.getDate());
-            String parsedTime = DateUtils.formatTime(currentMood.getDate());
-            dateInfo.setText(parsedDate);
-            timeInfo.setText(parsedTime);
-        }
 
         // sets up save button
         // upon clicking the okay button, there will be an intent
@@ -140,38 +125,7 @@ public class AddEditActivity extends AppCompatActivity {
         List<Emotion> emotionList = Arrays.asList(Emotion.values());
         MoodAdapter mAdapter = new MoodAdapter(this, emotionList);
         spinnerEmotions.setAdapter(mAdapter);
-//        spinnerEmotions.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-//            @Override
-//            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-//                if (parent.getItemAtPosition(position).equals("NULL")) {
-//                    // do nothing
-//                }
-//                else {
-//                    //on Selecting a spinner item
-//                    Emotion emotion = parent.getItemAtPosition(position)
-//
-//                    //Show selected spinner item
-//                    Toast.makeText(parent.get)
-//                }
-//            }
-//
-//            @Override
-//            public void onNothingSelected(AdapterView<?> parent) {
-//
-//            }
-//        });
-//            @Override
-//            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-//                String selectedItemText = (String) parent.getItemAtPosition(position);
-//                // If user change the default selection
-//                // First item is disable and it is used for hint
-//                if(position > 0){
-//                    // Notify the selected item text
-//                    Toast.makeText
-//                            (getApplicationContext(), "Selected : " + selectedItemText, Toast.LENGTH_SHORT)
-//                            .show();
-//                }
-//            }
+
         // TODO: social situation button dropdown
         final ImageButton socialSitbutton = findViewById(R.id.social_sit_button);
         socialSitbutton.setOnClickListener(new View.OnClickListener() {
@@ -272,6 +226,14 @@ public class AddEditActivity extends AppCompatActivity {
                     }
                 });
             }
+
+            // displays date and time
+            TextView dateInfo = findViewById(R.id.date);
+            TextView timeInfo = findViewById(R.id.time);
+            String parsedDate = DateUtils.formatDate(currentMood.getDate());
+            String parsedTime = DateUtils.formatTime(currentMood.getDate());
+            dateInfo.setText(parsedDate);
+            timeInfo.setText(parsedTime);
         }
 
         setSupportActionBar(toolbar);
@@ -336,7 +298,7 @@ public class AddEditActivity extends AppCompatActivity {
 
         imageView.setImageDrawable(null);
         imageButton.setVisibility(View.VISIBLE);
-        removeImageButton.setVisibility(GONE);
+        removeImageButton.setVisibility(View.GONE);
 
         this.hasPhoto = false;
     }
@@ -347,7 +309,7 @@ public class AddEditActivity extends AppCompatActivity {
         ImageButton removeImageButton = findViewById(R.id.remove_image_button);
 
         imageView.setImageBitmap(bm);
-        imageButton.setVisibility(GONE);
+        imageButton.setVisibility(View.GONE);
         removeImageButton.setVisibility(View.VISIBLE);
 
         // if ever true, then changedPhoto is true
