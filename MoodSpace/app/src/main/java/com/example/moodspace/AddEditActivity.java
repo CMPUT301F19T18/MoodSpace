@@ -8,6 +8,7 @@ import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -53,6 +54,13 @@ public class AddEditActivity extends AppCompatActivity {
 
         final String username = getIntent().getStringExtra("USERNAME");
         final Spinner spinnerEmotions = findViewById(R.id.emotionSelector);
+
+        final Spinner spinnerSocialSituation =  findViewById(R.id.situationSelector);
+        ArrayAdapter<String> situationAdapter = new ArrayAdapter<>(AddEditActivity.this,
+                R.layout.support_simple_spinner_dropdown_item, getResources().getStringArray(R.array.situations) );
+        situationAdapter.setDropDownViewResource(R.layout.support_simple_spinner_dropdown_item);
+        spinnerSocialSituation.setAdapter(situationAdapter);
+
         aec = new AddEditController(this);
         currentMood = (Mood) getIntent().getSerializableExtra("MOOD");
 
@@ -84,6 +92,7 @@ public class AddEditActivity extends AppCompatActivity {
                 Date date;
                 boolean hasPhoto = AddEditActivity.this.hasPhoto;
                 Emotion emotion = (Emotion) spinnerEmotions.getSelectedItem();
+                String socialSit = spinnerSocialSituation.getSelectedItem().toString();
 
                 // reuses parameters if editing
                 if (AddEditActivity.this.isAddActivity()) {
@@ -94,7 +103,7 @@ public class AddEditActivity extends AppCompatActivity {
                     date = currentMood.getDate();
                 }
 
-                Mood mood = new Mood(id, date, emotion, reasonText, hasPhoto);
+                Mood mood = new Mood(id, date, emotion, reasonText, hasPhoto, socialSit);
                 if (AddEditActivity.this.isAddActivity()) {
                     aec.addMood(username, mood);
                 } else {
