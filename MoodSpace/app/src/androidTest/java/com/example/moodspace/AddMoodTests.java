@@ -98,9 +98,5 @@ public class AddMoodTests {
         onView(withId(R.id.situationSelector)).check(matches(withSpinnerText(containsString("With two to several people"))));
         onView(withId(R.id.reason_text)).check(matches(withText(containsString("Movie night"))));
 
-        db.collection("users")
-                .document(username)
-                .collection("Moods")
-                .document().delete();
     }
 }
