@@ -71,15 +71,19 @@ public class FilterTests {
         onView(withId(R.id.password)).perform(typeText(password), closeSoftKeyboard());
 
         onView(withId(R.id.login_btn)).perform(click());
-        Thread.sleep(4000);
+        Thread.sleep(1000);
 
-        onView(withId(R.id.moodList))
-                .check(matches((hasDescendant(withText(containsString(angry))))));
 
         onView(withId(R.id.moodList))
                 .check(matches(hasDescendant(withText(containsString(happy)))));
 
+        onView(withId(R.id.moodList))
+                .check(matches((hasDescendant(withText(containsString(angry))))));
+
+
         onView(withId(R.id.filter)).perform(click());
+
+        Thread.sleep(1000);
 
         onData(anything())
                 .inAdapterView(Matchers.allOf(withClassName(is("com.android.internal.app.AlertController$RecycleListView")),
@@ -93,13 +97,17 @@ public class FilterTests {
                         withClassName(is("android.widget.ScrollView")),
                         0),
                 3))).perform(scrollTo(), click());
+
+        Thread.sleep(1000);
+
+
+
+        onView(withId(R.id.moodList))
+                .check(matches(hasDescendant(withText(containsString(happy)))));
 
         onView(withId(R.id.moodList))
                 .check(matches(not(hasDescendant(withText(containsString(angry))))));
 
-        onView(withId(R.id.moodList))
-                .check(matches(hasDescendant(withText(containsString(happy)))));
-
         onView(withId(R.id.filter)).perform(click());
 
         onData(anything())
@@ -109,17 +117,23 @@ public class FilterTests {
                                 0)))
                 .atPosition(1).perform(click());
 
+        Thread.sleep(1000);
+
         onView(Matchers.allOf(withId(android.R.id.button1), withText("OK"), childAtPosition(
                 childAtPosition(
                         withClassName(is("android.widget.ScrollView")),
                         0),
                 3))).perform(scrollTo(), click());
 
-        onView(withId(R.id.moodList))
-                .check(matches((hasDescendant(withText(containsString(angry))))));
+        Thread.sleep(1000);
+
 
         onView(withId(R.id.moodList))
                 .check(matches(hasDescendant(withText(containsString(happy)))));
+
+
+        onView(withId(R.id.moodList))
+                .check(matches((hasDescendant(withText(containsString(angry))))));
     }
 
     private static Matcher<View> childAtPosition(
