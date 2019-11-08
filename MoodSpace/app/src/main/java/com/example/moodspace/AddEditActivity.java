@@ -148,7 +148,9 @@ public class AddEditActivity extends AppCompatActivity {
         spinnerEmotions.setAdapter(mAdapter);
 
         // TODO: social situation button dropdown
-        
+
+        // makes sure views are displayed as normal
+        this.removePreviewImage();
 
         // sets the select image intent to the image button
         final Button imageButton = findViewById(R.id.image_button);
