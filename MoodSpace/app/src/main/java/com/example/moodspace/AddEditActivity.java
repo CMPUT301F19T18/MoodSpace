@@ -1,7 +1,6 @@
 package com.example.moodspace;
 
 import android.Manifest;
-import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
@@ -9,8 +8,6 @@ import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-
-import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 
 import android.widget.Button;
@@ -32,8 +29,6 @@ import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
-import org.w3c.dom.Text;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -41,20 +36,19 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.UUID;
 
-import static android.view.View.GONE;
-import static com.example.moodspace.DateUtils.formatDate;
-
 public class AddEditActivity extends AppCompatActivity {
-    public static final int PICK_IMAGE = 1;
+    private static final int PICK_IMAGE = 1;
     private static final int GALLERY_PERMISSIONS_REQUEST = 1;
     // TODO: change back down to 8 when jpgs can be uploaded properly
     private static final long MAX_DOWNLOAD_LIMIT = 30 * 1024 * 1024;
     private static final String TAG = AddEditActivity.class.getSimpleName();
+
+    AddEditController aec;
+
     // can be null if reusing a downloaded photo while editing
     private String inputPhotoPath = null;
     private boolean hasPhoto = false;
     private boolean changedPhoto = false;
-    private AddEditController aec;
     private Mood currentMood = null;
     private FirebaseStorage fbStorage = FirebaseStorage.getInstance();
 
@@ -74,14 +68,6 @@ public class AddEditActivity extends AppCompatActivity {
 
         aec = new AddEditController(this);
         currentMood = (Mood) getIntent().getSerializableExtra("MOOD");
-        if (currentMood != null) {
-            TextView dateInfo = findViewById(R.id.date);
-            TextView timeInfo = findViewById(R.id.time);
-            String parsedDate = DateUtils.formatDate(currentMood.getDate());
-            String parsedTime = DateUtils.formatTime(currentMood.getDate());
-            dateInfo.setText(parsedDate);
-            timeInfo.setText(parsedTime);
-        }
 
         // sets up save button
         // upon clicking the okay button, there will be an intent
@@ -257,6 +243,14 @@ public class AddEditActivity extends AppCompatActivity {
                     }
                 });
             }
+
+            // displays date and time
+            TextView dateInfo = findViewById(R.id.date);
+            TextView timeInfo = findViewById(R.id.time);
+            String parsedDate = DateUtils.formatDate(currentMood.getDate());
+            String parsedTime = DateUtils.formatTime(currentMood.getDate());
+            dateInfo.setText(parsedDate);
+            timeInfo.setText(parsedTime);
         }
 
         setSupportActionBar(toolbar);
@@ -321,7 +315,7 @@ public class AddEditActivity extends AppCompatActivity {
 
         imageView.setImageDrawable(null);
         imageButton.setVisibility(View.VISIBLE);
-        removeImageButton.setVisibility(GONE);
+        removeImageButton.setVisibility(View.GONE);
 
         this.hasPhoto = false;
     }
@@ -332,7 +326,7 @@ public class AddEditActivity extends AppCompatActivity {
         ImageButton removeImageButton = findViewById(R.id.remove_image_button);
 
         imageView.setImageBitmap(bm);
-        imageButton.setVisibility(GONE);
+        imageButton.setVisibility(View.GONE);
         removeImageButton.setVisibility(View.VISIBLE);
 
         // if ever true, then changedPhoto is true
