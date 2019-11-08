@@ -16,8 +16,6 @@ import java.util.List;
 
 
 public class FilterController {
-    private boolean ok = true;
-    private boolean isCheck;
     private static final String TAG = FilterController.class.getSimpleName();
     private List<Emotion> emotionList;
     Context context;

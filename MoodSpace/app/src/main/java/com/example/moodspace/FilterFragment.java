@@ -8,21 +8,15 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
-import com.google.firebase.firestore.FirebaseFirestore;
-import java.util.List;
 
 public class FilterFragment extends DialogFragment {
     private static final String TAG = FilterFragment.class.getSimpleName();
+
+    FilterController fc;
+
     private OnFragmentInteractionListener listener;
     private String username;
-    private List<Emotion> emotionList;
-    FilterController fc;
-    private final FirebaseFirestore db = FirebaseFirestore.getInstance();
     private boolean[] checkedItems;
-
-    public FilterFragment() {
-
-    }
 
     public FilterFragment(String user, boolean[] checkedItems) {
         this.username = user;
