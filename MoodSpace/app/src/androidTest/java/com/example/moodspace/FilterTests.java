@@ -59,7 +59,7 @@ public class FilterTests {
     @Before
     public void initValidString() {
         // Specify a valid string.
-        username = "Person";
+        username = "FilterTest";
         password = "password";
         angry = new String(Character.toChars(0x1F621));
         happy = new String(Character.toChars(0x1F604));
@@ -67,21 +67,17 @@ public class FilterTests {
 
     @Test
     public void Filter() throws InterruptedException {
-        onView(withId(R.id.signup_link)).perform(click());
         onView(withId(R.id.username)).perform(typeText(username), closeSoftKeyboard());
         onView(withId(R.id.password)).perform(typeText(password), closeSoftKeyboard());
 
         onView(withId(R.id.login_btn)).perform(click());
-        Thread.sleep(1500);
-        onView(withId(R.id.addMoodButton)).perform(click());
-        onView(withId(R.id.emotionSelector)).perform(click());
-        onData(anything()).atPosition(1).perform(click());
-        onView(withId(R.id.saveBtn)).perform(click());
+        Thread.sleep(4000);
 
-        onView(withId(R.id.addMoodButton)).perform(click());
-        onView(withId(R.id.emotionSelector)).perform(click());
-        onData(anything()).atPosition(2).perform(click());
-        onView(withId(R.id.saveBtn)).perform(click());
+        onView(withId(R.id.moodList))
+                .check(matches((hasDescendant(withText(containsString(angry))))));
+
+        onView(withId(R.id.moodList))
+                .check(matches(hasDescendant(withText(containsString(happy)))));
 
         onView(withId(R.id.filter)).perform(click());
 
@@ -104,9 +100,26 @@ public class FilterTests {
         onView(withId(R.id.moodList))
                 .check(matches(hasDescendant(withText(containsString(happy)))));
 
-        db.collection("users")
-                .document(username)
-                .delete();
+        onView(withId(R.id.filter)).perform(click());
+
+        onData(anything())
+                .inAdapterView(Matchers.allOf(withClassName(is("com.android.internal.app.AlertController$RecycleListView")),
+                        childAtPosition(
+                                withClassName(is("android.widget.FrameLayout")),
+                                0)))
+                .atPosition(1).perform(click());
+
+        onView(Matchers.allOf(withId(android.R.id.button1), withText("OK"), childAtPosition(
+                childAtPosition(
+                        withClassName(is("android.widget.ScrollView")),
+                        0),
+                3))).perform(scrollTo(), click());
+
+        onView(withId(R.id.moodList))
+                .check(matches((hasDescendant(withText(containsString(angry))))));
+
+        onView(withId(R.id.moodList))
+                .check(matches(hasDescendant(withText(containsString(happy)))));
     }
 
     private static Matcher<View> childAtPosition(
