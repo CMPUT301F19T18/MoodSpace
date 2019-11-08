@@ -2,7 +2,6 @@ package com.example.moodspace;
 
 
 import android.content.Context;
-import android.os.AsyncTask;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -10,11 +9,15 @@ import androidx.annotation.NonNull;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.FirebaseFirestore;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
-
+/**
+ * Communicates filtering options between the UI and the firestore database
+ *
+ * - Currently it stores filters as a collection under each user name "Filter" with each
+ *   mood being stored as a key/value pair of itself. (eg. "Happy": "Happy")
+ */
 public class FilterController {
     private static final String TAG = FilterController.class.getSimpleName();
     private List<Emotion> emotionList;
@@ -25,6 +28,10 @@ public class FilterController {
         this.context = context;
     }
 
+    /**
+     * unchecks a filter from firestore
+     * @param i the index of the emotion list
+     */
     public void filterOut(int i, String username){
         emotionList = Emotion.getValuesNonNull();
         db.collection("users")
@@ -46,6 +53,10 @@ public class FilterController {
                 });
     }
 
+    /**
+     * unchecks a filter from firestore
+     * @param i the index of the emotion list
+     */
     public void filterIn(int i, String username) {
         emotionList = Emotion.getValuesNonNull();
         HashMap<String, Object> data = new HashMap<>();
