@@ -51,7 +51,7 @@ public class EditMoodTests {
         onView(withId(R.id.password)).perform(typeText(password), closeSoftKeyboard());
 
         onView(withId(R.id.login_btn)).perform(click());
-        Thread.sleep(1500);
+        Thread.sleep(3000);
 
         // Add Happy Mood make social situation as "Alone" and set reason to "Quiet"
         onView(withId(R.id.addMoodButton)).perform(click());

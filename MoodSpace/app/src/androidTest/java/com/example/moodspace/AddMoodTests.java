@@ -2,6 +2,9 @@ package com.example.moodspace;
 
 import androidx.test.rule.ActivityTestRule;
 
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
+
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -30,6 +33,7 @@ public class AddMoodTests {
     private String angry;
     private String happy;
     private String sad;
+    private final FirebaseFirestore db = FirebaseFirestore.getInstance();
 
     @Rule
     public ActivityTestRule<LoginActivity> mActivityRule =
@@ -50,7 +54,7 @@ public class AddMoodTests {
         onView(withId(R.id.password)).perform(typeText(password), closeSoftKeyboard());
 
         onView(withId(R.id.login_btn)).perform(click());
-        Thread.sleep(1500);
+        Thread.sleep(3000);
         // Add Happy Mood with Alone social situation and set reason to alone time.
         onView(withId(R.id.addMoodButton)).perform(click());
         onView(withId(R.id.emotionSelector)).perform(click());
@@ -94,5 +98,9 @@ public class AddMoodTests {
         onView(withId(R.id.situationSelector)).check(matches(withSpinnerText(containsString("With two to several people"))));
         onView(withId(R.id.reason_text)).check(matches(withText(containsString("Movie night"))));
 
+        db.collection("users")
+                .document(username)
+                .collection("Moods")
+                .document().delete();
     }
 }
