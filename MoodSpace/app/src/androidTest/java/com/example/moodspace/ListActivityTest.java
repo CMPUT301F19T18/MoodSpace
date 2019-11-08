@@ -19,10 +19,16 @@ import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.action.ViewActions.closeSoftKeyboard;
 import static androidx.test.espresso.action.ViewActions.longClick;
 import static androidx.test.espresso.action.ViewActions.typeText;
+import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.RootMatchers.isPlatformPopup;
+import static androidx.test.espresso.matcher.ViewMatchers.isCompletelyDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
+import static androidx.test.espresso.matcher.ViewMatchers.withSpinnerText;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
 import static org.hamcrest.Matchers.anything;
+import static org.hamcrest.core.AllOf.allOf;
+import static org.hamcrest.core.IsNot.not;
+import static org.hamcrest.core.StringContains.containsString;
 
 
 @RunWith(AndroidJUnit4.class)
@@ -61,6 +67,11 @@ public class ListActivityTest {
 
         onData(anything()).atPosition(1).perform(longClick());
         onView(withText("Delete")).perform(click());
+
+        onData(anything())
+                .inAdapterView(allOf(withId(R.id.moodList), isCompletelyDisplayed()))
+                .atPosition(0).perform(click());
+        onView(withId(R.id.emotionSelector)).check(matches(not(withSpinnerText(containsString("angry")))));
 
     }
 
