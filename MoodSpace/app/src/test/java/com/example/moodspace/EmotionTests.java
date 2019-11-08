@@ -1,18 +1,20 @@
+/**
+ * @author Manu Parashar
+ * This file contains the unit tests for the Emotion enum
+ * @see com.example.moodspace.Emotion
+ */
 package com.example.moodspace;
 
 import org.junit.*;
-
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 
-import static com.example.moodspace.Emotion.ANGRY;
-import static com.example.moodspace.Emotion.HAPPY;
-import static com.example.moodspace.Emotion.SAD;
 import static org.junit.Assert.*;
 
 public class EmotionTests {
 
+    /**
+     * Checks if the getEmojiList function of Emotion enum works appropriately
+     */
     @Test
     public void CheckGetEmojiList(){
 

@@ -1,3 +1,8 @@
+/**
+ * @author Manu Parashar
+ * This file contains the unit tests for SocialSituation enum
+ * @see com.example.moodspace.SocialSituation
+ */
 package com.example.moodspace;
 
 import org.junit.*;
@@ -5,6 +10,9 @@ import static org.junit.Assert.*;
 
 public class SocialSituationTests {
 
+    /**
+     * Checks if the toString method in SocialSituation enum works appropriately
+     */
     @Test
     public void ChecktoString(){
         SocialSituation s = SocialSituation.ALONE;

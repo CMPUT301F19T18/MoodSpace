@@ -1,3 +1,10 @@
+/**
+ * @author Manu Parashar
+ * This file contains unit tests for DateUtils class
+ * @see com.example.moodspace.DateUtils
+ *
+ */
+
 package com.example.moodspace;
 
 import org.junit.*;
@@ -9,7 +16,9 @@ import static org.junit.Assert.*;
 
 
 public class DateUtilsTests {
-
+    /**
+     * Checks if the formatDate static function works appropriately
+     */
     @Test
     public void CheckFormatDate(){
         Calendar calendar = Calendar.getInstance();
@@ -20,6 +29,9 @@ public class DateUtilsTests {
 
     }
 
+    /**
+     * Checks if the formatTime static function works appropriately
+     */
     @Test
     public void CheckFormatTime(){
         Calendar calendar = Calendar.getInstance();
