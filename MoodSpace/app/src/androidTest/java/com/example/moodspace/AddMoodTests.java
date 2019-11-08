@@ -38,6 +38,9 @@ public class AddMoodTests {
     @Rule
     public ActivityTestRule<LoginActivity> mActivityRule =
             new ActivityTestRule<>(LoginActivity.class);
+    @Rule
+    public ActivityTestRule<AddEditActivity> mActivityRule2 =
+            new ActivityTestRule<>(AddEditActivity.class);
     @Before
     public void initValidString() {
         // Specify a valid string.
@@ -85,7 +88,7 @@ public class AddMoodTests {
         // Do not select a mood
         onView(withId(R.id.addMoodButton)).perform(click());
         onView(withId(R.id.saveBtn)).perform(click());
-        onView(withText("Select an Emotion")).inRoot(withDecorView(not(mActivityRule.getActivity().getWindow().getDecorView())))
+        onView(withText("Select an Emotion")).inRoot(withDecorView(not(mActivityRule2.getActivity().getWindow().getDecorView())))
                 .check(matches(isDisplayed()));
         onView(withId(R.id.backBtn)).perform(click());
 
