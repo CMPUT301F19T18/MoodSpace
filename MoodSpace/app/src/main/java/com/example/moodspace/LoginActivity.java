@@ -1,6 +1,5 @@
 package com.example.moodspace;
 
-import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.AppCompatButton;
 import androidx.appcompat.widget.AppCompatEditText;
@@ -10,27 +9,25 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Toast;
 
+/**
+ * Activity for logging in and signing up
+ */
 public class LoginActivity extends AppCompatActivity {
-    AppCompatButton loginButton;
-    AppCompatTextView signUpLink;
-    AppCompatEditText username;
-    AppCompatEditText password;
-
     UserController uc;
 
-    boolean inLoginState = true;
+    private boolean inLoginState = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
-        ActionBar actionBar = getSupportActionBar();
-        // actionBar.hide();
+        //ActionBar actionBar = getSupportActionBar();
+        //actionBar.hide();
 
-        signUpLink = findViewById(R.id.signup_link);
-        loginButton = findViewById(R.id.login_btn);
-        username = findViewById(R.id.username);
-        password = findViewById(R.id.password);
+        final AppCompatButton loginButton = findViewById(R.id.login_btn);
+        final AppCompatTextView signUpLink = findViewById(R.id.signup_link);
+        final AppCompatEditText username = findViewById(R.id.username);
+        final AppCompatEditText password = findViewById(R.id.password);
 
         uc = new UserController(LoginActivity.this);
 

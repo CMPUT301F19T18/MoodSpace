@@ -16,22 +16,26 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
 import androidx.annotation.NonNull;
 
+/**
+ * Communicates user logins & signups between the UI and the firestore database
+ */
 public class UserController {
     private static final String TAG = UserController.class.getSimpleName();
     private Context context;
     private final FirebaseFirestore db = FirebaseFirestore.getInstance();
-    private List<Emotion> emotionList;
 
     public UserController(Context context) {
         this.context = context;
     }
 
+    /**
+     * Used to ensure all users have a unique username
+     */
     public void checkUserExists(User user) {
         final User enteredUser = user;
         Query query = db.collection("users").whereEqualTo("username", user.getUsername());
@@ -48,6 +52,10 @@ public class UserController {
         });
     }
 
+    /**
+     * Signs up a user by creating a user entry in firebase
+     * - Also creates default filter values for each user
+     */
     public void signUpUser(User user) {
         final String username = user.getUsername();
         String password = user.getPassword();
@@ -77,8 +85,9 @@ public class UserController {
                         Log.d(TAG, "Error has occurred " + e.getMessage());
                     }
                 });
+
         // create the default filter with all emotions
-        emotionList = Arrays.asList(Emotion.values());
+        List<Emotion> emotionList = Emotion.getValuesNonNull();
         HashMap<String, Object> data = new HashMap<>();
         for (int i = 0; i < emotionList.size(); i++) {
             data.put("emotion", emotionList.get(i));
@@ -102,6 +111,13 @@ public class UserController {
         }
     }
 
+    /**
+     * Logs in a user by checking with firebase to see if the username & password matches
+     *
+     * Possible errors that could occur:
+     * - username not found
+     * - password is wrong
+     */
     public void loginUser(User user) {
         final String username = user.getUsername();
         final String password = user.getPassword();

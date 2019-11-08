@@ -41,25 +41,26 @@ import java.util.Date;
 import java.util.List;
 
 public class ListActivity extends AppCompatActivity implements FilterFragment.OnFragmentInteractionListener {
-    Toolbar toolbar;
-    ListView moodList;
-    ArrayAdapter<Mood> moodAdapter;
-    ArrayList<Mood> moodDataList;
-    String moodId;
-    private String username;
     private static final String TAG = ListActivity.class.getSimpleName();
     private final FirebaseFirestore db = FirebaseFirestore.getInstance();
-    final List<Emotion> emotionList = Arrays.asList(Emotion.values());
-    final boolean[] checkedItems = new boolean[emotionList.size()];
+
+    ViewController vc = new ViewController();
+    ArrayAdapter<Mood> moodAdapter;
+    ArrayList<Mood> moodDataList;
+    final boolean[] checkedItems = new boolean[Emotion.getValuesNonNull().size()];
+
+    private String moodId;
+    private String username;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         username = getIntent().getExtras().getString("Username");
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_list);
-        toolbar = findViewById(R.id.toolbar);
+
+        Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        moodList = findViewById(R.id.moodList);
+        ListView moodList = findViewById(R.id.moodList);
         FloatingActionButton addBtn = findViewById(R.id.addMoodButton);
         addBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -79,6 +80,9 @@ public class ListActivity extends AppCompatActivity implements FilterFragment.On
                 openEditMood(username, position);
             }
         });
+
+
+        final List<Emotion> emotionList = Emotion.getValuesNonNull();
 
         Arrays.fill(checkedItems, true);
         final CollectionReference cRef = db.collection("users")
@@ -241,9 +245,10 @@ public class ListActivity extends AppCompatActivity implements FilterFragment.On
 
     public void onOkPressed(boolean[] checkedItems){
         final String username = getIntent().getExtras().getString("Username");
+        final List<Emotion> emotionList = Emotion.getValuesNonNull();
         List<Emotion> filterList = new ArrayList<Emotion>();
         for (int i = 0; i < checkedItems.length; i++){
-            if (checkedItems[i] == false){
+            if (checkedItems[i] == false) {
                 filterList.add(emotionList.get(i));
             }
         }

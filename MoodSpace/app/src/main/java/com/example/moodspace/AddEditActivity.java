@@ -1,7 +1,6 @@
 package com.example.moodspace;
 
 import android.Manifest;
-import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
@@ -9,8 +8,6 @@ import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-
-import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 
 import android.widget.Button;
@@ -32,31 +29,37 @@ import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
-import org.w3c.dom.Text;
-
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.UUID;
 
-import static android.view.View.GONE;
-import static com.example.moodspace.DateUtils.formatDate;
-
+/**
+ * Activity for adding / editing moods
+ * - editing is also used to view the details of your own moods
+ */
 public class AddEditActivity extends AppCompatActivity {
-    public static final int PICK_IMAGE = 1;
+    private static final int PICK_IMAGE = 1;
     private static final int GALLERY_PERMISSIONS_REQUEST = 1;
     // TODO: change back down to 8 when jpgs can be uploaded properly
     private static final long MAX_DOWNLOAD_LIMIT = 30 * 1024 * 1024;
     private static final String TAG = AddEditActivity.class.getSimpleName();
+
+    AddEditController aec;
+
     // can be null if reusing a downloaded photo while editing
     private String inputPhotoPath = null;
     private boolean hasPhoto = false;
     private boolean changedPhoto = false;
-    private AddEditController aec;
     private Mood currentMood = null;
     private FirebaseStorage fbStorage = FirebaseStorage.getInstance();
 
+    /**
+     * Initializes all input methods for adding a mood.
+     * - If editing a mood, it takes its parameters and puts it in said input methods
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -73,14 +76,6 @@ public class AddEditActivity extends AppCompatActivity {
 
         aec = new AddEditController(this);
         currentMood = (Mood) getIntent().getSerializableExtra("MOOD");
-        if (currentMood != null) {
-            TextView dateInfo = findViewById(R.id.date);
-            TextView timeInfo = findViewById(R.id.time);
-            String parsedDate = DateUtils.formatDate(currentMood.getDate());
-            String parsedTime = DateUtils.formatTime(currentMood.getDate());
-            dateInfo.setText(parsedDate);
-            timeInfo.setText(parsedTime);
-        }
 
         // sets up save button
         // upon clicking the okay button, there will be an intent
@@ -90,6 +85,7 @@ public class AddEditActivity extends AppCompatActivity {
         saveBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
                 String reasonText;
                 if (reasonEditText.getText() == null) {
                     reasonText = null;
@@ -110,8 +106,11 @@ public class AddEditActivity extends AppCompatActivity {
                 Date date;
                 boolean hasPhoto = AddEditActivity.this.hasPhoto;
                 Emotion emotion = (Emotion) spinnerEmotions.getSelectedItem();
+                if (emotion == Emotion.NULL) {
+                    Toast.makeText(AddEditActivity.this, "Select an Emotion", Toast.LENGTH_SHORT).show();
+                    return;
+                }
                 int socialSit = spinnerSocialSituation.getSelectedItemPosition();
-
 
                 // reuses parameters if editing
                 if (AddEditActivity.this.isAddActivity()) {
@@ -148,43 +147,13 @@ public class AddEditActivity extends AppCompatActivity {
         });
 
         // creates emotion spinner
-        List<Emotion> emotionList = Arrays.asList(Emotion.values());
+        // if it's the editactivity, will not have an option to select the null emotion
+        List<Emotion> emotionList = new ArrayList<>(Arrays.asList(Emotion.values()));
+        if (!this.isAddActivity()) {
+            emotionList.remove(Emotion.NULL);
+        }
         MoodAdapter mAdapter = new MoodAdapter(this, emotionList);
         spinnerEmotions.setAdapter(mAdapter);
-//        spinnerEmotions.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-//            @Override
-//            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-//                if (parent.getItemAtPosition(position).equals("NULL")) {
-//                    // do nothing
-//                }
-//                else {
-//                    //on Selecting a spinner item
-//                    Emotion emotion = parent.getItemAtPosition(position)
-//
-//                    //Show selected spinner item
-//                    Toast.makeText(parent.get)
-//                }
-//            }
-//
-//            @Override
-//            public void onNothingSelected(AdapterView<?> parent) {
-//
-//            }
-//        });
-//            @Override
-//            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-//                String selectedItemText = (String) parent.getItemAtPosition(position);
-//                // If user change the default selection
-//                // First item is disable and it is used for hint
-//                if(position > 0){
-//                    // Notify the selected item text
-//                    Toast.makeText
-//                            (getApplicationContext(), "Selected : " + selectedItemText, Toast.LENGTH_SHORT)
-//                            .show();
-//                }
-//            }
-        // TODO: social situation button dropdown
-        
 
         // sets the select image intent to the image button
         final Button imageButton = findViewById(R.id.image_button);
@@ -279,6 +248,14 @@ public class AddEditActivity extends AppCompatActivity {
                     }
                 });
             }
+
+            // displays date and time
+            TextView dateInfo = findViewById(R.id.date);
+            TextView timeInfo = findViewById(R.id.time);
+            String parsedDate = DateUtils.formatDate(currentMood.getDate());
+            String parsedTime = DateUtils.formatTime(currentMood.getDate());
+            dateInfo.setText(parsedDate);
+            timeInfo.setText(parsedTime);
         }
 
         setSupportActionBar(toolbar);
@@ -343,7 +320,7 @@ public class AddEditActivity extends AppCompatActivity {
 
         imageView.setImageDrawable(null);
         imageButton.setVisibility(View.VISIBLE);
-        removeImageButton.setVisibility(GONE);
+        removeImageButton.setVisibility(View.GONE);
 
         this.hasPhoto = false;
     }
@@ -354,7 +331,7 @@ public class AddEditActivity extends AppCompatActivity {
         ImageButton removeImageButton = findViewById(R.id.remove_image_button);
 
         imageView.setImageBitmap(bm);
-        imageButton.setVisibility(GONE);
+        imageButton.setVisibility(View.GONE);
         removeImageButton.setVisibility(View.VISIBLE);
 
         // if ever true, then changedPhoto is true

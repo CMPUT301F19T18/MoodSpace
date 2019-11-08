@@ -15,7 +15,7 @@ public class Mood implements Serializable {
     private Emotion emotion;
     private Date date;
     private String reasonText;
-    private Boolean hasPhoto;
+    private boolean hasPhoto;
     private int socialSit;
 
     public Mood(String id, Date date, Emotion emotion, String reasonText, boolean hasPhoto, int socialSit) {
@@ -34,10 +34,6 @@ public class Mood implements Serializable {
 
     public void setId(String id) {
         this.id = id;
-    }
-
-    public int getSocialSit() {
-        return socialSit;
     }
 
     public Date getDate() {
@@ -72,4 +68,11 @@ public class Mood implements Serializable {
         this.hasPhoto = hasPhoto;
     }
 
+    public int getSocialSit() {
+        return socialSit;
+    }
+
+    public void setSocialSit(int socialSit) {
+        this.socialSit = socialSit;
+    }
 }

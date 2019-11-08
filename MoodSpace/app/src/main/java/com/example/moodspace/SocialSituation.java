@@ -9,7 +9,7 @@ public enum SocialSituation {
 
     private String SocialSit;
 
-    private SocialSituation(String SocialSit) {
+    SocialSituation(String SocialSit) {
         this.SocialSit =  SocialSit;
     }
 
