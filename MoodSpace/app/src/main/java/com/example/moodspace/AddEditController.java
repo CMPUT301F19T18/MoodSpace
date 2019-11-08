@@ -119,7 +119,7 @@ public class AddEditController {
      * @param inputPhotoPath path locally on phone to photo
      * @param id mood event id
      */
-    public void uploadPhoto(String inputPhotoPath, final String id) {
+    public UploadTask uploadPhoto(String inputPhotoPath, final String id) {
         Bitmap src = BitmapFactory.decodeFile(inputPhotoPath);
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         src.compress(Bitmap.CompressFormat.PNG, 100, baos);
@@ -139,6 +139,8 @@ public class AddEditController {
                 Log.d(TAG, "progress of " + id + ": " + progress);
             }
         });
+
+        return uploadTask;
     }
 
 }

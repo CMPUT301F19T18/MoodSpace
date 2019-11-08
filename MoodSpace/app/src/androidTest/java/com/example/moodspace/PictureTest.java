@@ -4,22 +4,19 @@ import android.Manifest;
 import android.app.Activity;
 import android.app.Instrumentation;
 import android.content.ContentResolver;
-import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
-import android.database.Cursor;
 import android.graphics.Bitmap;
-import android.media.MediaScannerConnection;
 import android.net.Uri;
 import android.provider.MediaStore;
-import android.util.Log;
 
 import androidx.test.espresso.intent.rule.IntentsTestRule;
 import androidx.test.platform.app.InstrumentationRegistry;
-import androidx.test.rule.ActivityTestRule;
 import androidx.test.rule.GrantPermissionRule;
 
-import org.hamcrest.Matchers;
+import com.google.firebase.storage.UploadTask;
+
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -33,26 +30,20 @@ import java.nio.file.Files;
 import static androidx.test.espresso.Espresso.onData;
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
-import static androidx.test.espresso.action.ViewActions.closeSoftKeyboard;
-import static androidx.test.espresso.action.ViewActions.typeText;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.intent.Intents.intended;
 import static androidx.test.espresso.intent.Intents.intending;
 import static androidx.test.espresso.intent.matcher.IntentMatchers.hasAction;
 import static androidx.test.espresso.intent.matcher.IntentMatchers.isInternal;
-import static androidx.test.espresso.matcher.ViewMatchers.hasDescendant;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
-import static androidx.test.espresso.matcher.ViewMatchers.withClassName;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
-import static androidx.test.espresso.matcher.ViewMatchers.withText;
-import static junit.framework.TestCase.assertNotNull;
+import static junit.framework.TestCase.assertTrue;
 import static org.hamcrest.Matchers.anything;
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.core.AllOf.allOf;
 import static org.hamcrest.core.IsNot.not;
 
 public class PictureTest {
+    private File file;
+
     @Rule
     public GrantPermissionRule permissionRule = GrantPermissionRule.grant(
             Manifest.permission.READ_EXTERNAL_STORAGE,
@@ -82,16 +73,11 @@ public class PictureTest {
         Bitmap.Config conf = Bitmap.Config.ARGB_8888;
         Bitmap bmp = Bitmap.createBitmap(w, h, conf);
 
-        // By default Espresso Intents does not stub any Intents. Stubbing needs to be setup before
-        // every test run. In this case all external Intents will be blocked.
-        File file = File.createTempFile("moodspace_picture", ".png");
-        Log.d("WTF", file.toPath().toString());
-
+        file = File.createTempFile("moodspace_picture", ".png");
         FileOutputStream out = new FileOutputStream(file);
         bmp.compress(Bitmap.CompressFormat.PNG, 100, out);
         out.flush();
         out.close();
-
 
         // sets uri into intent
         // https://stackoverflow.com/a/20284270
@@ -99,7 +85,6 @@ public class PictureTest {
         Intent intent = new Intent();
         intent.setData(uri);
 
-        Files.delete(file.toPath());
         intending(not(isInternal()))
                 .respondWith(new Instrumentation.ActivityResult(Activity.RESULT_OK, intent));
     }
@@ -116,9 +101,11 @@ public class PictureTest {
         intended(hasAction(Intent.ACTION_CHOOSER));
     }
 
+    /**
+     * checks that views displayed correctly
+     */
     @Test
     public void testValidViews() throws InterruptedException {
-        // checks that views displayed correctly
         onView(withId(R.id.image_view)).check(matches(isDisplayed()));
         onView(withId(R.id.image_button)).check(matches(isDisplayed()));
         onView(withId(R.id.remove_image_button)).check(matches(not(isDisplayed())));
@@ -135,7 +122,16 @@ public class PictureTest {
     }
 
     @Test
-    public void testValidUri() {
+    public void testUpload() throws InterruptedException {
+        AddEditController aec = new AddEditController(null);
+        UploadTask uploadTask = aec.uploadPhoto(file.getAbsolutePath(), "picture_test");
+        Thread.sleep(5000);
+        assertTrue(uploadTask.isComplete());
+        assertTrue(uploadTask.isSuccessful());
+    }
 
+    @After
+    public void cleanupFiles() throws IOException {
+        Files.delete(file.toPath());
     }
 }
