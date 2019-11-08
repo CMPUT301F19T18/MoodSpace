@@ -1,11 +1,13 @@
 package com.example.moodspace;
 
+import androidx.test.espresso.Root;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
 import androidx.test.rule.ActivityTestRule;
 
 import com.google.firebase.firestore.FirebaseFirestore;
 
+import org.hamcrest.Matcher;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -17,7 +19,9 @@ import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.action.ViewActions.closeSoftKeyboard;
 import static androidx.test.espresso.action.ViewActions.longClick;
 import static androidx.test.espresso.action.ViewActions.typeText;
+import static androidx.test.espresso.matcher.RootMatchers.isPlatformPopup;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
+import static androidx.test.espresso.matcher.ViewMatchers.withText;
 import static org.hamcrest.Matchers.anything;
 
 
@@ -46,7 +50,6 @@ public class ListActivityTest {
 
     @Test
     public void testDelete() throws InterruptedException{
-        onView(withId(R.id.signup_link)).perform(click());
         onView(withId(R.id.username)).perform(typeText(username), closeSoftKeyboard());
         onView(withId(R.id.password)).perform(typeText(password), closeSoftKeyboard());
 
@@ -54,22 +57,21 @@ public class ListActivityTest {
         Thread.sleep(1500);
 
         onView(withId(R.id.addMoodButton)).perform(click());
-//        onView(withId(R.id.emotionSelector)).perform(click());
-//        onData(anything()).atPosition(1).perform(click());
-//        onView(withId(R.id.saveBtn)).perform(click());
-//
-//        onView(withId(R.id.addMoodButton)).perform(click());
-//        onView(withId(R.id.emotionSelector)).perform(click());
-//        onData(anything()).atPosition(2).perform(click());
-//        onView(withId(R.id.saveBtn)).perform(click());
-//
-//        onData(anything()).atPosition(1).perform(longClick());
-//        onView(withId(R.menu.menu_list)).perform(click());
+        onView(withId(R.id.emotionSelector)).perform(click());
+        onData(anything()).atPosition(1).perform(click());
+        onView(withId(R.id.saveBtn)).perform(click());
 
-//        onView(withId(R.id.moodList)).check(matches(not(hasDescendant(withText("angry")))));
+        onView(withId(R.id.addMoodButton)).perform(click());
+        onView(withId(R.id.emotionSelector)).perform(click());
+        onData(anything()).atPosition(2).perform(click());
+        onView(withId(R.id.saveBtn)).perform(click());
 
-
+        onData(anything()).atPosition(1).perform(longClick());
+        onView(withText("Delete")).perform(click());
 
     }
+
+
+
 }
 
