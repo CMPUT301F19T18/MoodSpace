@@ -30,22 +30,15 @@ import static org.hamcrest.Matchers.anything;
 public class ListActivityTest {
     private String username;
     private String password;
-    private String happy;
-    private String angry;
     private final FirebaseFirestore db = FirebaseFirestore.getInstance();
 
     @Rule
     public ActivityTestRule<LoginActivity> activityRule = new ActivityTestRule<>(LoginActivity.class);
-    private LoginActivity activity;
 
     @Before
     public void setup() {
-        activity = activityRule.getActivity();
         username = "Person";
         password = "password";
-        happy = new String(Character.toChars(0x1F604));
-        angry = new String(Character.toChars(0x1F621));
-
     }
 
     @Test
