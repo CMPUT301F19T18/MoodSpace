@@ -66,7 +66,7 @@ public class FilterTests {
     }
 
     @Test
-    public void Filter() throws InterruptedException {
+    public void filter() throws InterruptedException {
         onView(withId(R.id.username)).perform(typeText(username), closeSoftKeyboard());
         onView(withId(R.id.password)).perform(typeText(password), closeSoftKeyboard());
 
