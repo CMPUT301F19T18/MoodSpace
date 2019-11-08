@@ -9,6 +9,9 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
 
+/**
+ * Dialog box to select what to filter
+ */
 public class FilterFragment extends DialogFragment {
     private static final String TAG = FilterFragment.class.getSimpleName();
 

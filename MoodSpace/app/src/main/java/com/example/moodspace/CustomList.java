@@ -26,6 +26,9 @@ public class CustomList extends ArrayAdapter<Mood> {
         this.context = context;
     }
 
+    /**
+     * Displays emoji face, date, time and color in the list
+     */
     @NonNull
     @Override
     public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
