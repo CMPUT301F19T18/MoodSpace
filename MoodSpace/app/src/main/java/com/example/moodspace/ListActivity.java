@@ -47,7 +47,7 @@ public class ListActivity extends AppCompatActivity implements FilterFragment.On
     ViewController vc = new ViewController();
     ArrayAdapter<Mood> moodAdapter;
     ArrayList<Mood> moodDataList;
-    final boolean[] checkedItems = new boolean[Emotion.values().length];
+    final boolean[] checkedItems = new boolean[Emotion.getValuesNonNull().size()];
 
     private String moodId;
     private String username;
@@ -82,7 +82,7 @@ public class ListActivity extends AppCompatActivity implements FilterFragment.On
         });
 
 
-        final Emotion[] emotionArray = Emotion.values();
+        final List<Emotion> emotionList = Emotion.getValuesNonNull();
 
         Arrays.fill(checkedItems, true);
         final CollectionReference cRef = db.collection("users")
@@ -93,8 +93,8 @@ public class ListActivity extends AppCompatActivity implements FilterFragment.On
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
                 for (QueryDocumentSnapshot doc : task.getResult()){
                     Emotion emotion = Emotion.valueOf(doc.getString("emotion"));
-                    for (int i = 0; i < emotionArray.length; i++){
-                        if (emotionArray[i] == emotion){
+                    for (int i = 0; i < emotionList.size(); i++){
+                        if (emotionList.get(i) == emotion){
                             checkedItems[i] = false;
                             filterList.add(emotion);
                         }
@@ -245,11 +245,11 @@ public class ListActivity extends AppCompatActivity implements FilterFragment.On
 
     public void onOkPressed(boolean[] checkedItems){
         final String username = getIntent().getExtras().getString("Username");
-        final Emotion[] emotionArray = Emotion.values();
+        final List<Emotion> emotionList = Emotion.getValuesNonNull();
         List<Emotion> filterList = new ArrayList<Emotion>();
         for (int i = 0; i < checkedItems.length; i++){
             if (checkedItems[i] == false) {
-                filterList.add(emotionArray[i]);
+                filterList.add(emotionList.get(i));
             }
         }
         update(username, filterList);

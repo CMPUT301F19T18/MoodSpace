@@ -24,6 +24,9 @@ import com.google.firebase.storage.UploadTask;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 
+/**
+ * Controller class for modifying the mood event database
+ */
 public class AddEditController {
     private static final String TAG = AddEditController.class.getSimpleName();
     private Context context;
@@ -54,6 +57,9 @@ public class AddEditController {
                 });
     }
 
+    /**
+     * Updates a mood with the given ID in said mood parameter with its other parameters
+     */
     public void updateMood(String username, Mood updatedMood) {
         db.collection("users")
                 .document(username)

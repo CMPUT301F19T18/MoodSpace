@@ -36,6 +36,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.UUID;
 
+/**
+ * Activity for adding / editing moods
+ * - editing is also used to view the details of your own moods
+ */
 public class AddEditActivity extends AppCompatActivity {
     private static final int PICK_IMAGE = 1;
     private static final int GALLERY_PERMISSIONS_REQUEST = 1;
@@ -52,6 +56,10 @@ public class AddEditActivity extends AppCompatActivity {
     private Mood currentMood = null;
     private FirebaseStorage fbStorage = FirebaseStorage.getInstance();
 
+    /**
+     * Initializes all input methods for adding a mood.
+     * - If editing a mood, it takes its parameters and puts it in said input methods
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
