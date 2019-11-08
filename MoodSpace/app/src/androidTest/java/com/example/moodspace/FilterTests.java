@@ -30,7 +30,6 @@ import static org.hamcrest.core.AllOf.allOf;
 public class FilterTests {
     private String username;
     private String password;
-    private String happy = "0x1F604" + "      " +  "Happy";
 
     @Rule
     public ActivityTestRule<LoginActivity> activityRule =
@@ -50,10 +49,16 @@ public class FilterTests {
         onView(withId(R.id.login_btn)).perform(click());
         Thread.sleep(1500);
         onView(withId(R.id.addMoodButton)).perform(click());
-
         onView(withId(R.id.emotionSelector)).perform(click());
         onData(anything()).atPosition(1).perform(click());
         onView(withId(R.id.saveBtn)).perform(click());
+
+        onView(withId(R.id.addMoodButton)).perform(click());
+        onView(withId(R.id.emotionSelector)).perform(click());
+        onData(anything()).atPosition(2).perform(click());
+        onView(withId(R.id.saveBtn)).perform(click());
+
+        onView(withId(R.id.filter)).perform(click());
 
 
     }

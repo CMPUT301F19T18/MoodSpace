@@ -26,6 +26,7 @@ import static androidx.test.espresso.action.ViewActions.replaceText;
 import static androidx.test.espresso.action.ViewActions.scrollTo;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withClassName;
+import static androidx.test.espresso.matcher.ViewMatchers.withContentDescription;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
 import static org.hamcrest.Matchers.allOf;
@@ -41,16 +42,6 @@ public class LoginActivityTest {
 
     @Test
     public void loginActivityTest() {
-        ViewInteraction appCompatTextView = onView(
-                allOf(withId(R.id.signup_link), withText("New user? SIGN UP"),
-                        childAtPosition(
-                                childAtPosition(
-                                        withClassName(is("androidx.appcompat.widget.LinearLayoutCompat")),
-                                        3),
-                                0),
-                        isDisplayed()));
-        appCompatTextView.perform(click());
-
         ViewInteraction textInputEditText = onView(
                 allOf(withId(R.id.username),
                         childAtPosition(
@@ -59,7 +50,7 @@ public class LoginActivityTest {
                                         0),
                                 0),
                         isDisplayed()));
-        textInputEditText.perform(replaceText("ss"), closeSoftKeyboard());
+        textInputEditText.perform(replaceText("Person"), closeSoftKeyboard());
 
         ViewInteraction textInputEditText2 = onView(
                 allOf(withId(R.id.password),
@@ -69,10 +60,10 @@ public class LoginActivityTest {
                                         0),
                                 0),
                         isDisplayed()));
-        textInputEditText2.perform(replaceText("ss"), closeSoftKeyboard());
+        textInputEditText2.perform(replaceText("password"), closeSoftKeyboard());
 
         ViewInteraction appCompatButton = onView(
-                allOf(withId(R.id.login_btn), withText("Sign Up"),
+                allOf(withId(R.id.login_btn), withText("Login"),
                         childAtPosition(
                                 childAtPosition(
                                         withClassName(is("androidx.appcompat.widget.LinearLayoutCompat")),
@@ -81,41 +72,51 @@ public class LoginActivityTest {
                         isDisplayed()));
         appCompatButton.perform(click());
 
-        ViewInteraction floatingActionButton = onView(
-                allOf(withId(R.id.addMoodButton),
+        ViewInteraction actionMenuItemView = onView(
+                allOf(withId(R.id.filter), withContentDescription("Filter"),
                         childAtPosition(
                                 childAtPosition(
-                                        withClassName(is("android.widget.LinearLayout")),
-                                        2),
+                                        withId(R.id.toolbar),
+                                        1),
                                 0),
                         isDisplayed()));
-        floatingActionButton.perform(click());
+        actionMenuItemView.perform(click());
 
-        ViewInteraction appCompatSpinner = onView(
-                allOf(withId(R.id.emotionSelector),
+        DataInteraction appCompatCheckedTextView = onData(anything())
+                .inAdapterView(allOf(withClassName(is("com.android.internal.app.AlertController$RecycleListView")),
+                        childAtPosition(
+                                withClassName(is("android.widget.FrameLayout")),
+                                0)))
+                .atPosition(1);
+        appCompatCheckedTextView.perform(click());
+
+        ViewInteraction appCompatButton2 = onView(
+                allOf(withId(android.R.id.button1), withText("OK"),
                         childAtPosition(
                                 childAtPosition(
                                         withClassName(is("android.widget.ScrollView")),
                                         0),
-                                1)));
-        appCompatSpinner.perform(scrollTo(), click());
+                                3)));
+        appCompatButton2.perform(scrollTo(), click());
 
-        DataInteraction appCompatTextView2 = onData(anything())
-                .inAdapterView(childAtPosition(
-                        withClassName(is("android.widget.PopupWindow$PopupBackgroundView")),
-                        0))
-                .atPosition(2);
-        appCompatTextView2.perform(click());
-
-        ViewInteraction appCompatButton2 = onView(
-                allOf(withId(R.id.saveBtn), withText("Post"),
+        ViewInteraction actionMenuItemView2 = onView(
+                allOf(withId(R.id.filter), withContentDescription("Filter"),
                         childAtPosition(
                                 childAtPosition(
-                                        withId(android.R.id.content),
-                                        0),
-                                3),
+                                        withId(R.id.toolbar),
+                                        1),
+                                0),
                         isDisplayed()));
-        appCompatButton2.perform(click());
+        actionMenuItemView2.perform(click());
+
+        ViewInteraction appCompatButton3 = onView(
+                allOf(withId(android.R.id.button1), withText("OK"),
+                        childAtPosition(
+                                childAtPosition(
+                                        withClassName(is("android.widget.ScrollView")),
+                                        0),
+                                3)));
+        appCompatButton3.perform(scrollTo(), click());
     }
 
     private static Matcher<View> childAtPosition(
