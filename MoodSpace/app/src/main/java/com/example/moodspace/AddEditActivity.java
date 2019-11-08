@@ -155,6 +155,11 @@ public class AddEditActivity extends AppCompatActivity {
         MoodAdapter mAdapter = new MoodAdapter(this, emotionList);
         spinnerEmotions.setAdapter(mAdapter);
 
+        // TODO: social situation button dropdown
+
+        // makes sure views are displayed as normal
+        this.removePreviewImage();
+
         // sets the select image intent to the image button
         final Button imageButton = findViewById(R.id.image_button);
         imageButton.setOnClickListener(new View.OnClickListener() {
