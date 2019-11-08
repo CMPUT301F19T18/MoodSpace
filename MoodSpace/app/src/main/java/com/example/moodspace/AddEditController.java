@@ -24,6 +24,9 @@ import com.google.firebase.storage.UploadTask;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 
+/**
+ * Controller class for modifying the mood event database
+ */
 public class AddEditController {
     private static final String TAG = AddEditController.class.getSimpleName();
     private Context context;
@@ -54,6 +57,9 @@ public class AddEditController {
                 });
     }
 
+    /**
+     * Updates a mood with the given ID in said mood parameter with its other parameters
+     */
     public void updateMood(String username, Mood updatedMood) {
         db.collection("users")
                 .document(username)
@@ -119,7 +125,7 @@ public class AddEditController {
      * @param inputPhotoPath path locally on phone to photo
      * @param id mood event id
      */
-    public void uploadPhoto(String inputPhotoPath, final String id) {
+    public UploadTask uploadPhoto(String inputPhotoPath, final String id) {
         Bitmap src = BitmapFactory.decodeFile(inputPhotoPath);
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         src.compress(Bitmap.CompressFormat.PNG, 100, baos);
@@ -139,6 +145,8 @@ public class AddEditController {
                 Log.d(TAG, "progress of " + id + ": " + progress);
             }
         });
+
+        return uploadTask;
     }
 
 }

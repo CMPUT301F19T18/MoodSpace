@@ -9,6 +9,9 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Toast;
 
+/**
+ * Activity for logging in and signing up
+ */
 public class LoginActivity extends AppCompatActivity {
     UserController uc;
 
