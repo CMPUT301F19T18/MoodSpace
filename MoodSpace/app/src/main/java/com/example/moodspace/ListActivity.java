@@ -217,11 +217,22 @@ public class ListActivity extends AppCompatActivity implements FilterFragment.On
                             Date ts = doc.getTimestamp("date").toDate();
                             String reason = doc.getString("reasonText");
                             Boolean hasPhoto = doc.getBoolean("hasPhoto");
+                            int socialSit;
+                            try{
+                                socialSit = doc.getLong("socialSit").intValue();
+
+                            }
+                            catch (Exception exc){
+                                socialSit = 0;
+                            }
+
+
                             if (hasPhoto == null) { // backwards compatibility
                                 hasPhoto = false;
                             }
+
                             String id = doc.getId();
-                            Mood newMood = new Mood(id, ts, emotion, reason, hasPhoto);
+                            Mood newMood = new Mood(id, ts, emotion, reason, hasPhoto, socialSit);
                             newMood.setId(doc.getId());
                             if (filterList.contains(emotion)){
                                 moodDataList.add(newMood);

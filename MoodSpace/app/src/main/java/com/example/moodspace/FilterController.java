@@ -26,7 +26,7 @@ public class FilterController {
     }
 
     public void filterOut(int i, String username){
-        emotionList = Arrays.asList(Emotion.values());
+        emotionList = Emotion.getValuesNonNull();
         db.collection("users")
                 .document(username)
                 .collection("Filter")
@@ -47,7 +47,7 @@ public class FilterController {
     }
 
     public void filterIn(int i, String username) {
-        emotionList = Arrays.asList(Emotion.values());
+        emotionList = Emotion.getValuesNonNull();
         HashMap<String, Object> data = new HashMap<>();
         data.put("emotion", emotionList.get(i));
         db.collection("users")

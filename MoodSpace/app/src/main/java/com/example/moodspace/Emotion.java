@@ -34,8 +34,17 @@ public enum Emotion {
         return this.emojiName;
     }
 
-    public static String[] getEmojiNameList() {
-        List<Emotion> emotionList = Arrays.asList(Emotion.values());
+    // yet again another temporary hack
+    public static List<Emotion> getValuesNonNull() {
+        List<Emotion> emotionList = new ArrayList<>(Arrays.asList(Emotion.values()));
+        emotionList.remove(Emotion.NULL);
+        return emotionList;
+    }
+
+    public static String[] getEmojiList() {
+        List<Emotion> emotionList = new ArrayList<>(Arrays.asList(Emotion.values()));
+        // hack to remove null from filters
+        emotionList.remove(Emotion.NULL);
         String[] emotionArray = new String[emotionList.size()];
         for (int i = 0; i < emotionList.size(); i++) {
             emotionArray[i] = emotionList.get(i).getEmojiName() + " " + emotionList.get(i).getEmojiString();

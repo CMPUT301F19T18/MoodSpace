@@ -42,7 +42,7 @@ public class FilterFragment extends DialogFragment {
     @Override
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
         fc = new FilterController(FilterFragment.this.getActivity());
-        String[] emotionStrings = Emotion.getEmojiNameList();
+        String[] emotionStrings = Emotion.getEmojiList();
         AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
         builder.setMultiChoiceItems(emotionStrings, checkedItems, new DialogInterface.OnMultiChoiceClickListener() {
             @Override
