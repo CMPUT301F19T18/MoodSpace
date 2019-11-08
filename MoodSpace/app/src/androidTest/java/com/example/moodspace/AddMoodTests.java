@@ -2,8 +2,6 @@ package com.example.moodspace;
 
 import androidx.test.rule.ActivityTestRule;
 
-import com.google.firebase.firestore.FirebaseFirestore;
-
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -32,7 +30,6 @@ public class AddMoodTests {
     private String angry;
     private String happy;
     private String sad;
-    private final FirebaseFirestore db = FirebaseFirestore.getInstance();
 
     @Rule
     public ActivityTestRule<LoginActivity> mActivityRule =
@@ -40,8 +37,8 @@ public class AddMoodTests {
     @Before
     public void initValidString() {
         // Specify a valid string.
-        username = "e";
-        password = "e";
+        username = "AddTest";
+        password = "AddTest";
         angry = new String(Character.toChars(0x1F621));
         happy = new String(Character.toChars(0x1F604));
         sad = new String(Character.toChars(0x1F62D));
@@ -96,5 +93,6 @@ public class AddMoodTests {
         onView(withId(R.id.emotionSelector)).check(matches(not(withSpinnerText(containsString(happy)))));
         onView(withId(R.id.situationSelector)).check(matches(withSpinnerText(containsString("With two to several people"))));
         onView(withId(R.id.reason_text)).check(matches(withText(containsString("Movie night"))));
+
     }
 }

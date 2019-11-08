@@ -21,6 +21,7 @@ import static androidx.test.espresso.matcher.ViewMatchers.withSpinnerText;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
 import static org.hamcrest.core.AllOf.allOf;
 import static org.hamcrest.core.IsAnything.anything;
+import static org.hamcrest.core.IsNot.not;
 import static org.hamcrest.core.StringContains.containsString;
 
 public class EditMoodTests {
@@ -37,8 +38,8 @@ public class EditMoodTests {
     @Before
     public void initValidString() {
         // Specify a valid string.
-        username = "e";
-        password = "e";
+        username = "EditTest";
+        password = "EditTest";
         angry = new String(Character.toChars(0x1F621));
         happy = new String(Character.toChars(0x1F604));
         sad = new String(Character.toChars(0x1F62D));
@@ -51,6 +52,7 @@ public class EditMoodTests {
 
         onView(withId(R.id.login_btn)).perform(click());
         Thread.sleep(1500);
+
         // Add Happy Mood make social situation as "Alone" and set reason to "Quiet"
         onView(withId(R.id.addMoodButton)).perform(click());
         onView(withId(R.id.emotionSelector)).perform(click());
@@ -67,6 +69,8 @@ public class EditMoodTests {
                 .atPosition(0).perform(click());
         onView(withId(R.id.situationSelector)).check(matches(withSpinnerText(containsString("Alone"))));
         onView(withId(R.id.reason_text)).check(matches(withText(containsString("Quiet"))));
+        onView(withId(R.id.emotionSelector)).check(matches(not(withSpinnerText(containsString(sad)))));
+        onView(withId(R.id.emotionSelector)).check(matches(not(withSpinnerText(containsString(angry)))));
 
         onView(withId(R.id.emotionSelector)).perform(click());
         onData(anything()).atPosition(1).perform(click());
@@ -81,6 +85,8 @@ public class EditMoodTests {
                 .atPosition(0).perform(click());
         onView(withId(R.id.situationSelector)).check(matches(withSpinnerText(containsString("With another person"))));
         onView(withId(R.id.reason_text)).check(matches(withText(containsString("Gaming"))));
+        onView(withId(R.id.emotionSelector)).check(matches(not(withSpinnerText(containsString(sad)))));
+        onView(withId(R.id.emotionSelector)).check(matches(not(withSpinnerText(containsString(happy)))));
 
         onView(withId(R.id.emotionSelector)).perform(click());
         onData(anything()).atPosition(2).perform(click());
@@ -95,6 +101,8 @@ public class EditMoodTests {
                 .atPosition(0).perform(click());
         onView(withId(R.id.situationSelector)).check(matches(withSpinnerText(containsString("With two to several people"))));
         onView(withId(R.id.reason_text)).check(matches(withText(containsString("Movie night"))));
+        onView(withId(R.id.emotionSelector)).check(matches(not(withSpinnerText(containsString(angry)))));
+        onView(withId(R.id.emotionSelector)).check(matches(not(withSpinnerText(containsString(happy)))));
         onView(withId(R.id.backBtn)).perform(click());
 
     }
