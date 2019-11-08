@@ -67,6 +67,8 @@ public class AddMoodTests {
         onView(withId(R.id.reason_text)).perform(typeText("alone time"), closeSoftKeyboard());
         onView(withId(R.id.saveBtn)).perform(click());
 
+        Thread.sleep(1500);
+
         // Add Angry Mood with Another person situation and set reason to fighting.
         onView(withId(R.id.addMoodButton)).perform(click());
         onView(withId(R.id.emotionSelector)).perform(click());
@@ -75,6 +77,8 @@ public class AddMoodTests {
         onData(anything()).atPosition(2).perform(click());
         onView(withId(R.id.reason_text)).perform(typeText("fighting"), closeSoftKeyboard());
         onView(withId(R.id.saveBtn)).perform(click());
+
+        Thread.sleep(1500);
 
         // Add Sad Mood with two or more people social situation and set reason to movie night.
         onView(withId(R.id.addMoodButton)).perform(click());
@@ -85,6 +89,8 @@ public class AddMoodTests {
         onView(withId(R.id.reason_text)).perform(typeText("Movie night"), closeSoftKeyboard());
         onView(withId(R.id.saveBtn)).perform(click());
 
+        Thread.sleep(1500);
+
         // Do not select a mood
         onView(withId(R.id.addMoodButton)).perform(click());
         onView(withId(R.id.saveBtn)).perform(click());
@@ -92,7 +98,9 @@ public class AddMoodTests {
                 .check(matches(isDisplayed()));
         onView(withId(R.id.backBtn)).perform(click());
 
-        //Check that the first mood in the list view is the sad mood, has two to several people as social situation and reason is movie night.
+        Thread.sleep(1500);
+
+//        Check that the first mood in the list view is the sad mood, has two to several people as social situation and reason is movie night.
         onData(anything())
                 .inAdapterView(allOf(withId(R.id.moodList), isCompletelyDisplayed()))
                 .atPosition(0).perform(click());
