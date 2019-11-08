@@ -78,7 +78,7 @@ public class UserController {
                     }
                 });
         // create the default filter with all emotions
-        emotionList = Arrays.asList(Emotion.values());
+        emotionList = Emotion.getValuesNonNull();
         HashMap<String, Object> data = new HashMap<>();
         for (int i = 0; i < emotionList.size(); i++) {
             data.put("emotion", emotionList.get(i));

@@ -34,6 +34,7 @@ import com.google.firebase.storage.StorageReference;
 
 import org.w3c.dom.Text;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashSet;
@@ -90,6 +91,7 @@ public class AddEditActivity extends AppCompatActivity {
         saveBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
                 String reasonText;
                 if (reasonEditText.getText() == null) {
                     reasonText = null;
@@ -110,8 +112,11 @@ public class AddEditActivity extends AppCompatActivity {
                 Date date;
                 boolean hasPhoto = AddEditActivity.this.hasPhoto;
                 Emotion emotion = (Emotion) spinnerEmotions.getSelectedItem();
+                if (emotion == Emotion.NULL) {
+                    Toast.makeText(AddEditActivity.this, "Select an Emotion", Toast.LENGTH_SHORT).show();
+                    return;
+                }
                 int socialSit = spinnerSocialSituation.getSelectedItemPosition();
-
 
                 // reuses parameters if editing
                 if (AddEditActivity.this.isAddActivity()) {
@@ -148,41 +153,14 @@ public class AddEditActivity extends AppCompatActivity {
         });
 
         // creates emotion spinner
-        List<Emotion> emotionList = Arrays.asList(Emotion.values());
+        // if it's the editactivity, will not have an option to select the null emotion
+        List<Emotion> emotionList = new ArrayList<>(Arrays.asList(Emotion.values()));
+        if (!this.isAddActivity()) {
+            emotionList.remove(Emotion.NULL);
+        }
         MoodAdapter mAdapter = new MoodAdapter(this, emotionList);
         spinnerEmotions.setAdapter(mAdapter);
-//        spinnerEmotions.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-//            @Override
-//            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-//                if (parent.getItemAtPosition(position).equals("NULL")) {
-//                    // do nothing
-//                }
-//                else {
-//                    //on Selecting a spinner item
-//                    Emotion emotion = parent.getItemAtPosition(position)
-//
-//                    //Show selected spinner item
-//                    Toast.makeText(parent.get)
-//                }
-//            }
-//
-//            @Override
-//            public void onNothingSelected(AdapterView<?> parent) {
-//
-//            }
-//        });
-//            @Override
-//            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-//                String selectedItemText = (String) parent.getItemAtPosition(position);
-//                // If user change the default selection
-//                // First item is disable and it is used for hint
-//                if(position > 0){
-//                    // Notify the selected item text
-//                    Toast.makeText
-//                            (getApplicationContext(), "Selected : " + selectedItemText, Toast.LENGTH_SHORT)
-//                            .show();
-//                }
-//            }
+
         // TODO: social situation button dropdown
         
 
