@@ -16,7 +16,6 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
@@ -26,7 +25,6 @@ public class UserController {
     private static final String TAG = UserController.class.getSimpleName();
     private Context context;
     private final FirebaseFirestore db = FirebaseFirestore.getInstance();
-    private List<Emotion> emotionList;
 
     public UserController(Context context) {
         this.context = context;
@@ -77,8 +75,9 @@ public class UserController {
                         Log.d(TAG, "Error has occurred " + e.getMessage());
                     }
                 });
+
         // create the default filter with all emotions
-        emotionList = Emotion.getValuesNonNull();
+        List<Emotion> emotionList = Emotion.getValuesNonNull();
         HashMap<String, Object> data = new HashMap<>();
         for (int i = 0; i < emotionList.size(); i++) {
             data.put("emotion", emotionList.get(i));

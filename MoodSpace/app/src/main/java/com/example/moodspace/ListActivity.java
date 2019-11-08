@@ -41,25 +41,26 @@ import java.util.Date;
 import java.util.List;
 
 public class ListActivity extends AppCompatActivity implements FilterFragment.OnFragmentInteractionListener {
-    Toolbar toolbar;
-    ListView moodList;
-    ArrayAdapter<Mood> moodAdapter;
-    ArrayList<Mood> moodDataList;
-    String moodId;
-    private String username;
     private static final String TAG = ListActivity.class.getSimpleName();
     private final FirebaseFirestore db = FirebaseFirestore.getInstance();
-    final List<Emotion> emotionList = Emotion.getValuesNonNull();
-    final boolean[] checkedItems = new boolean[emotionList.size()];
+
+    ViewController vc = new ViewController();
+    ArrayAdapter<Mood> moodAdapter;
+    ArrayList<Mood> moodDataList;
+    final boolean[] checkedItems = new boolean[Emotion.values().length];
+
+    private String moodId;
+    private String username;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         username = getIntent().getExtras().getString("Username");
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_list);
-        toolbar = findViewById(R.id.toolbar);
+
+        Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        moodList = findViewById(R.id.moodList);
+        ListView moodList = findViewById(R.id.moodList);
         FloatingActionButton addBtn = findViewById(R.id.addMoodButton);
         addBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -80,6 +81,9 @@ public class ListActivity extends AppCompatActivity implements FilterFragment.On
             }
         });
 
+
+        final Emotion[] emotionArray = Emotion.values();
+
         Arrays.fill(checkedItems, true);
         final CollectionReference cRef = db.collection("users")
                 .document(username)
@@ -89,8 +93,8 @@ public class ListActivity extends AppCompatActivity implements FilterFragment.On
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
                 for (QueryDocumentSnapshot doc : task.getResult()){
                     Emotion emotion = Emotion.valueOf(doc.getString("emotion"));
-                    for (int i = 0; i < emotionList.size(); i++){
-                        if (emotionList.get(i) == emotion){
+                    for (int i = 0; i < emotionArray.length; i++){
+                        if (emotionArray[i] == emotion){
                             checkedItems[i] = false;
                             filterList.add(emotion);
                         }
@@ -241,10 +245,11 @@ public class ListActivity extends AppCompatActivity implements FilterFragment.On
 
     public void onOkPressed(boolean[] checkedItems){
         final String username = getIntent().getExtras().getString("Username");
+        final Emotion[] emotionArray = Emotion.values();
         List<Emotion> filterList = new ArrayList<Emotion>();
         for (int i = 0; i < checkedItems.length; i++){
-            if (checkedItems[i] == false){
-                filterList.add(emotionList.get(i));
+            if (checkedItems[i] == false) {
+                filterList.add(emotionArray[i]);
             }
         }
         update(username, filterList);

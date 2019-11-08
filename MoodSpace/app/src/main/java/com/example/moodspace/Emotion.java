@@ -14,7 +14,7 @@ public enum Emotion {
 
     private final int emojiCode;
     private final String colorCode;
-    public final String emojiName;
+    private final String emojiName;
 
     Emotion(int emojiCode, String colorCode, String emojiName) {
         this.emojiCode = emojiCode;
@@ -31,7 +31,7 @@ public enum Emotion {
     }
 
     public String getEmojiName() {
-        return emojiName;
+        return this.emojiName;
     }
 
     // yet again another temporary hack
@@ -41,7 +41,7 @@ public enum Emotion {
         return emotionList;
     }
 
-    public String[] getEmojiList() {
+    public static String[] getEmojiList() {
         List<Emotion> emotionList = new ArrayList<>(Arrays.asList(Emotion.values()));
         // hack to remove null from filters
         emotionList.remove(Emotion.NULL);
