@@ -72,7 +72,7 @@ public class UserController {
                     @Override
                     public void onSuccess(Void aVoid) {
                         Log.d(TAG, "User was successfully added");
-                        Intent i = new Intent(context, ListActivity.class);
+                        Intent i = new Intent(context, ProfileListActivity.class);
                         // TODO: pass user to activity
                         i.putExtra("Username",username);
                         context.startActivity(i);
@@ -132,7 +132,7 @@ public class UserController {
                         if (task.isSuccessful()) {
                             if (task.getResult().exists()) {
                                 if (task.getResult().get("password").equals(password)) {
-                                    Intent i = new Intent(context, ListActivity.class);
+                                    Intent i = new Intent(context, ProfileListActivity.class);
                                     i.putExtra("Username",username);
 
                                     // TODO: pass user to activity

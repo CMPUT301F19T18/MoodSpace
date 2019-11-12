@@ -40,8 +40,8 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
-public class ListActivity extends AppCompatActivity implements FilterFragment.OnFragmentInteractionListener {
-    private static final String TAG = ListActivity.class.getSimpleName();
+public class ProfileListActivity extends AppCompatActivity implements FilterFragment.OnFragmentInteractionListener {
+    private static final String TAG = ProfileListActivity.class.getSimpleName();
     private final FirebaseFirestore db = FirebaseFirestore.getInstance();
 
     ViewController vc = new ViewController();
@@ -71,7 +71,7 @@ public class ListActivity extends AppCompatActivity implements FilterFragment.On
         final List<Emotion> filterList = new ArrayList<Emotion>();
 
         moodDataList = new ArrayList<>();
-        moodAdapter = new CustomList(this, moodDataList);
+        moodAdapter = new MoodViewList(this, moodDataList);
 
         moodList.setAdapter(moodAdapter);
         moodList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
