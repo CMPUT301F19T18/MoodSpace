@@ -78,7 +78,7 @@ public class AddEditActivity extends AppCompatActivity {
 
         // creates social situation spinner
         final Spinner socialSitSpinner = findViewById(R.id.situationSelector);
-        List<SocialSituation> socialSitList = new ArrayList<>(Arrays.asList(SocialSituation.values()));
+        List<SocialSituation> socialSitList = Arrays.asList(SocialSituation.values());
         SocialSituationAdapter socialSituationAdapter = new SocialSituationAdapter(this, socialSitList);
         socialSitSpinner.setAdapter(socialSituationAdapter);
 

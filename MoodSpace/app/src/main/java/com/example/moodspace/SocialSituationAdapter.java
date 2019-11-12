@@ -13,8 +13,10 @@ import androidx.annotation.Nullable;
 import java.util.List;
 
 public class SocialSituationAdapter extends ArrayAdapter<SocialSituation> {
+    private static final int RESOURCE = R.layout.social_sit_spinner_row;
+
     public SocialSituationAdapter(Context context, List<SocialSituation> socialSitList) {
-        super(context,0, socialSitList);
+        super(context, RESOURCE, socialSitList);
     }
 
     @NonNull
@@ -31,8 +33,7 @@ public class SocialSituationAdapter extends ArrayAdapter<SocialSituation> {
     private View initView(int position, View convertView, ViewGroup parent) {
         if (convertView == null) {
             convertView = LayoutInflater.from(getContext()).inflate(
-                    R.layout.social_sit_spinner_row, parent, false
-            );
+                    RESOURCE, parent, false);
         }
 
         TextView field = convertView.findViewById(R.id.social_sit_spinner_row);
