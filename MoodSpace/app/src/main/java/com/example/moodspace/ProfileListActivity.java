@@ -47,7 +47,7 @@ public class ProfileListActivity extends AppCompatActivity implements FilterFrag
     ViewController vc = new ViewController();
     ArrayAdapter<Mood> moodAdapter;
     ArrayList<Mood> moodDataList;
-    final boolean[] checkedItems = new boolean[Emotion.getValuesNonNull().size()];
+    final boolean[] checkedItems = new boolean[Emotion.values().length];
 
     private String moodId;
     private String username;
@@ -82,7 +82,7 @@ public class ProfileListActivity extends AppCompatActivity implements FilterFrag
         });
 
 
-        final List<Emotion> emotionList = Emotion.getValuesNonNull();
+        final Emotion[] emotionArray = Emotion.values();
 
         Arrays.fill(checkedItems, true);
         final CollectionReference cRef = db.collection("users")
@@ -93,8 +93,8 @@ public class ProfileListActivity extends AppCompatActivity implements FilterFrag
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
                 for (QueryDocumentSnapshot doc : task.getResult()){
                     Emotion emotion = Emotion.valueOf(doc.getString("emotion"));
-                    for (int i = 0; i < emotionList.size(); i++){
-                        if (emotionList.get(i) == emotion){
+                    for (int i = 0; i < emotionArray.length; i++){
+                        if (emotionArray[i] == emotion){
                             checkedItems[i] = false;
                             filterList.add(emotion);
                         }
@@ -225,7 +225,7 @@ public class ProfileListActivity extends AppCompatActivity implements FilterFrag
                             } catch (Exception ex) {
                                 Log.d(TAG, "set default social situation instead");
                                 Log.d(TAG, Log.getStackTraceString(ex));
-                                socialSit = SocialSituation.NOT_PROVIDED;
+                                socialSit = SocialSituation.ALONE;
                             }
                             if (hasPhoto == null) { // backwards compatibility
                                 hasPhoto = false;
@@ -244,11 +244,11 @@ public class ProfileListActivity extends AppCompatActivity implements FilterFrag
 
     public void onOkPressed(boolean[] checkedItems){
         final String username = getIntent().getExtras().getString("Username");
-        final List<Emotion> emotionList = Emotion.getValuesNonNull();
+        final Emotion[] emotionArray = Emotion.values();
         List<Emotion> filterList = new ArrayList<Emotion>();
         for (int i = 0; i < checkedItems.length; i++){
             if (checkedItems[i] == false) {
-                filterList.add(emotionList.get(i));
+                filterList.add(emotionArray[i]);
             }
         }
         update(username, filterList);

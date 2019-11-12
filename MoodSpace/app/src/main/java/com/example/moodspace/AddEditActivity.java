@@ -65,11 +65,22 @@ public class AddEditActivity extends AppCompatActivity {
         setContentView(R.layout.activity_add_edit_mood);
 
         final String username = getIntent().getStringExtra("USERNAME");
-        final Spinner emotionSpinner = findViewById(R.id.emotionSelector);
-        final Spinner socialSitSpinner = findViewById(R.id.situationSelector);
-
         aec = new AddEditController(this);
         currentMood = (Mood) getIntent().getSerializableExtra("MOOD");
+
+        // creates emotion spinner
+        final Spinner emotionSpinner = findViewById(R.id.emotionSelector);
+        List<Emotion> emotionList = Arrays.asList(Emotion.values());
+        // last argument is initialTextWasShown (true if EditActivity, false if AddActivity)
+        final EmotionAdapter emotionAdapter = new EmotionAdapter(
+                this, emotionList, !this.isAddActivity());
+        emotionSpinner.setAdapter(emotionAdapter);
+
+        // creates social situation spinner
+        final Spinner socialSitSpinner = findViewById(R.id.situationSelector);
+        List<SocialSituation> socialSitList = new ArrayList<>(Arrays.asList(SocialSituation.values()));
+        SocialSituationAdapter socialSituationAdapter = new SocialSituationAdapter(this, socialSitList);
+        socialSitSpinner.setAdapter(socialSituationAdapter);
 
         // sets up save button
         // upon clicking the okay button, there will be an intent
@@ -79,6 +90,12 @@ public class AddEditActivity extends AppCompatActivity {
         saveBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
+                // requires an emotion to be selected
+                if (!emotionAdapter.selectionMade(emotionSpinner)) {
+                    Toast.makeText(AddEditActivity.this, "Select an emotion", Toast.LENGTH_SHORT).show();
+                    return;
+                }
 
                 String reasonText;
                 if (reasonEditText.getText() == null) {
@@ -100,10 +117,6 @@ public class AddEditActivity extends AppCompatActivity {
                 Date date;
                 boolean hasPhoto = AddEditActivity.this.hasPhoto;
                 Emotion emotion = (Emotion) emotionSpinner.getSelectedItem();
-                if (emotion == Emotion.NULL) {
-                    Toast.makeText(AddEditActivity.this, "Select an Emotion", Toast.LENGTH_SHORT).show();
-                    return;
-                }
                 SocialSituation socialSit = (SocialSituation) socialSitSpinner.getSelectedItem();
 
                 // reuses parameters if editing
@@ -139,22 +152,6 @@ public class AddEditActivity extends AppCompatActivity {
                 finish();
             }
         });
-
-        // creates emotion spinner
-        // if it's the editactivity, will not have an option to select the null emotion
-        List<Emotion> emotionList = new ArrayList<>(Arrays.asList(Emotion.values()));
-        if (!this.isAddActivity()) {
-            emotionList.remove(Emotion.NULL);
-        }
-        EmotionAdapter emotionAdapter = new EmotionAdapter(this, emotionList);
-        emotionSpinner.setAdapter(emotionAdapter);
-
-        // creates social situation spinner
-        List<SocialSituation> socialSitList = new ArrayList<>(Arrays.asList(SocialSituation.values()));
-        SocialSituationAdapter socialSituationAdapter = new SocialSituationAdapter(this, socialSitList);
-        socialSitSpinner.setAdapter(socialSituationAdapter);
-
-        // TODO: social situation button dropdown
 
         // makes sure views are displayed as normal
         this.removePreviewImage();

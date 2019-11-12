@@ -2,12 +2,7 @@ package com.example.moodspace;
 
 import android.graphics.Color;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
 public enum Emotion {
-    NULL(0, 0, "#7f8c8d", "Empty"),
     HAPPY(1, 0x1F604, "#badc58", "Happy"),
     ANGRY(2, 0x1F621, "#eb4d4b", "Angry"),
     SAD(3, 0x1F62D, "#00a8ff", "Sad");
@@ -40,21 +35,12 @@ public enum Emotion {
         return this.emojiName;
     }
 
-    // yet again another temporary hack
-    public static List<Emotion> getValuesNonNull() {
-        List<Emotion> emotionList = new ArrayList<>(Arrays.asList(Emotion.values()));
-        emotionList.remove(Emotion.NULL);
-        return emotionList;
-    }
-
     public static String[] getEmojiList() {
-        List<Emotion> emotionList = new ArrayList<>(Arrays.asList(Emotion.values()));
-        // hack to remove null from filters
-        emotionList.remove(Emotion.NULL);
-        String[] emotionArray = new String[emotionList.size()];
-        for (int i = 0; i < emotionList.size(); i++) {
-            emotionArray[i] = emotionList.get(i).getEmojiName() + " " + emotionList.get(i).getEmojiString();
+        Emotion[] emotionArray = Emotion.values();
+        String[] emotionStringArray = new String[emotionArray.length];
+        for (int i = 0; i < emotionArray.length; i++) {
+            emotionStringArray[i] = emotionArray[i].getEmojiName() + " " + emotionArray[i].getEmojiString();
         }
-        return emotionArray;
+        return emotionStringArray;
     }
 }

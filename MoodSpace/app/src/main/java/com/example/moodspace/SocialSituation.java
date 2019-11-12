@@ -1,7 +1,6 @@
 package com.example.moodspace;
 
 public enum SocialSituation {
-    NOT_PROVIDED(0, "Not Provided"),
     ALONE(1, "Alone"),
     WITH_ONE(2, "With another person"),
     WITH_TWO_TO_SEVERAL(3, "With two to several people"),

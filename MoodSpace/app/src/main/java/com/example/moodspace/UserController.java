@@ -87,14 +87,14 @@ public class UserController {
                 });
 
         // create the default filter with all emotions
-        List<Emotion> emotionList = Emotion.getValuesNonNull();
+        Emotion[] emotionArray = Emotion.values();
         HashMap<String, Object> data = new HashMap<>();
-        for (int i = 0; i < emotionList.size(); i++) {
-            data.put("emotion", emotionList.get(i));
+        for (int i = 0; i < emotionArray.length; i++) {
+            data.put("emotion", emotionArray[i]);
             db.collection("users")
                     .document(username)
                     .collection("Filter")
-                    .document(emotionList.get(i).getEmojiName())
+                    .document(emotionArray[i].getEmojiName())
                     .set(data)
                     .addOnSuccessListener(new OnSuccessListener<Void>() {
                         @Override
