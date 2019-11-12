@@ -225,7 +225,7 @@ public class ProfileListActivity extends AppCompatActivity implements FilterFrag
                             } catch (Exception ex) {
                                 Log.d(TAG, "set default social situation instead");
                                 Log.d(TAG, Log.getStackTraceString(ex));
-                                socialSit = SocialSituation.ALONE;
+                                socialSit = SocialSituation.NOT_PROVIDED;
                             }
                             if (hasPhoto == null) { // backwards compatibility
                                 hasPhoto = false;
