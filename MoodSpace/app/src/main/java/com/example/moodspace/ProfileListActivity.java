@@ -56,7 +56,7 @@ public class ProfileListActivity extends AppCompatActivity implements FilterFrag
     protected void onCreate(Bundle savedInstanceState) {
         username = getIntent().getExtras().getString("Username");
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_list);
+        setContentView(R.layout.activity_profile_list);
 
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
