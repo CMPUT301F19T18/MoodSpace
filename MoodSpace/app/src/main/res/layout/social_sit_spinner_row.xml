@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
-<TextView android:id="@+id/emotion_spinner_row"
+<TextView android:id="@+id/social_sit_spinner_row"
     xmlns:tools="http://schemas.android.com/tools"
-    tools:text="Emoji"
+    tools:text="Alone"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:padding="20dp"
+    android:padding="12dp"
     android:shadowColor="#00000000"
-    android:background="@color/colorBlack"
-    android:textColor="@android:color/background_light"
-    android:textSize="24sp"
+    android:background="@color/colorPrimary"
+    android:textColor="@color/colorAccent"
+    android:textSize="20sp"
     android:textStyle="bold"
     xmlns:android="http://schemas.android.com/apk/res/android" />
 

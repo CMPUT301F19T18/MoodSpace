@@ -84,7 +84,7 @@
                     style="@android:style/Widget.Holo.Spinner"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="12dp"
+                    android:layout_margin="8dp"
                     android:popupBackground="@color/colorTitle"
 
                     />

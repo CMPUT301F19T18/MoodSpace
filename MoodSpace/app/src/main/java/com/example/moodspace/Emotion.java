@@ -7,23 +7,29 @@ import java.util.Arrays;
 import java.util.List;
 
 public enum Emotion {
-    NULL(0, "#7f8c8d", "Empty"),
-    HAPPY(0x1F604, "#badc58", "Happy"),
-    ANGRY(0x1F621, "#eb4d4b", "Angry"),
-    SAD(0x1F62D, "#00a8ff", "Sad");
+    NULL(0, 0, "#7f8c8d", "Empty"),
+    HAPPY(1, 0x1F604, "#badc58", "Happy"),
+    ANGRY(2, 0x1F621, "#eb4d4b", "Angry"),
+    SAD(3, 0x1F62D, "#00a8ff", "Sad");
 
+    private final int id;
     private final int emojiCode;
-    private final String colorCode;
+    private final int colorCode;
     private final String emojiName;
 
-    Emotion(int emojiCode, String colorCode, String emojiName) {
+    Emotion(int id, int emojiCode, String colorCode, String emojiName) {
+        this.id = id;
         this.emojiCode = emojiCode;
-        this.colorCode = colorCode;
+        this.colorCode = Color.parseColor(colorCode);
         this.emojiName = emojiName;
     }
 
-    public int getColor() {
-        return Color.parseColor(colorCode);
+    public int getId() {
+        return id;
+    }
+
+    public int getColorCode() {
+        return this.colorCode;
     }
 
     public String getEmojiString() {

@@ -8,7 +8,6 @@ import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.widget.ArrayAdapter;
 
 import android.widget.Button;
 import android.widget.ImageButton;
@@ -66,13 +65,8 @@ public class AddEditActivity extends AppCompatActivity {
         setContentView(R.layout.activity_add_edit_mood);
 
         final String username = getIntent().getStringExtra("USERNAME");
-        final Spinner spinnerEmotions = findViewById(R.id.emotionSelector);
-
-        final Spinner spinnerSocialSituation =  findViewById(R.id.situationSelector);
-        ArrayAdapter<SocialSituation> situationAdapter = new ArrayAdapter<>(AddEditActivity.this,
-                R.layout.support_simple_spinner_dropdown_item, SocialSituation.values() );
-        situationAdapter.setDropDownViewResource(R.layout.support_simple_spinner_dropdown_item);
-        spinnerSocialSituation.setAdapter(situationAdapter);
+        final Spinner emotionSpinner = findViewById(R.id.emotionSelector);
+        final Spinner socialSitSpinner = findViewById(R.id.situationSelector);
 
         aec = new AddEditController(this);
         currentMood = (Mood) getIntent().getSerializableExtra("MOOD");
@@ -105,12 +99,12 @@ public class AddEditActivity extends AppCompatActivity {
                 String id;
                 Date date;
                 boolean hasPhoto = AddEditActivity.this.hasPhoto;
-                Emotion emotion = (Emotion) spinnerEmotions.getSelectedItem();
+                Emotion emotion = (Emotion) emotionSpinner.getSelectedItem();
                 if (emotion == Emotion.NULL) {
                     Toast.makeText(AddEditActivity.this, "Select an Emotion", Toast.LENGTH_SHORT).show();
                     return;
                 }
-                int socialSit = spinnerSocialSituation.getSelectedItemPosition();
+                SocialSituation socialSit = (SocialSituation) socialSitSpinner.getSelectedItem();
 
                 // reuses parameters if editing
                 if (AddEditActivity.this.isAddActivity()) {
@@ -152,8 +146,13 @@ public class AddEditActivity extends AppCompatActivity {
         if (!this.isAddActivity()) {
             emotionList.remove(Emotion.NULL);
         }
-        MoodAdapter mAdapter = new MoodAdapter(this, emotionList);
-        spinnerEmotions.setAdapter(mAdapter);
+        EmotionAdapter emotionAdapter = new EmotionAdapter(this, emotionList);
+        emotionSpinner.setAdapter(emotionAdapter);
+
+        // creates social situation spinner
+        List<SocialSituation> socialSitList = new ArrayList<>(Arrays.asList(SocialSituation.values()));
+        SocialSituationAdapter socialSituationAdapter = new SocialSituationAdapter(this, socialSitList);
+        socialSitSpinner.setAdapter(socialSituationAdapter);
 
         // TODO: social situation button dropdown
 
@@ -225,11 +224,10 @@ public class AddEditActivity extends AppCompatActivity {
             backBtn.setText(getString(R.string.em_cancel_text));
 
             // fills in fields with previous values
-            int emotionIndex = mAdapter.getPosition(currentMood.getEmotion());
-            int socialSitIndex = currentMood.getSocialSit();
-
-            spinnerEmotions.setSelection(emotionIndex);
-            spinnerSocialSituation.setSelection(socialSitIndex);
+            int emotionIndex = emotionAdapter.getPosition(currentMood.getEmotion());
+            emotionSpinner.setSelection(emotionIndex);
+            int socialSitIndex = socialSituationAdapter.getPosition(currentMood.getSocialSituation());
+            socialSitSpinner.setSelection(socialSitIndex);
             reasonEditText.setText(currentMood.getReasonText());
 
             // downloads photo: can't figure out how to separate this task into the controller

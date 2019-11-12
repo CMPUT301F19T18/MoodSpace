@@ -200,7 +200,8 @@ public class ProfileListActivity extends AppCompatActivity implements FilterFrag
         }
     }
 
-    public void update(String username, final List<Emotion> filterList){
+    // updates data from
+    public void update(String username, final List<Emotion> filterList) {
         db.collection("users")
                 .document(username)
                 .collection("Moods")
@@ -217,23 +218,21 @@ public class ProfileListActivity extends AppCompatActivity implements FilterFrag
                             Date ts = doc.getTimestamp("date").toDate();
                             String reason = doc.getString("reasonText");
                             Boolean hasPhoto = doc.getBoolean("hasPhoto");
-                            int socialSit;
-                            try{
-                                socialSit = doc.getLong("socialSit").intValue();
-
+                            SocialSituation socialSit;
+                            // TODO get rid once database is wiped
+                            try { // backwards compatibility
+                                socialSit = SocialSituation.valueOf(doc.getString("socialSituation"));
+                            } catch (Exception ex) {
+                                Log.d(TAG, "set default social situation instead");
+                                Log.d(TAG, Log.getStackTraceString(ex));
+                                socialSit = SocialSituation.NOT_PROVIDED;
                             }
-                            catch (Exception exc){
-                                socialSit = 0;
-                            }
-
-
                             if (hasPhoto == null) { // backwards compatibility
                                 hasPhoto = false;
                             }
 
                             String id = doc.getId();
                             Mood newMood = new Mood(id, ts, emotion, reason, hasPhoto, socialSit);
-                            newMood.setId(doc.getId());
                             if (filterList.contains(emotion)){
                                 moodDataList.add(newMood);
                             }

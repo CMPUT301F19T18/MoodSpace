@@ -49,7 +49,7 @@ public class MoodViewList extends ArrayAdapter<Mood> {
         date.setText(DateUtils.formatDate(mood.getDate()));
         time.setText(DateUtils.formatTime(mood.getDate()));
 
-        view.setBackgroundColor(emotion.getColor());
+        view.setBackgroundColor(emotion.getColorCode());
 
         return view;
     }
