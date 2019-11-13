@@ -3,12 +3,10 @@ package com.example.moodspace;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.ContextMenu;
 import android.view.Gravity;
 import android.view.Menu;
-
-import android.view.ContextMenu;
 import android.view.MenuInflater;
-
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
@@ -23,11 +21,9 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.drawerlayout.widget.DrawerLayout;
 
 import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
-
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.firestore.CollectionReference;
