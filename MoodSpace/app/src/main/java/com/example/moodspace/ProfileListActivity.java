@@ -3,11 +3,10 @@ package com.example.moodspace;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.Menu;
-
 import android.view.ContextMenu;
+import android.view.Gravity;
+import android.view.Menu;
 import android.view.MenuInflater;
-
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
@@ -19,14 +18,14 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.drawerlayout.widget.DrawerLayout;
 
 import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
-
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -60,6 +59,7 @@ public class ProfileListActivity extends AppCompatActivity implements FilterFrag
 
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
         ListView moodList = findViewById(R.id.moodList);
         FloatingActionButton addBtn = findViewById(R.id.addMoodButton);
         addBtn.setOnClickListener(new View.OnClickListener() {
@@ -73,6 +73,7 @@ public class ProfileListActivity extends AppCompatActivity implements FilterFrag
         moodDataList = new ArrayList<>();
         moodAdapter = new MoodViewList(this, moodDataList);
 
+        // sets up EditMood on tapping any mood
         moodList.setAdapter(moodAdapter);
         moodList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -81,9 +82,48 @@ public class ProfileListActivity extends AppCompatActivity implements FilterFrag
             }
         });
 
+        // sets up the menu button
+        final DrawerLayout drawerLayout = findViewById(R.id.drawer_layout);
+        toolbar.setNavigationIcon(R.drawable.ic_menu_button);
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                drawerLayout.openDrawer(Gravity.LEFT);
+            }
+        });
 
+        // sets up navigation viewer (side bar)
+        final NavigationView navigationView = findViewById(R.id.nav_view);
+        navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
+            @Override
+            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+                drawerLayout.closeDrawers();
+                switch (item.getItemId()) {
+                    case R.id.nav_item_profile:
+                        Toast.makeText(ProfileListActivity.this,
+                                "Profile", Toast.LENGTH_SHORT).show();
+                        return true;
+                    case R.id.nav_item_following:
+                        Toast.makeText(ProfileListActivity.this,
+                                "Following", Toast.LENGTH_SHORT).show();
+                        return true;
+                    case R.id.nav_item_map:
+                        Toast.makeText(ProfileListActivity.this,
+                                "Map", Toast.LENGTH_SHORT).show();
+                        return true;
+                    case R.id.nav_item_log_out:
+                        Toast.makeText(ProfileListActivity.this,
+                                "Log out", Toast.LENGTH_SHORT).show();
+                        return true;
+
+                    default:
+                        return false;
+                }
+            }
+        });
+
+        // sets up filters
         final Emotion[] emotionArray = Emotion.values();
-
         Arrays.fill(checkedItems, true);
         final CollectionReference cRef = db.collection("users")
                 .document(username)
@@ -182,8 +222,6 @@ public class ProfileListActivity extends AppCompatActivity implements FilterFrag
 
     /**
      * Defines on click behaviour for the toolbar.
-     * @param item
-     * @return
      */
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -196,11 +234,10 @@ public class ProfileListActivity extends AppCompatActivity implements FilterFrag
                 // If we got here, the user's action was not recognized.
                 // Invoke the superclass to handle it.
                 return super.onOptionsItemSelected(item);
-
         }
     }
 
-    // updates data from
+    // updates data from firestore
     public void update(String username, final List<Emotion> filterList) {
         db.collection("users")
                 .document(username)
