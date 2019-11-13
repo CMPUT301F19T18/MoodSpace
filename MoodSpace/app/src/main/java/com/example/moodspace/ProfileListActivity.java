@@ -101,6 +101,7 @@ public class ProfileListActivity extends AppCompatActivity implements FilterFrag
         navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+                drawerLayout.closeDrawers();
                 switch (item.getItemId()) {
                     case R.id.nav_item_profile:
                         Toast.makeText(ProfileListActivity.this,
