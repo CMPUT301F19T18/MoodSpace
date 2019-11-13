@@ -48,7 +48,7 @@ public class UserController {
                 if (task.getResult() != null && task.getResult().size() > 0) {
                     Toast.makeText(context, "This username is taken", Toast.LENGTH_SHORT).show();
                 } else {
-                    //add a new user to Firestore database
+                    // add a new user to FireStore database
                     signUpUser(enteredUser);
                 }
             }
@@ -89,14 +89,13 @@ public class UserController {
                 });
 
         // create the default filter with all emotions
-        Emotion[] emotionArray = Emotion.values();
         HashMap<String, Object> data = new HashMap<>();
-        for (int i = 0; i < emotionArray.length; i++) {
-            data.put("emotion", emotionArray[i]);
+        for (Emotion emotion : Emotion.values()) {
+            data.put("emotion", emotion);
             db.collection("users")
                     .document(username)
                     .collection("Filter")
-                    .document(emotionArray[i].getEmojiName())
+                    .document(emotion.getEmojiName())
                     .set(data)
                     .addOnSuccessListener(new OnSuccessListener<Void>() {
                         @Override
@@ -132,8 +131,21 @@ public class UserController {
                     @Override
                     public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                         if (task.isSuccessful()) {
+                            if (task.getResult() == null) {
+                                Toast.makeText(context,
+                                        "Unexpected error: password task result should not be null",
+                                        Toast.LENGTH_LONG).show();
+                                return;
+                            }
                             if (task.getResult().exists()) {
-                                if (task.getResult().get("password").equals(password)) {
+                                String fetchedPassword = (String) task.getResult().get("password");
+                                if (fetchedPassword == null) {
+                                    Toast.makeText(context,
+                                            "Unexpected error: fetched password should not be null",
+                                            Toast.LENGTH_LONG).show();
+                                    return;
+                                }
+                                if (fetchedPassword.equals(password)) {
                                     Intent i = new Intent(context, ProfileListActivity.class);
                                     i.putExtra(USERNAME_KEY, username);
                                     context.startActivity(i);

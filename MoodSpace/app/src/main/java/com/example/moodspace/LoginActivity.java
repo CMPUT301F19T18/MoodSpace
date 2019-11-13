@@ -21,8 +21,6 @@ public class LoginActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
-        //ActionBar actionBar = getSupportActionBar();
-        //actionBar.hide();
 
         final AppCompatButton loginButton = findViewById(R.id.login_btn);
         final AppCompatTextView signUpLink = findViewById(R.id.signup_link);
@@ -30,7 +28,7 @@ public class LoginActivity extends AppCompatActivity {
         final AppCompatEditText password = findViewById(R.id.password);
         final AppCompatEditText veri_password = findViewById(R.id.password_veri);
 
-        uc = new UserController(LoginActivity.this);
+        uc = new UserController(this);
 
         veri_password.setVisibility(View.GONE);
         signUpLink.setOnClickListener(new View.OnClickListener() {
