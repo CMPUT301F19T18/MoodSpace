@@ -4,10 +4,10 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/colorPrimaryDark"
-    android:orientation="vertical"
+    tools:context=".LoginActivity"
     android:padding="24dp"
-    tools:context=".LoginActivity">
+    android:background="@color/colorPrimaryDark"
+    android:orientation="vertical">
 
     <androidx.appcompat.widget.LinearLayoutCompat
         android:layout_width="match_parent"
@@ -20,15 +20,14 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            app:srcCompat="@drawable/ic_sentiment_satisfied_white_24dp" />
+            app:srcCompat="@drawable/ic_sentiment_satisfied_white_24dp"/>
 
-        <androidx.appcompat.widget.AppCompatImageView
+        <androidx.appcompat.widget.AppCompatEditText
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
             android:fontFamily="cursive"
             android:text="@string/app_name"
-            android:textAppearance="@style/TextAppearance.AppCompat.Medium"
             android:textColor="@android:color/holo_blue_dark"
             android:textSize="50sp" />
     </androidx.appcompat.widget.LinearLayoutCompat>
