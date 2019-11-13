@@ -50,13 +50,13 @@
                 android:id="@+id/username"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:inputType="textPersonName"
-                android:textColor="@color/colorWhite"
                 android:drawableStart="@drawable/ic_person_white_18dp"
                 android:drawableLeft="@drawable/ic_person_white_18dp"
-                android:textSize="16sp"
                 android:drawablePadding="4dp"
-                android:hint="Username"/>
+                android:hint="Username"
+                android:inputType="textPersonName"
+                android:textColor="@color/colorWhite"
+                android:textSize="16sp" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
@@ -80,16 +80,37 @@
                 android:hint="Password"/>
         </com.google.android.material.textfield.TextInputLayout>
 
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColorHint="@color/colorHint"
+            android:layout_marginStart="20dp"
+            android:layout_marginTop="20dp"
+            android:layout_marginEnd="20dp">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/password_veri"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="textPassword"
+                android:textColor="@color/colorWhite"
+                android:drawableStart="@drawable/ic_remove_red_eye_white_18dp"
+                android:drawableLeft="@drawable/ic_remove_red_eye_white_18dp"
+                android:drawablePadding="4dp"
+                android:textSize="16sp"
+                android:hint="Confirm Password"/>
+        </com.google.android.material.textfield.TextInputLayout>
+
         <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/login_btn"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@color/colorAccent"
-            android:text="Login"
-            android:textColor="@color/colorWhite"
+            android:layout_marginStart="20dp"
             android:layout_marginTop="40dp"
             android:layout_marginEnd="20dp"
-            android:layout_marginStart="20dp"/>
+            android:background="@color/colorAccent"
+            android:text="Login"
+            android:textColor="@color/colorWhite" />
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"

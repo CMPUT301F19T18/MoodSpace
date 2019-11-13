@@ -26,4 +26,5 @@ public class User implements Serializable {
     public String getPassword() {
         return this.password;
     }
+
 }
