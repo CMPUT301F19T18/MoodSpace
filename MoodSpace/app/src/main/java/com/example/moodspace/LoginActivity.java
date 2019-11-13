@@ -61,14 +61,14 @@ public class LoginActivity extends AppCompatActivity {
                     if (inLoginState) {
                             uc.loginUser(new User(usernameText, passwordText));
                     } else {
-                        if (passwordText == veripasswordText) {
+                        if (passwordText.equals(veripasswordText)) {
                             uc.checkUserExists(new User(usernameText, passwordText));
                         } else {
-                            Toast.makeText(LoginActivity.this, "Please verify your password", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(LoginActivity.this, "Please enter a matching password", Toast.LENGTH_SHORT).show();
                         }
                     }
                 } else {
-                    Toast.makeText(LoginActivity.this, "Please enter a username and a password", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(LoginActivity.this, "Please enter a username, a password, and a password verification.", Toast.LENGTH_SHORT).show();
                 }
             }
         });
