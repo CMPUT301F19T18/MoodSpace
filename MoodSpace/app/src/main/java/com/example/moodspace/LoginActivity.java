@@ -28,19 +28,23 @@ public class LoginActivity extends AppCompatActivity {
         final AppCompatTextView signUpLink = findViewById(R.id.signup_link);
         final AppCompatEditText username = findViewById(R.id.username);
         final AppCompatEditText password = findViewById(R.id.password);
+        final AppCompatEditText veri_password = findViewById(R.id.password_veri);
 
         uc = new UserController(LoginActivity.this);
 
+        veri_password.setVisibility(View.GONE);
         signUpLink.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 if (inLoginState) {
                     loginButton.setText("Sign Up");
                     signUpLink.setText("Already registered? LOGIN");
+                    veri_password.setVisibility(View.VISIBLE);
                     inLoginState = false;
                 } else {
                     loginButton.setText("Login");
                     signUpLink.setText("New user? SIGN UP");
+                    veri_password.setVisibility(View.GONE);
                     inLoginState = true;
                 }
             }
@@ -51,15 +55,20 @@ public class LoginActivity extends AppCompatActivity {
             public void onClick(View view) {
                 String passwordText = password.getText().toString().trim();
                 String usernameText = username.getText().toString().trim();
+                String veripasswordText = veri_password.getText().toString().trim();
 
-                if (usernameText.length() > 0 && passwordText.length() > 0) {
+                if (usernameText.length() > 0 && passwordText.length() > 0 && veripasswordText.length() > 0) {
                     if (inLoginState) {
-                        uc.loginUser(new User(usernameText, passwordText));
+                            uc.loginUser(new User(usernameText, passwordText));
                     } else {
-                        uc.checkUserExists(new User(usernameText, passwordText));
+                        if (passwordText.equals(veripasswordText)) {
+                            uc.checkUserExists(new User(usernameText, passwordText));
+                        } else {
+                            Toast.makeText(LoginActivity.this, "Please enter a matching password", Toast.LENGTH_SHORT).show();
+                        }
                     }
                 } else {
-                    Toast.makeText(LoginActivity.this, "Please enter a username and a password", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(LoginActivity.this, "Please enter a username, a password, and a password verification.", Toast.LENGTH_SHORT).show();
                 }
             }
         });
