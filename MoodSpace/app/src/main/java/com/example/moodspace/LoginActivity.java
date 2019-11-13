@@ -49,28 +49,38 @@ public class LoginActivity extends AppCompatActivity {
                 }
             }
         });
-
         loginButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 String passwordText = password.getText().toString().trim();
                 String usernameText = username.getText().toString().trim();
-                String veripasswordText = veri_password.getText().toString().trim();
 
-                if (usernameText.length() > 0 && passwordText.length() > 0 && veripasswordText.length() > 0) {
-                    if (inLoginState) {
-                            uc.loginUser(new User(usernameText, passwordText));
+                if (LoginActivity.this.inLoginState) {
+                    if (usernameText.length() > 0 && passwordText.length() > 0) {
+                        uc.loginUser(new User(usernameText, passwordText));
                     } else {
-                        if (passwordText.equals(veripasswordText)) {
-                            uc.checkUserExists(new User(usernameText, passwordText));
-                        } else {
-                            Toast.makeText(LoginActivity.this, "Please enter a matching password", Toast.LENGTH_SHORT).show();
-                        }
+                        Toast.makeText(LoginActivity.this,
+                                "Please enter a username and a password", Toast.LENGTH_SHORT).show();
                     }
                 } else {
-                    Toast.makeText(LoginActivity.this, "Please enter a username, a password, and a password verification.", Toast.LENGTH_SHORT).show();
+                    String veriPasswordText = veri_password.getText().toString().trim();
+                    if (usernameText.length() > 0 && passwordText.length() > 0 && veriPasswordText.length() > 0) {
+                        if (passwordText.equals(veriPasswordText)) {
+                            uc.checkUserExists(new User(usernameText, passwordText));
+                        } else {
+                            Toast.makeText(LoginActivity.this,
+                                    "Please enter a matching password", Toast.LENGTH_SHORT).show();
+                        }
+                    } else {
+                        Toast.makeText(LoginActivity.this,
+                                "Please enter a username, a password, and a password verification.",
+                                Toast.LENGTH_SHORT).show();
+                    }
+
                 }
             }
         });
     }
 }
+
+
