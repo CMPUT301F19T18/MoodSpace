@@ -94,7 +94,7 @@ public class AddMoodTests {
         // Do not select a mood
         onView(withId(R.id.addMoodButton)).perform(click());
         onView(withId(R.id.saveBtn)).perform(click());
-        onView(withText("Select an Emotion")).inRoot(withDecorView(not(mActivityRule2.getActivity().getWindow().getDecorView())))
+        onView(withText("Select an emotion")).inRoot(withDecorView(not(mActivityRule2.getActivity().getWindow().getDecorView())))
                 .check(matches(isDisplayed()));
         onView(withId(R.id.backBtn)).perform(click());
 

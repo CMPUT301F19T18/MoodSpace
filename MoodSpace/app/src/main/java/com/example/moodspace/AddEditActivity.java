@@ -8,7 +8,6 @@ import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.widget.ArrayAdapter;
 
 import android.widget.Button;
 import android.widget.ImageButton;
@@ -66,16 +65,22 @@ public class AddEditActivity extends AppCompatActivity {
         setContentView(R.layout.activity_add_edit_mood);
 
         final String username = getIntent().getStringExtra("USERNAME");
-        final Spinner spinnerEmotions = findViewById(R.id.emotionSelector);
-
-        final Spinner spinnerSocialSituation =  findViewById(R.id.situationSelector);
-        ArrayAdapter<SocialSituation> situationAdapter = new ArrayAdapter<>(AddEditActivity.this,
-                R.layout.support_simple_spinner_dropdown_item, SocialSituation.values() );
-        situationAdapter.setDropDownViewResource(R.layout.support_simple_spinner_dropdown_item);
-        spinnerSocialSituation.setAdapter(situationAdapter);
-
         aec = new AddEditController(this);
         currentMood = (Mood) getIntent().getSerializableExtra("MOOD");
+
+        // creates emotion spinner
+        final Spinner emotionSpinner = findViewById(R.id.emotionSelector);
+        List<Emotion> emotionList = Arrays.asList(Emotion.values());
+        // last argument is initialTextWasShown (true if EditActivity, false if AddActivity)
+        final EmotionAdapter emotionAdapter = new EmotionAdapter(
+                this, emotionList, !this.isAddActivity());
+        emotionSpinner.setAdapter(emotionAdapter);
+
+        // creates social situation spinner
+        final Spinner socialSitSpinner = findViewById(R.id.situationSelector);
+        List<SocialSituation> socialSitList = Arrays.asList(SocialSituation.values());
+        SocialSituationAdapter socialSituationAdapter = new SocialSituationAdapter(this, socialSitList);
+        socialSitSpinner.setAdapter(socialSituationAdapter);
 
         // sets up save button
         // upon clicking the okay button, there will be an intent
@@ -85,6 +90,12 @@ public class AddEditActivity extends AppCompatActivity {
         saveBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
+                // requires an emotion to be selected
+                if (!emotionAdapter.selectionMade(emotionSpinner)) {
+                    Toast.makeText(AddEditActivity.this, "Select an emotion", Toast.LENGTH_SHORT).show();
+                    return;
+                }
 
                 String reasonText;
                 if (reasonEditText.getText() == null) {
@@ -105,12 +116,8 @@ public class AddEditActivity extends AppCompatActivity {
                 String id;
                 Date date;
                 boolean hasPhoto = AddEditActivity.this.hasPhoto;
-                Emotion emotion = (Emotion) spinnerEmotions.getSelectedItem();
-                if (emotion == Emotion.NULL) {
-                    Toast.makeText(AddEditActivity.this, "Select an Emotion", Toast.LENGTH_SHORT).show();
-                    return;
-                }
-                int socialSit = spinnerSocialSituation.getSelectedItemPosition();
+                Emotion emotion = (Emotion) emotionSpinner.getSelectedItem();
+                SocialSituation socialSit = (SocialSituation) socialSitSpinner.getSelectedItem();
 
                 // reuses parameters if editing
                 if (AddEditActivity.this.isAddActivity()) {
@@ -145,17 +152,6 @@ public class AddEditActivity extends AppCompatActivity {
                 finish();
             }
         });
-
-        // creates emotion spinner
-        // if it's the editactivity, will not have an option to select the null emotion
-        List<Emotion> emotionList = new ArrayList<>(Arrays.asList(Emotion.values()));
-        if (!this.isAddActivity()) {
-            emotionList.remove(Emotion.NULL);
-        }
-        MoodAdapter mAdapter = new MoodAdapter(this, emotionList);
-        spinnerEmotions.setAdapter(mAdapter);
-
-        // TODO: social situation button dropdown
 
         // makes sure views are displayed as normal
         this.removePreviewImage();
@@ -225,11 +221,10 @@ public class AddEditActivity extends AppCompatActivity {
             backBtn.setText(getString(R.string.em_cancel_text));
 
             // fills in fields with previous values
-            int emotionIndex = mAdapter.getPosition(currentMood.getEmotion());
-            int socialSitIndex = currentMood.getSocialSit();
-
-            spinnerEmotions.setSelection(emotionIndex);
-            spinnerSocialSituation.setSelection(socialSitIndex);
+            int emotionIndex = emotionAdapter.getPosition(currentMood.getEmotion());
+            emotionSpinner.setSelection(emotionIndex);
+            int socialSitIndex = socialSituationAdapter.getPosition(currentMood.getSocialSituation());
+            socialSitSpinner.setSelection(socialSitIndex);
             reasonEditText.setText(currentMood.getReasonText());
 
             // downloads photo: can't figure out how to separate this task into the controller

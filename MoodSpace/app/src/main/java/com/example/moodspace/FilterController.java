@@ -10,7 +10,6 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import java.util.HashMap;
-import java.util.List;
 
 /**
  * Communicates filtering options between the UI and the firestore database
@@ -20,8 +19,8 @@ import java.util.List;
  */
 public class FilterController {
     private static final String TAG = FilterController.class.getSimpleName();
-    private List<Emotion> emotionList;
-    Context context;
+    private Emotion[] emotionArray = Emotion.values();
+    private Context context;
     private final FirebaseFirestore db = FirebaseFirestore.getInstance();
 
     public FilterController(Context context) {
@@ -33,11 +32,10 @@ public class FilterController {
      * @param i the index of the emotion list
      */
     public void filterOut(int i, String username){
-        emotionList = Emotion.getValuesNonNull();
         db.collection("users")
                 .document(username)
                 .collection("Filter")
-                .document(emotionList.get(i).getEmojiName())
+                .document(emotionArray[i].getEmojiName())
                 .delete()
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
@@ -58,13 +56,13 @@ public class FilterController {
      * @param i the index of the emotion list
      */
     public void filterIn(int i, String username) {
-        emotionList = Emotion.getValuesNonNull();
+        emotionArray = Emotion.values();
         HashMap<String, Object> data = new HashMap<>();
-        data.put("emotion", emotionList.get(i));
+        data.put("emotion", emotionArray[i]);
         db.collection("users")
                 .document(username)
                 .collection("Filter")
-                .document(emotionList.get(i).getEmojiName())
+                .document(emotionArray[i].getEmojiName())
                 .set(data)
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
