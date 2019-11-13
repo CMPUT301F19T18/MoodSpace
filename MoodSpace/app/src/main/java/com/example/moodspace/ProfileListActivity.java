@@ -60,6 +60,17 @@ public class ProfileListActivity extends AppCompatActivity implements FilterFrag
 
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+        toolbar.setNavigationIcon(R.drawable.ic_menu_button);
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Toast.makeText(ProfileListActivity.this, "epic",
+                        Toast.LENGTH_LONG).show();
+            }
+        });
+
+
         ListView moodList = findViewById(R.id.moodList);
         FloatingActionButton addBtn = findViewById(R.id.addMoodButton);
         addBtn.setOnClickListener(new View.OnClickListener() {
