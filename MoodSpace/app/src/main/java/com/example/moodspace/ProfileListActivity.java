@@ -193,8 +193,6 @@ public class ProfileListActivity extends AppCompatActivity implements FilterFrag
 
     /**
      * Defines on click behaviour for the toolbar.
-     * @param item
-     * @return
      */
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -207,11 +205,10 @@ public class ProfileListActivity extends AppCompatActivity implements FilterFrag
                 // If we got here, the user's action was not recognized.
                 // Invoke the superclass to handle it.
                 return super.onOptionsItemSelected(item);
-
         }
     }
 
-    // updates data from
+    // updates data from firestore
     public void update(String username, final List<Emotion> filterList) {
         db.collection("users")
                 .document(username)
