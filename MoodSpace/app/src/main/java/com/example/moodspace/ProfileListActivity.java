@@ -12,6 +12,7 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -53,9 +54,10 @@ public class ProfileListActivity extends AppCompatActivity implements FilterFrag
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        username = getIntent().getExtras().getString("Username");
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_profile_list);
+
+        username = getIntent().getExtras().getString(UserController.USERNAME_KEY);
 
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -94,6 +96,9 @@ public class ProfileListActivity extends AppCompatActivity implements FilterFrag
 
         // sets up navigation viewer (side bar)
         final NavigationView navigationView = findViewById(R.id.nav_view);
+        final TextView headerTextView
+                = navigationView.getHeaderView(0).findViewById(R.id.header_text_view);
+        headerTextView.setText(username);
         navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
