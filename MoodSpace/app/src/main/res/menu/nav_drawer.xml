@@ -2,13 +2,13 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <group>
         <item android:id="@+id/nav_item_one"
-            android:icon="@drawable/ic_add_white_24dp"
+            android:icon="@drawable/ic_menu_button"
             android:title="Item 1" />
         <item android:id="@+id/nav_item_two"
-            android:icon="@drawable/ic_add_white_24dp"
+            android:icon="@drawable/ic_menu_button"
             android:title="Item 2" />
         <item android:id="@+id/nav_item_three"
-            android:icon="@drawable/ic_add_white_24dp"
+            android:icon="@drawable/ic_menu_button"
             android:title="Item 3" />
     </group>
 
@@ -22,11 +22,28 @@
     <item android:title="Title 1">
         <menu>
             <item android:id="@+id/nav_item_six"
-                android:icon="@drawable/ic_add_white_24dp"
+                android:icon="@drawable/ic_menu_button"
                 android:title="Item 6" />
             <item android:id="@+id/nav_item_seven"
-                android:icon="@drawable/ic_add_white_24dp"
+                android:icon="@drawable/ic_menu_button"
                 android:title="Item 7" />
         </menu>
     </item>
+
+    <group>
+        <item android:icon="@drawable/ic_menu_button"
+            android:title="bruh" />
+        <item android:icon="@drawable/ic_menu_button"
+            android:title="bruh" />
+        <item android:icon="@drawable/ic_menu_button"
+            android:title="bruh" />
+        <item android:icon="@drawable/ic_menu_button"
+            android:title="bruh" />
+        <item android:icon="@drawable/ic_menu_button"
+            android:title="bruh" />
+        <item android:icon="@drawable/ic_menu_button"
+            android:title="bruh" />
+    </group>
+
+
 </menu>

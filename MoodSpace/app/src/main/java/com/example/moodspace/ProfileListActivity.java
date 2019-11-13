@@ -3,6 +3,7 @@ package com.example.moodspace;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.Menu;
 
 import android.view.ContextMenu;
@@ -19,6 +20,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.drawerlayout.widget.DrawerLayout;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -61,12 +63,14 @@ public class ProfileListActivity extends AppCompatActivity implements FilterFrag
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        final DrawerLayout drawerLayout = findViewById(R.id.drawer_layout);
         toolbar.setNavigationIcon(R.drawable.ic_menu_button);
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(ProfileListActivity.this, "epic",
-                        Toast.LENGTH_LONG).show();
+                drawerLayout.openDrawer(Gravity.LEFT);
+                //Toast.makeText(ProfileListActivity.this, "epic",
+                //        Toast.LENGTH_LONG).show();
             }
         });
 
