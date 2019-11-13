@@ -15,4 +15,10 @@
 
     <string name="menu_delete">Delete</string>
 
+    <!-- sm = side bar -->
+    <string name="sb_profile">Profile</string>
+    <string name="sb_following">Following</string>
+    <string name="sb_map">Locations</string>
+    <string name="sb_log_out">Log out</string>
+
 </resources>

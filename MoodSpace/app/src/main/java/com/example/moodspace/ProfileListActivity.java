@@ -29,6 +29,7 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -63,18 +64,6 @@ public class ProfileListActivity extends AppCompatActivity implements FilterFrag
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        final DrawerLayout drawerLayout = findViewById(R.id.drawer_layout);
-        toolbar.setNavigationIcon(R.drawable.ic_menu_button);
-        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                drawerLayout.openDrawer(Gravity.LEFT);
-                //Toast.makeText(ProfileListActivity.this, "epic",
-                //        Toast.LENGTH_LONG).show();
-            }
-        });
-
-
         ListView moodList = findViewById(R.id.moodList);
         FloatingActionButton addBtn = findViewById(R.id.addMoodButton);
         addBtn.setOnClickListener(new View.OnClickListener() {
@@ -88,6 +77,7 @@ public class ProfileListActivity extends AppCompatActivity implements FilterFrag
         moodDataList = new ArrayList<>();
         moodAdapter = new MoodViewList(this, moodDataList);
 
+        // sets up EditMood on tapping any mood
         moodList.setAdapter(moodAdapter);
         moodList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -96,9 +86,47 @@ public class ProfileListActivity extends AppCompatActivity implements FilterFrag
             }
         });
 
+        // sets up the menu button
+        final DrawerLayout drawerLayout = findViewById(R.id.drawer_layout);
+        toolbar.setNavigationIcon(R.drawable.ic_menu_button);
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                drawerLayout.openDrawer(Gravity.LEFT);
+            }
+        });
 
+        // sets up navigation viewer (side bar)
+        final NavigationView navigationView = findViewById(R.id.nav_view);
+        navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
+            @Override
+            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+                switch (item.getItemId()) {
+                    case R.id.nav_item_profile:
+                        Toast.makeText(ProfileListActivity.this,
+                                "Profile", Toast.LENGTH_SHORT).show();
+                        return true;
+                    case R.id.nav_item_following:
+                        Toast.makeText(ProfileListActivity.this,
+                                "Following", Toast.LENGTH_SHORT).show();
+                        return true;
+                    case R.id.nav_item_map:
+                        Toast.makeText(ProfileListActivity.this,
+                                "Map", Toast.LENGTH_SHORT).show();
+                        return true;
+                    case R.id.nav_item_log_out:
+                        Toast.makeText(ProfileListActivity.this,
+                                "Log out", Toast.LENGTH_SHORT).show();
+                        return true;
+
+                    default:
+                        return false;
+                }
+            }
+        });
+
+        // sets up filters
         final Emotion[] emotionArray = Emotion.values();
-
         Arrays.fill(checkedItems, true);
         final CollectionReference cRef = db.collection("users")
                 .document(username)

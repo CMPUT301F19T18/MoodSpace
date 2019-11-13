@@ -1,49 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
-    <group>
-        <item android:id="@+id/nav_item_one"
+    <group android:id="@+id/group1" >
+        <item android:id="@+id/nav_item_profile"
+            android:icon="@drawable/ic_person_white_24dp"
+            android:title="@string/sb_profile" />
+
+        <!-- TODO find an appropriate icon -->
+        <item android:id="@+id/nav_item_following"
             android:icon="@drawable/ic_menu_button"
-            android:title="Item 1" />
-        <item android:id="@+id/nav_item_two"
-            android:icon="@drawable/ic_menu_button"
-            android:title="Item 2" />
-        <item android:id="@+id/nav_item_three"
-            android:icon="@drawable/ic_menu_button"
-            android:title="Item 3" />
+            android:title="@string/sb_following" />
+
+        <item android:id="@+id/nav_item_map"
+            android:icon="@drawable/ic_map_white_24dp"
+            android:title="@string/sb_map" />
     </group>
 
-    <group android:id="@+id/group_menu">
-        <item android:id="@+id/nav_item_four"
-            android:title="Item 4" />
-        <item android:id="@+id/nav_item_five"
-            android:title="Item 5" />
+    <group android:id="@+id/group2" >
+        <!-- TODO find an appropriate icon -->
+        <item android:id="@+id/nav_item_log_out"
+            android:icon="@drawable/ic_menu_button"
+            android:title="@string/sb_log_out" />
     </group>
-
-    <item android:title="Title 1">
-        <menu>
-            <item android:id="@+id/nav_item_six"
-                android:icon="@drawable/ic_menu_button"
-                android:title="Item 6" />
-            <item android:id="@+id/nav_item_seven"
-                android:icon="@drawable/ic_menu_button"
-                android:title="Item 7" />
-        </menu>
-    </item>
-
-    <group>
-        <item android:icon="@drawable/ic_menu_button"
-            android:title="bruh" />
-        <item android:icon="@drawable/ic_menu_button"
-            android:title="bruh" />
-        <item android:icon="@drawable/ic_menu_button"
-            android:title="bruh" />
-        <item android:icon="@drawable/ic_menu_button"
-            android:title="bruh" />
-        <item android:icon="@drawable/ic_menu_button"
-            android:title="bruh" />
-        <item android:icon="@drawable/ic_menu_button"
-            android:title="bruh" />
-    </group>
-
 
 </menu>
