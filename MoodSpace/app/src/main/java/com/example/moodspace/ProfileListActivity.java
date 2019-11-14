@@ -117,10 +117,9 @@ public class ProfileListActivity extends AppCompatActivity implements FilterFrag
                                 "Map", Toast.LENGTH_SHORT).show();
                         return true;
                     case R.id.nav_item_log_out:
-                        Toast.makeText(ProfileListActivity.this,
-                                "Log out", Toast.LENGTH_SHORT).show();
                         Intent loginScreen = new Intent(ProfileListActivity.this, LoginActivity.class);
                         loginScreen.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                        finish();
                         startActivity(loginScreen);
                         return true;
 
