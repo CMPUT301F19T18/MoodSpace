@@ -10,7 +10,6 @@ import android.os.Bundle;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.AdapterView;
 import android.widget.Toast;
 
 /**
@@ -53,35 +52,10 @@ public class LoginActivity extends AppCompatActivity {
                 }
             }
         });
-
         loginButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                String passwordText = password.getText().toString().trim();
-                String usernameText = username.getText().toString().trim();
-                closekeyboard();
-                if (LoginActivity.this.inLoginState) {
-                    if (usernameText.length() > 0 && passwordText.length() > 0) {
-                        uc.loginUser(new User(usernameText, passwordText));
-                    } else {
-                        Toast.makeText(LoginActivity.this,
-                                "Please enter a username and a password", Toast.LENGTH_SHORT).show();
-                    }
-                } else {
-                    String veriPasswordText = veri_password.getText().toString().trim();
-                    if (usernameText.length() > 0 && passwordText.length() > 0 && veriPasswordText.length() > 0) {
-                        if (passwordText.equals(veriPasswordText)) {
-                            uc.checkUserExists(new User(usernameText, passwordText));
-                        } else {
-                            Toast.makeText(LoginActivity.this,
-                                    "Please enter a matching password", Toast.LENGTH_SHORT).show();
-                        }
-                    } else {
-                        Toast.makeText(LoginActivity.this,
-                                "Please enter a username, a password, and a password verification.",
-                                Toast.LENGTH_SHORT).show();
-                    }
-                }
+                loginAttempt();
             }
         });
 
@@ -93,38 +67,46 @@ public class LoginActivity extends AppCompatActivity {
                     loginButton.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View view) {
-                            String passwordText = password.getText().toString().trim();
-                            String usernameText = username.getText().toString().trim();
-                            closekeyboard();
-                            if (LoginActivity.this.inLoginState) {
-                                if (usernameText.length() > 0 && passwordText.length() > 0) {
-                                    uc.loginUser(new User(usernameText, passwordText));
-                                } else {
-                                    Toast.makeText(LoginActivity.this,
-                                            "Please enter a username and a password", Toast.LENGTH_SHORT).show();
-                                }
-                            } else {
-                                String veriPasswordText = veri_password.getText().toString().trim();
-                                if (usernameText.length() > 0 && passwordText.length() > 0 && veriPasswordText.length() > 0) {
-                                    if (passwordText.equals(veriPasswordText)) {
-                                        uc.checkUserExists(new User(usernameText, passwordText));
-                                    } else {
-                                        Toast.makeText(LoginActivity.this,
-                                                "Please enter a matching password", Toast.LENGTH_SHORT).show();
-                                    }
-                                } else {
-                                    Toast.makeText(LoginActivity.this,
-                                            "Please enter a username, a password, and a password verification.",
-                                            Toast.LENGTH_SHORT).show();
-                                }
-                            }
+                            loginAttempt();
                         }
                     });
-
                 }
                 return false;
             }
         });
+    }
+
+    private void loginAttempt() {
+        final AppCompatEditText username = findViewById(R.id.username);
+        final AppCompatEditText password = findViewById(R.id.password);
+
+        String passwordText = password.getText().toString().trim();
+        String usernameText = username.getText().toString().trim();
+        closekeyboard();
+
+        if (LoginActivity.this.inLoginState) {
+            if (usernameText.length() > 0 && passwordText.length() > 0) {
+                uc.loginUser(new User(usernameText, passwordText));
+            } else {
+                Toast.makeText(LoginActivity.this,
+                        "Please enter a username and a password", Toast.LENGTH_SHORT).show();
+            }
+        } else {
+            final AppCompatEditText veri_password = findViewById(R.id.password_veri);
+            String veriPasswordText = veri_password.getText().toString().trim();
+            if (usernameText.length() > 0 && passwordText.length() > 0 && veriPasswordText.length() > 0) {
+                if (passwordText.equals(veriPasswordText)) {
+                    uc.checkUserExists(new User(usernameText, passwordText));
+                } else {
+                    Toast.makeText(LoginActivity.this,
+                            "Please enter a matching password", Toast.LENGTH_SHORT).show();
+                }
+            } else {
+                Toast.makeText(LoginActivity.this,
+                        "Please enter a username, a password, and a password verification.",
+                        Toast.LENGTH_SHORT).show();
+            }
+        }
     }
 
     private void closekeyboard() {
@@ -136,3 +118,5 @@ public class LoginActivity extends AppCompatActivity {
 
     }
 }
+
+

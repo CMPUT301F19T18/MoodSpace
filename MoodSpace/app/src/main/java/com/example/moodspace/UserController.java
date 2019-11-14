@@ -72,7 +72,7 @@ public class UserController {
                     @Override
                     public void onSuccess(Void aVoid) {
                         Log.d(TAG, "User was successfully added");
-                        Intent i = new Intent(context, ListActivity.class);
+                        Intent i = new Intent(context, ProfileListActivity.class);
                         // TODO: pass user to activity
                         i.putExtra("Username",username);
                         context.startActivity(i);
@@ -87,14 +87,14 @@ public class UserController {
                 });
 
         // create the default filter with all emotions
-        List<Emotion> emotionList = Emotion.getValuesNonNull();
+        Emotion[] emotionArray = Emotion.values();
         HashMap<String, Object> data = new HashMap<>();
-        for (int i = 0; i < emotionList.size(); i++) {
-            data.put("emotion", emotionList.get(i));
+        for (int i = 0; i < emotionArray.length; i++) {
+            data.put("emotion", emotionArray[i]);
             db.collection("users")
                     .document(username)
                     .collection("Filter")
-                    .document(emotionList.get(i).getEmojiName())
+                    .document(emotionArray[i].getEmojiName())
                     .set(data)
                     .addOnSuccessListener(new OnSuccessListener<Void>() {
                         @Override
@@ -132,7 +132,7 @@ public class UserController {
                         if (task.isSuccessful()) {
                             if (task.getResult().exists()) {
                                 if (task.getResult().get("password").equals(password)) {
-                                    Intent i = new Intent(context, ListActivity.class);
+                                    Intent i = new Intent(context, ProfileListActivity.class);
                                     i.putExtra("Username",username);
 
                                     // TODO: pass user to activity

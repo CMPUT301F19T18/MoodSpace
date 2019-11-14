@@ -4,11 +4,10 @@ import android.content.Intent;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.Menu;
-
 import android.view.ContextMenu;
+import android.view.Gravity;
+import android.view.Menu;
 import android.view.MenuInflater;
-
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
@@ -20,14 +19,14 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.drawerlayout.widget.DrawerLayout;
 
 import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
-
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -41,14 +40,14 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
-public class ListActivity extends AppCompatActivity implements FilterFragment.OnFragmentInteractionListener {
-    private static final String TAG = ListActivity.class.getSimpleName();
+public class ProfileListActivity extends AppCompatActivity implements FilterFragment.OnFragmentInteractionListener {
+    private static final String TAG = ProfileListActivity.class.getSimpleName();
     private final FirebaseFirestore db = FirebaseFirestore.getInstance();
 
     ViewController vc = new ViewController();
     ArrayAdapter<Mood> moodAdapter;
     ArrayList<Mood> moodDataList;
-    final boolean[] checkedItems = new boolean[Emotion.getValuesNonNull().size()];
+    final boolean[] checkedItems = new boolean[Emotion.values().length];
 
     private String moodId;
     private String username;
@@ -57,10 +56,11 @@ public class ListActivity extends AppCompatActivity implements FilterFragment.On
     protected void onCreate(Bundle savedInstanceState) {
         username = getIntent().getExtras().getString("Username");
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_list);
+        setContentView(R.layout.activity_profile_list);
 
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
         ListView moodList = findViewById(R.id.moodList);
         FloatingActionButton addBtn = findViewById(R.id.addMoodButton);
         addBtn.setOnClickListener(new View.OnClickListener() {
@@ -72,8 +72,9 @@ public class ListActivity extends AppCompatActivity implements FilterFragment.On
         final List<Emotion> filterList = new ArrayList<Emotion>();
 
         moodDataList = new ArrayList<>();
-        moodAdapter = new CustomList(this, moodDataList);
+        moodAdapter = new MoodViewList(this, moodDataList);
 
+        // sets up EditMood on tapping any mood
         moodList.setAdapter(moodAdapter);
         moodList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -82,9 +83,48 @@ public class ListActivity extends AppCompatActivity implements FilterFragment.On
             }
         });
 
+        // sets up the menu button
+        final DrawerLayout drawerLayout = findViewById(R.id.drawer_layout);
+        toolbar.setNavigationIcon(R.drawable.ic_menu_button);
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                drawerLayout.openDrawer(Gravity.LEFT);
+            }
+        });
 
-        final List<Emotion> emotionList = Emotion.getValuesNonNull();
+        // sets up navigation viewer (side bar)
+        final NavigationView navigationView = findViewById(R.id.nav_view);
+        navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
+            @Override
+            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+                drawerLayout.closeDrawers();
+                switch (item.getItemId()) {
+                    case R.id.nav_item_profile:
+                        Toast.makeText(ProfileListActivity.this,
+                                "Profile", Toast.LENGTH_SHORT).show();
+                        return true;
+                    case R.id.nav_item_following:
+                        Toast.makeText(ProfileListActivity.this,
+                                "Following", Toast.LENGTH_SHORT).show();
+                        return true;
+                    case R.id.nav_item_map:
+                        Toast.makeText(ProfileListActivity.this,
+                                "Map", Toast.LENGTH_SHORT).show();
+                        return true;
+                    case R.id.nav_item_log_out:
+                        Toast.makeText(ProfileListActivity.this,
+                                "Log out", Toast.LENGTH_SHORT).show();
+                        return true;
 
+                    default:
+                        return false;
+                }
+            }
+        });
+
+        // sets up filters
+        final Emotion[] emotionArray = Emotion.values();
         Arrays.fill(checkedItems, true);
         final CollectionReference cRef = db.collection("users")
                 .document(username)
@@ -94,8 +134,8 @@ public class ListActivity extends AppCompatActivity implements FilterFragment.On
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
                 for (QueryDocumentSnapshot doc : task.getResult()){
                     Emotion emotion = Emotion.valueOf(doc.getString("emotion"));
-                    for (int i = 0; i < emotionList.size(); i++){
-                        if (emotionList.get(i) == emotion){
+                    for (int i = 0; i < emotionArray.length; i++){
+                        if (emotionArray[i] == emotion){
                             checkedItems[i] = false;
                             filterList.add(emotion);
                         }
@@ -183,8 +223,6 @@ public class ListActivity extends AppCompatActivity implements FilterFragment.On
 
     /**
      * Defines on click behaviour for the toolbar.
-     * @param item
-     * @return
      */
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -197,11 +235,11 @@ public class ListActivity extends AppCompatActivity implements FilterFragment.On
                 // If we got here, the user's action was not recognized.
                 // Invoke the superclass to handle it.
                 return super.onOptionsItemSelected(item);
-
         }
     }
 
-    public void update(String username, final List<Emotion> filterList){
+    // updates data from firestore
+    public void update(String username, final List<Emotion> filterList) {
         db.collection("users")
                 .document(username)
                 .collection("Moods")
@@ -218,23 +256,21 @@ public class ListActivity extends AppCompatActivity implements FilterFragment.On
                             Date ts = doc.getTimestamp("date").toDate();
                             String reason = doc.getString("reasonText");
                             Boolean hasPhoto = doc.getBoolean("hasPhoto");
-                            int socialSit;
-                            try{
-                                socialSit = doc.getLong("socialSit").intValue();
-
+                            SocialSituation socialSit;
+                            // TODO get rid once database is wiped
+                            try { // backwards compatibility
+                                socialSit = SocialSituation.valueOf(doc.getString("socialSituation"));
+                            } catch (Exception ex) {
+                                Log.d(TAG, "set default social situation instead");
+                                Log.d(TAG, Log.getStackTraceString(ex));
+                                socialSit = SocialSituation.NOT_PROVIDED;
                             }
-                            catch (Exception exc){
-                                socialSit = 0;
-                            }
-
-
                             if (hasPhoto == null) { // backwards compatibility
                                 hasPhoto = false;
                             }
 
                             String id = doc.getId();
                             Mood newMood = new Mood(id, ts, emotion, reason, hasPhoto, socialSit);
-                            newMood.setId(doc.getId());
                             if (filterList.contains(emotion)){
                                 moodDataList.add(newMood);
                             }
@@ -246,11 +282,11 @@ public class ListActivity extends AppCompatActivity implements FilterFragment.On
 
     public void onOkPressed(boolean[] checkedItems){
         final String username = getIntent().getExtras().getString("Username");
-        final List<Emotion> emotionList = Emotion.getValuesNonNull();
+        final Emotion[] emotionArray = Emotion.values();
         List<Emotion> filterList = new ArrayList<Emotion>();
         for (int i = 0; i < checkedItems.length; i++){
             if (checkedItems[i] == false) {
-                filterList.add(emotionList.get(i));
+                filterList.add(emotionArray[i]);
             }
         }
         update(username, filterList);

@@ -10,21 +10,27 @@ import java.util.Date;
  */
 public class Mood implements Serializable {
 
-    // Combined Date and time to datetime, which will be formatted with DateUtils to the respective forms when the app runs.
     private String id;
     private Emotion emotion;
+    // both date and time are stored under the date variable (formatted in DateUtils)
     private Date date;
     private String reasonText;
     private boolean hasPhoto;
-    private int socialSit;
+    private SocialSituation socialSituation;
 
-    public Mood(String id, Date date, Emotion emotion, String reasonText, boolean hasPhoto, int socialSit) {
+    // apparently you need this?
+    // https://firebase.google.com/docs/firestore/manage-data/add-data
+    public Mood() {
+    }
+
+    public Mood(String id, Date date, Emotion emotion, String reasonText, boolean hasPhoto,
+                SocialSituation socialSituation) {
         this.id = id;
         this.emotion = emotion;
         this.date = date;
         this.reasonText = reasonText;
         this.hasPhoto = hasPhoto;
-        this.socialSit = socialSit;
+        this.socialSituation = socialSituation;
     }
 
     @Exclude
@@ -32,47 +38,24 @@ public class Mood implements Serializable {
         return id;
     }
 
-    public void setId(String id) {
-        this.id = id;
-    }
-
     public Date getDate() {
         return date;
-    }
-
-    public void setDate(Date date) {
-        this.date = date;
     }
 
     public Emotion getEmotion() {
         return emotion;
     }
 
-    public void setEmotion(Emotion emotion) {
-        this.emotion = emotion;
-    }
-
     public String getReasonText() {
         return reasonText;
-    }
-
-    public void setReasonText(String reasonText) {
-        this.reasonText = reasonText;
     }
 
     public boolean getHasPhoto() {
         return this.hasPhoto;
     }
 
-    public void setHasPhoto(boolean hasPhoto) {
-        this.hasPhoto = hasPhoto;
-    }
-
-    public int getSocialSit() {
-        return socialSit;
-    }
-
-    public void setSocialSit(int socialSit) {
-        this.socialSit = socialSit;
+    public SocialSituation getSocialSituation() {
+        return socialSituation;
     }
 }
+

@@ -33,7 +33,7 @@ import static org.hamcrest.core.StringContains.containsString;
 
 @RunWith(AndroidJUnit4.class)
 @LargeTest
-public class ListActivityTest {
+public class ProfileListActivityTest {
     private String username;
     private String password;
     private final FirebaseFirestore db = FirebaseFirestore.getInstance();

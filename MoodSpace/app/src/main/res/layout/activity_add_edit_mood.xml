@@ -76,7 +76,7 @@
                     android:layout_marginLeft="10dp"
                     android:layout_marginEnd="0dp"
                     android:layout_marginRight="0dp"
-                    android:background="@android:color/holo_blue_light"
+                    android:background="@drawable/social_sit_button"
                     app:srcCompat="@drawable/ic_person_white_24dp" />
 
                 <Spinner
@@ -84,7 +84,7 @@
                     style="@android:style/Widget.Holo.Spinner"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="12dp"
+                    android:layout_margin="8dp"
                     android:popupBackground="@color/colorTitle"
 
                     />

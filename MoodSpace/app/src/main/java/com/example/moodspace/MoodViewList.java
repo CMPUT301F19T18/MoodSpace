@@ -15,12 +15,12 @@ import java.util.ArrayList;
 /**
  * This class formats and provides the custom list display for each mood object.
  */
-public class CustomList extends ArrayAdapter<Mood> {
+public class MoodViewList extends ArrayAdapter<Mood> {
 
     private ArrayList<Mood> listOfMoods;
     private Context context;
 
-    public CustomList(Context context, ArrayList<Mood> listOfMoods ) {
+    public MoodViewList(Context context, ArrayList<Mood> listOfMoods ) {
         super(context,0,listOfMoods);
         this.listOfMoods = listOfMoods;
         this.context = context;
@@ -49,7 +49,7 @@ public class CustomList extends ArrayAdapter<Mood> {
         date.setText(DateUtils.formatDate(mood.getDate()));
         time.setText(DateUtils.formatTime(mood.getDate()));
 
-        view.setBackgroundColor(emotion.getColor());
+        view.setBackgroundColor(emotion.getColorCode());
 
         return view;
     }

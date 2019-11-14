@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <group android:id="@+id/group1" >
+        <item android:id="@+id/nav_item_profile"
+            android:icon="@drawable/ic_person_white_24dp"
+            android:title="@string/sb_profile" />
+
+        <!-- TODO find an appropriate icon -->
+        <item android:id="@+id/nav_item_following"
+            android:icon="@drawable/ic_menu_button"
+            android:title="@string/sb_following" />
+
+        <item android:id="@+id/nav_item_map"
+            android:icon="@drawable/ic_map_white_24dp"
+            android:title="@string/sb_map" />
+    </group>
+
+    <group android:id="@+id/group2" >
+        <!-- TODO find an appropriate icon -->
+        <item android:id="@+id/nav_item_log_out"
+            android:icon="@drawable/ic_menu_button"
+            android:title="@string/sb_log_out" />
+    </group>
+
+</menu>
