@@ -90,7 +90,7 @@ public class ProfileListActivity extends AppCompatActivity implements FilterFrag
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                drawerLayout.openDrawer(Gravity.LEFT);
+                drawerLayout.openDrawer(Gravity.START);
             }
         });
 
