@@ -25,7 +25,6 @@ public class LoginActivity extends AppCompatActivity implements ControllerCallba
     private UserController uc;
 
     // so you can't press the login button multiple times
-    private boolean canClick = true;
     private boolean inLoginState = true;
     private User currentUser;
 
@@ -39,7 +38,6 @@ public class LoginActivity extends AppCompatActivity implements ControllerCallba
         final AppCompatEditText username = findViewById(R.id.username);
         final AppCompatEditText password = findViewById(R.id.password);
         final AppCompatEditText veri_password = findViewById(R.id.password_veri);
-        final Button logOut = findViewById(R.id.nav_item_log_out);
 
         uc = new UserController(this);
 
@@ -63,10 +61,6 @@ public class LoginActivity extends AppCompatActivity implements ControllerCallba
         loginButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (!canClick) {
-                    return;
-                }
-
                 String passwordText = password.getText().toString().trim();
                 String usernameText = username.getText().toString().trim();
                 currentUser = new User(usernameText, passwordText);
@@ -74,7 +68,7 @@ public class LoginActivity extends AppCompatActivity implements ControllerCallba
                 if (LoginActivity.this.inLoginState) {
                     if (usernameText.length() > 0 && passwordText.length() > 0) {
                         uc.loginUser(currentUser);
-                        canClick = false;
+                        loginButton.setEnabled(false);
                     } else {
                         Toast.makeText(LoginActivity.this,
                                 "Please enter a username and a password", Toast.LENGTH_SHORT).show();
@@ -84,6 +78,7 @@ public class LoginActivity extends AppCompatActivity implements ControllerCallba
                     if (usernameText.length() > 0 && passwordText.length() > 0 && veriPasswordText.length() > 0) {
                         if (passwordText.equals(veriPasswordText)) {
                             uc.checkUserExists(currentUser);
+                            loginButton.setEnabled(false);
                         } else {
                             Toast.makeText(LoginActivity.this,
                                     "Please enter a matching password", Toast.LENGTH_SHORT).show();
@@ -100,12 +95,11 @@ public class LoginActivity extends AppCompatActivity implements ControllerCallba
 
     }
 
-    public boolean getCanClick() {
-        return this.canClick;
-    }
-
+    @Override
     public void callback(String callbackId) {
+        final AppCompatButton loginButton = findViewById(R.id.login_btn);
         View snackBarView = findViewById(R.id.login_view);
+
         switch (callbackId) {
             case UserController.USERNAME_NOT_TAKEN:
                 uc.signUpUser(currentUser);
@@ -120,44 +114,44 @@ public class LoginActivity extends AppCompatActivity implements ControllerCallba
 
             case UserController.USERNAME_TAKEN:
                 Toast.makeText(this, "This username is taken", Toast.LENGTH_SHORT).show();
-                canClick = true;
+                loginButton.setEnabled(true);
                 return;
 
             case UserController.LOGIN_READ_FAIL:
                 Toast.makeText(this, "Login failed, please try again", Toast.LENGTH_SHORT).show();
-                canClick = true;
+                loginButton.setEnabled(true);
                 return;
 
             case UserController.INCORRECT_PASSWORD:
                 Toast.makeText(this, "Incorrect password, please try again", Toast.LENGTH_SHORT).show();
-                canClick = true;
+                loginButton.setEnabled(true);
                 return;
 
             case UserController.USERNAME_NONEXISTENT:
                 Toast.makeText(this, "This username does not exist", Toast.LENGTH_SHORT).show();
-                canClick = true;
+                loginButton.setEnabled(true);
                 return;
 
             case UserController.PASSWORD_TASK_NULL:
                 Snackbar.make(snackBarView,
                         "Unexpected error: password task result should not be null",
                         Snackbar.LENGTH_LONG).show();
-                canClick = true;
+                loginButton.setEnabled(true);
                 return;
 
             case UserController.PASSWORD_FETCH_NULL:
                 Snackbar.make(snackBarView,
                         "Unexpected error: fetched password should not be null",
                         Snackbar.LENGTH_LONG).show();
-                canClick = true;
+                loginButton.setEnabled(true);
                 return;
 
             case UserController.USER_ADDITION_FAIL:
-                Utils.displayCriticalError(this, "Failed to upload the user to FireStore");
-                return;
-
             case UserController.FILTER_INITIALIZE_FAIL:
-                Utils.displayCriticalError(this, "Failed to initialize the filters in FireStore");
+                Snackbar.make(snackBarView,
+                        "Failed to register user, please try again",
+                        Snackbar.LENGTH_LONG).show();
+                loginButton.setEnabled(true);
                 return;
 
             default:

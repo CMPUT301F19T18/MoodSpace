@@ -146,6 +146,7 @@ public class UserController {
                             Log.d(TAG, "Error reading user data when logging in for user " + user.toString());
                             Log.d(TAG, Log.getStackTraceString(task.getException()));
                             cc.callback(LOGIN_READ_FAIL);
+                            return;
                         }
                         if (task.getResult() == null) {
                             cc.callback(PASSWORD_TASK_NULL);

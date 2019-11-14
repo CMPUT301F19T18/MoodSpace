@@ -1,14 +1,11 @@
 package com.example.moodspace;
 
-import android.content.Context;
 import android.util.Log;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -42,33 +39,46 @@ public class FollowController {
     private static final String FOLLOWING_ARRAY = "Following";
     private static final String FOLLOW_REQUESTS_FROM_ARRAY = "FollowRequestsFrom";
 
+    public static final String ADD_FOLLOWER_SUCCESS = "add follower success";
+    public static final String ADD_FOLLOWER_FAIL = "add follower failure";
+    public static final String REMOVE_FOLLOWER_SUCCESS = "remove follower success";
+    public static final String REMOVE_FOLLOWER_FAIL = "remove follower failure";
+    public static final String SEND_REQUEST_SUCCESS = "send follow request success";
+    public static final String SEND_REQUEST_FAIL = "send follow request fail";
+    public static final String REMOVE_REQUEST_SUCCESS = "remove follow request success";
+    public static final String REMOVE_REQUEST_FAIL = "remove follow request fail";
+
     private final FirebaseFirestore db = FirebaseFirestore.getInstance();
 
-    private Context context;
+    private ControllerCallback cc;
 
-    public FollowController(Context context) {
-        this.context = context;
+    public FollowController(ControllerCallback cc) {
+        this.cc = cc;
+    }
+
+    public interface Callback {
+        void callbackFollowingMoods(List<MoodOther> followingMoodsList);
     }
 
     /**
      * user => target
      */
-    public Task<Void> addFollower(final String user, final String target) {
+    public void addFollower(final String user, final String target) {
         final DocumentReference doc = db.collection("users").document(user);
 
-        return doc.update(FOLLOWING_ARRAY, FieldValue.arrayUnion(target))
+        doc.update(FOLLOWING_ARRAY, FieldValue.arrayUnion(target))
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
                         Log.d(TAG, String.format("add follower success (%s => %s)", user, target));
+                        cc.callback(ADD_FOLLOWER_SUCCESS);
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
                         Log.d(TAG, String.format("failed to add follower (%s => %s)", user, target));
-                        Toast.makeText(context,
-                                "Error: Failed to follow " + target, Toast.LENGTH_SHORT).show();
+                        cc.callback(ADD_FOLLOWER_FAIL);
                     }
                 });
     }
@@ -77,22 +87,22 @@ public class FollowController {
      * user =/=> target
      * (unfollow)
      */
-    public Task<Void> removeFollower(final String user, final String target) {
+    public void removeFollower(final String user, final String target) {
         final DocumentReference doc = db.collection("users").document(user);
 
-        return doc.update(FOLLOWING_ARRAY, FieldValue.arrayRemove(target))
+         doc.update(FOLLOWING_ARRAY, FieldValue.arrayRemove(target))
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
                         Log.d(TAG, String.format("remove follower success (%s => %s)", user, target));
+                        cc.callback(REMOVE_FOLLOWER_SUCCESS);
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
                         Log.d(TAG, String.format("failed to remove follower (%s => %s)", user, target));
-                        Toast.makeText(context,
-                                "Error: Failed to unfollow " + target, Toast.LENGTH_SHORT).show();
+                        cc.callback(REMOVE_FOLLOWER_FAIL);
                     }
                 });
     }
@@ -100,15 +110,16 @@ public class FollowController {
     /**
      * user -> target
      */
-    public Task<Void> sendFollowRequest(final String user, final String target) {
+    public void sendFollowRequest(final String user, final String target) {
         final DocumentReference doc = db.collection("users").document(target);
 
-        return doc.update(FOLLOW_REQUESTS_FROM_ARRAY, FieldValue.arrayUnion(user))
+        doc.update(FOLLOW_REQUESTS_FROM_ARRAY, FieldValue.arrayUnion(user))
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
                         Log.d(TAG, String.format("add follow request success (%s -> %s)",
                                 user, target));
+                        cc.callback(SEND_REQUEST_SUCCESS);
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
@@ -116,9 +127,7 @@ public class FollowController {
                     public void onFailure(@NonNull Exception e) {
                         Log.d(TAG, String.format("failed to add follow request (%s -> %s)",
                                 user, target));
-                        Toast.makeText(context,
-                                "Error: Failed to send follow request to " + target,
-                                Toast.LENGTH_SHORT).show();
+                        cc.callback(SEND_REQUEST_FAIL);
                     }
                 });
     }
@@ -127,15 +136,16 @@ public class FollowController {
      * user -/-> potentialFollowee
      * (also used for declining follow requests)
      */
-    public Task<Void> removeFollowRequest(final String user, final String target) {
-        final DocumentReference doc = db.collection("users").document(target);
+    public void removeFollowRequest(final String user, final String target) {
+        DocumentReference doc = db.collection("users").document(target);
 
-        return doc.update(FOLLOW_REQUESTS_FROM_ARRAY, FieldValue.arrayRemove(user))
+        doc.update(FOLLOW_REQUESTS_FROM_ARRAY, FieldValue.arrayRemove(user))
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
                         Log.d(TAG, String.format("remove follow request success (%s -> %s)",
                                 user, target));
+                        cc.callback(REMOVE_REQUEST_SUCCESS);
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
@@ -143,16 +153,17 @@ public class FollowController {
                     public void onFailure(@NonNull Exception e) {
                         Log.d(TAG, String.format("failed to remove follow request (%s => %s)",
                                 user, target));
-                        Toast.makeText(context,
-                                "Error: Failed to remove follow request to " + target,
-                                Toast.LENGTH_SHORT).show();
+                        cc.callback(REMOVE_REQUEST_FAIL);
                     }
                 });
     }
 
-    public List<MoodOther> getFollowingMoods(String user) {
-        return null;
+    /**
+     * gets all of the users that user is following, and for each user, gets the most recent mood
+     */
+    public void getFollowingMoods(String user) {
+        // TODO implement method
+        final DocumentReference doc = db.collection("users").document(user);
+        ((Callback) cc).callbackFollowingMoods(null);
     }
-
-
 }
