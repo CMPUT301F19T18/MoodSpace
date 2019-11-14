@@ -4,7 +4,7 @@ import android.os.Bundle;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-public class FollowActivity extends AppCompatActivity {
+public class FollowActivity extends AppCompatActivity implements ControllerCallback {
     UserController uc;
 
     @Override
@@ -12,5 +12,10 @@ public class FollowActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         uc = new UserController(this);
 
+    }
+
+    @Override
+    public void callback(String callbackId) {
+        // TODO stub
     }
 }

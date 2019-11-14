@@ -25,31 +25,42 @@ import androidx.annotation.NonNull;
  */
 public class UserController {
     private static final String TAG = UserController.class.getSimpleName();
-    public static final String USERNAME_KEY = "moodspace.UserController.username";
+
+    public static final String USERNAME_TAKEN = "username taken";
+    public static final String USERNAME_NOT_TAKEN = "username not taken";
+    public static final String USERNAME_NONEXISTENT = "username doesn't exist";
+    public static final String LOGIN = "successful login";
+    public static final String LOGIN_READ_FAIL = "login read fail";
+    public static final String INCORRECT_PASSWORD = "incorrect password";
+    public static final String PASSWORD_TASK_NULL = "password task result null";
+    public static final String PASSWORD_FETCH_NULL = "password fetch null";
+    public static final String USER_ADDITION_FAIL = "user addition fail";
+    public static final String FILTER_INITIALIZE_FAIL = "filter initialize fail";
 
     private final FirebaseFirestore db = FirebaseFirestore.getInstance();
 
-    private Context context;
+    private ControllerCallback cc;
 
 
-    public UserController(Context context) {
-        this.context = context;
+    public UserController(ControllerCallback cc) {
+        this.cc = cc;
     }
 
     /**
      * Used to ensure all users have a unique username
      */
-    public void checkUserExists(User user) {
-        final User enteredUser = user;
+    public void checkUserExists(final User user) {
         Query query = db.collection("users").whereEqualTo("username", user.getUsername());
         query.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
                 if (task.getResult() != null && task.getResult().size() > 0) {
-                    Toast.makeText(context, "This username is taken", Toast.LENGTH_SHORT).show();
+                    Log.d(TAG, "Username " + user.getUsername() + " is taken");
+                    cc.callback(USERNAME_TAKEN);
                 } else {
-                    // add a new user to FireStore database
-                    signUpUser(enteredUser);
+                    Log.d(TAG, "Username " + user.getUsername() + " is not taken");
+                    cc.callback(USERNAME_NOT_TAKEN);
+                    //signUpUser(user);
                 }
             }
         });
@@ -59,7 +70,7 @@ public class UserController {
      * Signs up a user by creating a user entry in firebase
      * - Also creates default filter values for each user
      */
-    public void signUpUser(User user) {
+    public void signUpUser(final User user) {
         final String username = user.getUsername();
         String password = user.getPassword();
 
@@ -75,22 +86,21 @@ public class UserController {
                     @Override
                     public void onSuccess(Void aVoid) {
                         Log.d(TAG, "User was successfully added");
-                        Intent i = new Intent(context, ProfileListActivity.class);
-                        i.putExtra(USERNAME_KEY, username);
-                        context.startActivity(i);
-                        ((Activity) context).finish();
+                        cc.callback(LOGIN);
                     }
                 }).
                 addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
-                        Log.d(TAG, "Error has occurred " + e.getMessage());
+                        Log.d(TAG, "Error has occurred when adding user " + user.toString());
+                        Log.d(TAG, Log.getStackTraceString(e));
+                        cc.callback(USER_ADDITION_FAIL);
                     }
                 });
 
         // create the default filter with all emotions
         HashMap<String, Object> data = new HashMap<>();
-        for (Emotion emotion : Emotion.values()) {
+        for (final Emotion emotion : Emotion.values()) {
             data.put("emotion", emotion);
             db.collection("users")
                     .document(username)
@@ -100,13 +110,15 @@ public class UserController {
                     .addOnSuccessListener(new OnSuccessListener<Void>() {
                         @Override
                         public void onSuccess(Void aVoid) {
-                            Log.d(TAG, "Data addition successful");
+                            Log.d(TAG, "Filter " + emotion.getEmojiName() + " was successfully added");
                         }
                     })
                     .addOnFailureListener(new OnFailureListener() {
                         @Override
                         public void onFailure(@NonNull Exception e) {
-                            Log.d(TAG, "Data addition failed" + e.toString());
+                            Log.d(TAG, "Error has occurred when adding filter " + emotion.getEmojiName());
+                            Log.d(TAG, Log.getStackTraceString(e));
+                            cc.callback(FILTER_INITIALIZE_FAIL);
                         }
                     });
         }
@@ -119,7 +131,7 @@ public class UserController {
      * - username not found
      * - password is wrong
      */
-    public void loginUser(User user) {
+    public void loginUser(final User user) {
         final String username = user.getUsername();
         final String password = user.getPassword();
 
@@ -130,39 +142,29 @@ public class UserController {
                 .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                        if (task.isSuccessful()) {
-                            if (task.getResult() == null) {
-                                Toast.makeText(context,
-                                        "Unexpected error: password task result should not be null",
-                                        Toast.LENGTH_LONG).show();
-                                return;
-                            }
-                            if (task.getResult().exists()) {
-                                String fetchedPassword = (String) task.getResult().get("password");
-                                if (fetchedPassword == null) {
-                                    Toast.makeText(context,
-                                            "Unexpected error: fetched password should not be null",
-                                            Toast.LENGTH_LONG).show();
-                                    return;
-                                }
-                                if (fetchedPassword.equals(password)) {
-                                    Intent i = new Intent(context, ProfileListActivity.class);
-                                    i.putExtra(USERNAME_KEY, username);
-                                    context.startActivity(i);
-                                    ((Activity) context).finish();
-                                } else {
-                                    Toast.makeText(context, "Incorrect password", Toast.LENGTH_SHORT).show();
-                                }
-                            } else {
-                                Toast.makeText(context, "This username does not exist", Toast.LENGTH_SHORT).show();
-                            }
+                        if (!task.isSuccessful()) {
+                            Log.d(TAG, "Error reading user data when logging in for user " + user.toString());
+                            Log.d(TAG, Log.getStackTraceString(task.getException()));
+                            cc.callback(LOGIN_READ_FAIL);
+                        }
+                        if (task.getResult() == null) {
+                            cc.callback(PASSWORD_TASK_NULL);
+                            return;
+                        }
+                        if (!task.getResult().exists()) {
+                            cc.callback(USERNAME_NONEXISTENT);
+                            return;
+                        }
 
+                        String fetchedPassword = (String) task.getResult().get("password");
+                        if (fetchedPassword == null) {
+                            cc.callback(PASSWORD_FETCH_NULL);
+                            return;
+                        }
+                        if (fetchedPassword.equals(password)) {
+                            cc.callback(LOGIN);
                         } else {
-                            String ex = "";
-                            if (task.getException() != null) {
-                                ex = task.getException().getMessage();
-                            }
-                            Log.d(TAG, "Error reading user data " + ex);
+                            cc.callback(INCORRECT_PASSWORD);
                         }
                     }
                 });

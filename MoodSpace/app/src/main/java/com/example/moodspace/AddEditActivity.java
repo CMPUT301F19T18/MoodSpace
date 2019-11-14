@@ -28,7 +28,6 @@ import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashSet;
@@ -252,8 +251,8 @@ public class AddEditActivity extends AppCompatActivity {
             // displays date and time
             TextView dateInfo = findViewById(R.id.date);
             TextView timeInfo = findViewById(R.id.time);
-            String parsedDate = DateUtils.formatDate(currentMood.getDate());
-            String parsedTime = DateUtils.formatTime(currentMood.getDate());
+            String parsedDate = Utils.formatDate(currentMood.getDate());
+            String parsedTime = Utils.formatTime(currentMood.getDate());
             dateInfo.setText(parsedDate);
             timeInfo.setText(parsedTime);
         }

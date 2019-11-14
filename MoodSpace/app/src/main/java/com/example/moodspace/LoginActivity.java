@@ -5,17 +5,28 @@ import androidx.appcompat.widget.AppCompatButton;
 import androidx.appcompat.widget.AppCompatEditText;
 import androidx.appcompat.widget.AppCompatTextView;
 
+import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
+
+import com.google.android.material.snackbar.Snackbar;
 
 /**
  * Activity for logging in and signing up
  */
-public class LoginActivity extends AppCompatActivity {
-    UserController uc;
+public class LoginActivity extends AppCompatActivity implements ControllerCallback {
+    private static final String TAG = LoginActivity.class.getSimpleName();
+    public static final String USERNAME_KEY = "moodspace.UserController.username";
 
+    private UserController uc;
+
+    // so you can't press the login button multiple times
+    private boolean canClick = true;
     private boolean inLoginState = true;
+    private User currentUser;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,12 +61,18 @@ public class LoginActivity extends AppCompatActivity {
         loginButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                if (!canClick) {
+                    return;
+                }
+
                 String passwordText = password.getText().toString().trim();
                 String usernameText = username.getText().toString().trim();
+                currentUser = new User(usernameText, passwordText);
 
                 if (LoginActivity.this.inLoginState) {
                     if (usernameText.length() > 0 && passwordText.length() > 0) {
-                        uc.loginUser(new User(usernameText, passwordText));
+                        uc.loginUser(currentUser);
+                        canClick = false;
                     } else {
                         Toast.makeText(LoginActivity.this,
                                 "Please enter a username and a password", Toast.LENGTH_SHORT).show();
@@ -64,7 +81,7 @@ public class LoginActivity extends AppCompatActivity {
                     String veriPasswordText = veri_password.getText().toString().trim();
                     if (usernameText.length() > 0 && passwordText.length() > 0 && veriPasswordText.length() > 0) {
                         if (passwordText.equals(veriPasswordText)) {
-                            uc.checkUserExists(new User(usernameText, passwordText));
+                            uc.checkUserExists(currentUser);
                         } else {
                             Toast.makeText(LoginActivity.this,
                                     "Please enter a matching password", Toast.LENGTH_SHORT).show();
@@ -78,6 +95,71 @@ public class LoginActivity extends AppCompatActivity {
                 }
             }
         });
+    }
+
+    public boolean getCanClick() {
+        return this.canClick;
+    }
+
+    public void callback(String callbackId) {
+        View snackBarView = findViewById(R.id.login_view);
+        switch (callbackId) {
+            case UserController.USERNAME_NOT_TAKEN:
+                uc.signUpUser(currentUser);
+                return;
+
+            case UserController.LOGIN:
+                Intent i = new Intent(this, ProfileListActivity.class);
+                i.putExtra(USERNAME_KEY, currentUser.getUsername());
+                startActivity(i);
+                finish();
+                return;
+
+            case UserController.USERNAME_TAKEN:
+                Toast.makeText(this, "This username is taken", Toast.LENGTH_SHORT).show();
+                canClick = true;
+                return;
+
+            case UserController.LOGIN_READ_FAIL:
+                Toast.makeText(this, "Login failed, please try again", Toast.LENGTH_SHORT).show();
+                canClick = true;
+                return;
+
+            case UserController.INCORRECT_PASSWORD:
+                Toast.makeText(this, "Incorrect password, please try again", Toast.LENGTH_SHORT).show();
+                canClick = true;
+                return;
+
+            case UserController.USERNAME_NONEXISTENT:
+                Toast.makeText(this, "This username does not exist", Toast.LENGTH_SHORT).show();
+                canClick = true;
+                return;
+
+            case UserController.PASSWORD_TASK_NULL:
+                Snackbar.make(snackBarView,
+                        "Unexpected error: password task result should not be null",
+                        Snackbar.LENGTH_LONG).show();
+                canClick = true;
+                return;
+
+            case UserController.PASSWORD_FETCH_NULL:
+                Snackbar.make(snackBarView,
+                        "Unexpected error: fetched password should not be null",
+                        Snackbar.LENGTH_LONG).show();
+                canClick = true;
+                return;
+
+            case UserController.USER_ADDITION_FAIL:
+                Utils.displayCriticalError(this, "Failed to upload the user to FireStore");
+                return;
+
+            case UserController.FILTER_INITIALIZE_FAIL:
+                Utils.displayCriticalError(this, "Failed to initialize the filters in FireStore");
+                return;
+
+            default:
+                Log.w(TAG, "unrecognized callback ID: " + callbackId);
+        }
     }
 }
 
