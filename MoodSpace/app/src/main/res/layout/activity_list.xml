@@ -31,7 +31,7 @@
             android:layout_margin="10dp"
             android:clickable="true"
             android:focusable="true"
-            app:backgroundTint="@android:color/holo_red_light"
+            app:backgroundTint="@android:color/holo_blue_bright"
             app:elevation="6dp"
             app:srcCompat="@android:drawable/ic_input_add"
             app:tint="#fff" />

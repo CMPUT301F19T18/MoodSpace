@@ -1,6 +1,5 @@
 <resources>
     <string name="app_name">MoodSpace</string>
-
     <string name="ae_reason_text">Reason</string>
     <string name="ae_add_photo_text">Add photo</string>
     <string name="ae_add_location_text">Placeholder Location</string>

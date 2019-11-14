@@ -7,10 +7,10 @@ import java.util.Arrays;
 import java.util.List;
 
 public enum Emotion {
-    NULL(0, "#7f8c8d", "Empty"),
-    HAPPY(0x1F604, "#badc58", "Happy"),
-    ANGRY(0x1F621, "#eb4d4b", "Angry"),
-    SAD(0x1F62D, "#00a8ff", "Sad");
+    NULL(0, "#9F9F9F", "Empty"),
+    HAPPY(0x1F604, "#ffe9ab", "Happy"),
+    ANGRY(0x1F621, "#FF8585", "Angry"),
+    SAD(0x1F62D, "#6F94E3", "Sad");
 
     private final int emojiCode;
     private final String colorCode;
