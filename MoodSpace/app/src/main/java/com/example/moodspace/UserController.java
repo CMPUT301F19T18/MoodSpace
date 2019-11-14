@@ -17,7 +17,6 @@ import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.HashMap;
-import java.util.List;
 
 import androidx.annotation.NonNull;
 
@@ -26,8 +25,12 @@ import androidx.annotation.NonNull;
  */
 public class UserController {
     private static final String TAG = UserController.class.getSimpleName();
-    private Context context;
+    public static final String USERNAME_KEY = "moodspace.UserController.username";
+
     private final FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+    private Context context;
+
 
     public UserController(Context context) {
         this.context = context;
@@ -73,8 +76,7 @@ public class UserController {
                     public void onSuccess(Void aVoid) {
                         Log.d(TAG, "User was successfully added");
                         Intent i = new Intent(context, ProfileListActivity.class);
-                        // TODO: pass user to activity
-                        i.putExtra("Username",username);
+                        i.putExtra(USERNAME_KEY, username);
                         context.startActivity(i);
                         ((Activity) context).finish();
                     }
@@ -133,9 +135,7 @@ public class UserController {
                             if (task.getResult().exists()) {
                                 if (task.getResult().get("password").equals(password)) {
                                     Intent i = new Intent(context, ProfileListActivity.class);
-                                    i.putExtra("Username",username);
-
-                                    // TODO: pass user to activity
+                                    i.putExtra(USERNAME_KEY, username);
                                     context.startActivity(i);
                                     ((Activity) context).finish();
                                 } else {

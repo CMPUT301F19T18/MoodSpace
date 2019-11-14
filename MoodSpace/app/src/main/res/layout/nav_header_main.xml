@@ -7,10 +7,10 @@
     android:orientation="vertical">
 
     <TextView
-        android:id="@+id/textView"
+        android:id="@+id/header_text_view"
         android:layout_width="match_parent"
         android:layout_height="100dp"
-        android:text="Username"
+        tools:text="Username"
         android:gravity="bottom|start"
         android:background="@color/colorPrimary"
         android:textColor="@color/colorAccent"
