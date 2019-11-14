@@ -15,7 +15,7 @@ import java.util.Date;
 import static org.junit.Assert.*;
 
 
-public class DateUtilsTests {
+public class DateUtilsTest {
     /**
      * Checks if the formatDate static function works appropriately
      */

@@ -10,7 +10,7 @@ import java.util.Arrays;
 
 import static org.junit.Assert.*;
 
-public class EmotionTests {
+public class EmotionTest {
 
     /**
      * Checks if the getEmojiList function of Emotion enum works appropriately
