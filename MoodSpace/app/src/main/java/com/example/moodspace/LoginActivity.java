@@ -10,6 +10,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.Toast;
 
 import com.google.android.material.snackbar.Snackbar;
@@ -38,6 +39,7 @@ public class LoginActivity extends AppCompatActivity implements ControllerCallba
         final AppCompatEditText username = findViewById(R.id.username);
         final AppCompatEditText password = findViewById(R.id.password);
         final AppCompatEditText veri_password = findViewById(R.id.password_veri);
+        final Button logOut = findViewById(R.id.nav_item_log_out);
 
         uc = new UserController(this);
 
@@ -95,6 +97,7 @@ public class LoginActivity extends AppCompatActivity implements ControllerCallba
                 }
             }
         });
+
     }
 
     public boolean getCanClick() {
