@@ -1,5 +1,6 @@
 package com.example.moodspace;
 
+import android.os.Bundle;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -53,16 +54,6 @@ public class FollowController implements ControllerCallback {
     private static final String FOLLOW_REQUESTS_FROM_ARRAY = "FollowRequestsFrom";
     private static final String FOLLOW_REQUESTS_TO_ARRAY = "FollowRequestsTo";
 
-    public static final String ADD_FOLLOWER_SUCCESS = "add follower success";
-    public static final String ADD_FOLLOWER_FAIL = "add follower failure";
-    public static final String REMOVE_FOLLOWER_SUCCESS = "remove follower success";
-    public static final String REMOVE_FOLLOWER_FAIL = "remove follower failure";
-    public static final String SEND_REQUEST_SUCCESS = "send follow request success";
-    public static final String SEND_REQUEST_FAIL = "send follow request fail";
-    public static final String REMOVE_REQUEST_SUCCESS = "remove follow request success";
-    public static final String REMOVE_REQUEST_FAIL = "remove follow request fail";
-    public static final String FOLLOWEE_MOOD_READ_FAIL = "followee mood read fail";
-
     private final FirebaseFirestore db = FirebaseFirestore.getInstance();
 
     private ControllerCallback cc;
@@ -81,10 +72,34 @@ public class FollowController implements ControllerCallback {
     }
 
     /**
+     * Callback only once both tasks are complete, so when the size of usersComplete is 2.
+     */
+    private void callbackComplete(final HashSet<String> usersComplete, final HashSet<String> usersSuccessful,
+                                  String user, boolean isSuccess,
+                                  FollowCallbackId successCode, FollowCallbackId completeCode) {
+        usersComplete.add(user);
+        if (isSuccess) {
+            usersSuccessful.add(user);
+        }
+
+        if (usersComplete.size() == 2) {
+            cc.callback(completeCode);
+            if (usersSuccessful.size() == 2) {
+                cc.callback(successCode);
+            }
+        }
+
+
+    }
+
+    /**
      * user => target
      * TODO update both arrays
      */
     public void addFollower(final String user, final String target) {
+        final HashSet<String> usersComplete = new HashSet<>();
+        final HashSet<String> usersSuccessful = new HashSet<>();
+
         // set user to follow target
         db.collection("users")
                 .document(user)
@@ -92,15 +107,19 @@ public class FollowController implements ControllerCallback {
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
-                        Log.d(TAG, String.format("add follower success (%s => %s)", user, target));
-                        cc.callback(ADD_FOLLOWER_SUCCESS);
+                        Log.d(TAG, String.format("successfully set %s to follow %s", user, target));
+                        callbackComplete(usersComplete, usersSuccessful, user, true,
+                                FollowCallbackId.ADD_FOLLOWER_SUCCESS, FollowCallbackId.ADD_FOLLOWER_COMPLETE);
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
                         Log.d(TAG, String.format("failed to set %s to follow %s", user, target));
-                        cc.callback(ADD_FOLLOWER_FAIL);
+                        cc.callback(FollowCallbackId.ADD_USER_FOLLOWING_FAIL);
+                        usersComplete.add(user);
+                        callbackComplete(usersComplete, usersSuccessful, user, false,
+                                FollowCallbackId.ADD_FOLLOWER_SUCCESS, FollowCallbackId.ADD_FOLLOWER_COMPLETE);
                     }
                 });
 
@@ -111,15 +130,18 @@ public class FollowController implements ControllerCallback {
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
-                        Log.d(TAG, String.format("add follower success (%s => %s)", user, target));
-                        cc.callback(ADD_FOLLOWER_SUCCESS);
+                        Log.d(TAG, String.format("successfully set %s to have %s as a follower", target, user));
+                        callbackComplete(usersComplete, usersSuccessful, user, true,
+                                FollowCallbackId.ADD_FOLLOWER_SUCCESS, FollowCallbackId.ADD_FOLLOWER_COMPLETE);
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
-                        Log.d(TAG, String.format("failed to add follower (%s => %s)", user, target));
-                        cc.callback(ADD_FOLLOWER_FAIL);
+                        Log.d(TAG, String.format("failed to set %s to have %s as a follower", target, user));
+                        cc.callback(FollowCallbackId.ADD_USER_AS_FOLLOWER_FAIL);
+                        callbackComplete(usersComplete, usersSuccessful, user, false,
+                                FollowCallbackId.ADD_FOLLOWER_SUCCESS, FollowCallbackId.ADD_FOLLOWER_COMPLETE);
                     }
                 });
 
@@ -131,9 +153,14 @@ public class FollowController implements ControllerCallback {
      * TODO update both arrays
      */
     public void removeFollower(final String user, final String target) {
-        final DocumentReference doc = db.collection("users").document(user);
+        final DocumentReference doc =
 
-         doc.update(FOLLOWING_ARRAY, FieldValue.arrayRemove(target))
+        final HashSet<String> usersComplete = new HashSet<>();
+        final HashSet<String> usersSuccessful = new HashSet<>();
+
+        db.collection("users")
+                .document(user)
+                .update(FOLLOWING_ARRAY, FieldValue.arrayRemove(target))
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
@@ -262,11 +289,16 @@ public class FollowController implements ControllerCallback {
         //((Callback) cc).callbackFollowData();
     }
 
+    @Override
+    public void callback(CallbackId callbackId) {
+        cc.callback(callbackId, null);
+    }
+
     /**
      * Forwards all callbacks from UserController to the normal ControllerCallback (activity)
      */
     @Override
-    public void callback(String callbackId) {
-        cc.callback(callbackId);
+    public void callback(CallbackId callbackId, Bundle bundle) {
+        cc.callback(callbackId, bundle);
     }
 }
