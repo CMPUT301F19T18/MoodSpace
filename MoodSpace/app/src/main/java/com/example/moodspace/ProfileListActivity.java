@@ -40,6 +40,8 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
+import io.paperdb.Paper;
+
 public class ProfileListActivity extends AppCompatActivity implements FilterFragment.OnFragmentInteractionListener {
     private static final String TAG = ProfileListActivity.class.getSimpleName();
     private final FirebaseFirestore db = FirebaseFirestore.getInstance();
@@ -57,7 +59,6 @@ public class ProfileListActivity extends AppCompatActivity implements FilterFrag
         username = getIntent().getExtras().getString("Username");
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_profile_list);
-
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 

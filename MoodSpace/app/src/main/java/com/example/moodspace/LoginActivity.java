@@ -9,7 +9,10 @@ import android.os.Bundle;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.Toast;
+
+import io.paperdb.Paper;
 
 /**
  * Activity for logging in and signing up
@@ -34,8 +37,16 @@ public class LoginActivity extends AppCompatActivity {
         final AppCompatEditText password = findViewById(R.id.password);
         final AppCompatEditText veri_password = findViewById(R.id.password_veri);
         final Button logOut = findViewById(R.id.nav_item_log_out);
+        Paper.init(this);
+        final CheckBox chkBoxRememberMe = findViewById(R.id.rememberMe);
+        final String userNameKey = Paper.book().read(SavedUser.userNameKey);
+        final String passwordKey = Paper.book().read(SavedUser.passWordKey);
 
         uc = new UserController(LoginActivity.this);
+
+        if (userNameKey != null && passwordKey != null) {
+            uc.loginUser(true, new User(userNameKey, passwordKey));
+        }
 
         veri_password.setVisibility(View.GONE);
         signUpLink.setOnClickListener(new View.OnClickListener() {
@@ -57,12 +68,13 @@ public class LoginActivity extends AppCompatActivity {
         loginButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                
                 String passwordText = password.getText().toString().trim();
                 String usernameText = username.getText().toString().trim();
 
                 if (LoginActivity.this.inLoginState) {
                     if (usernameText.length() > 0 && passwordText.length() > 0) {
-                        uc.loginUser(new User(usernameText, passwordText));
+                        uc.loginUser(chkBoxRememberMe.isChecked(), new User(usernameText, passwordText));
                     } else {
                         Toast.makeText(LoginActivity.this,
                                 "Please enter a username and a password", Toast.LENGTH_SHORT).show();
@@ -85,6 +97,8 @@ public class LoginActivity extends AppCompatActivity {
                 }
             }
         });
+
+
 
     }
 }
