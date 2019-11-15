@@ -61,6 +61,7 @@ public class SignupActivity extends AppCompatActivity {
             public void onClick(View view){
                 Intent loginScreen = new Intent(SignupActivity.this, LoginActivity.class);
                 startActivity(loginScreen);
+                finish();
             }
         });
     }

@@ -28,8 +28,6 @@ public class LoginActivity extends AppCompatActivity {
             getWindow().setFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS,
                     WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
         }
-//        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
-//                WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_login);
         //ActionBar actionBar = getSupportActionBar();
         //actionBar.hide();
@@ -55,6 +53,7 @@ public class LoginActivity extends AppCompatActivity {
             public void onClick(View view) {
             Intent signUpScreen = new Intent(LoginActivity.this, SignupActivity.class);
             startActivity(signUpScreen);
+            finish();
             }
         });
 
