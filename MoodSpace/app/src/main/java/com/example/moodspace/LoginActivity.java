@@ -15,7 +15,7 @@ import androidx.appcompat.widget.AppCompatTextView;
 import io.paperdb.Paper;
 
 /**
- * Activity for logging in and signing up
+ * Activity for logging in as an existing user
  */
 public class LoginActivity extends AppCompatActivity {
     UserController uc;

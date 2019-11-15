@@ -11,7 +11,9 @@ import androidx.appcompat.widget.AppCompatButton;
 import androidx.appcompat.widget.AppCompatEditText;
 import androidx.appcompat.widget.AppCompatTextView;
 
-
+/**
+ * Activity for signing up as a new user
+ */
 public class SignupActivity extends AppCompatActivity {
     UserController uc;
 
