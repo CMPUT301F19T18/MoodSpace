@@ -37,6 +37,7 @@ public class LoginActivity extends AppCompatActivity {
         final AppCompatEditText password = findViewById(R.id.password);
         final AppCompatEditText veri_password = findViewById(R.id.password_veri);
         final Button logOut = findViewById(R.id.nav_item_log_out);
+
         Paper.init(this);
         final CheckBox chkBoxRememberMe = findViewById(R.id.rememberMe);
         final String userNameKey = Paper.book().read(SavedUser.userNameKey);
@@ -97,8 +98,6 @@ public class LoginActivity extends AppCompatActivity {
                 }
             }
         });
-
-
 
     }
 }

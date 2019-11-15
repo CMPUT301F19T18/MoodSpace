@@ -27,8 +27,12 @@ import io.paperdb.Paper;
  */
 public class UserController {
     private static final String TAG = UserController.class.getSimpleName();
-    private Context context;
+    public static final String USERNAME_KEY = "moodspace.UserController.username";
+
     private final FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+    private Context context;
+
 
     public UserController(Context context) {
         this.context = context;
@@ -74,8 +78,7 @@ public class UserController {
                     public void onSuccess(Void aVoid) {
                         Log.d(TAG, "User was successfully added");
                         Intent i = new Intent(context, ProfileListActivity.class);
-                        // TODO: pass user to activity
-                        i.putExtra("Username",username);
+                        i.putExtra(USERNAME_KEY, username);
                         context.startActivity(i);
                         ((Activity) context).finish();
                     }
@@ -139,9 +142,7 @@ public class UserController {
                                         Paper.book().write(SavedUser.passWordKey,password);
                                     }
                                     Intent i = new Intent(context, ProfileListActivity.class);
-                                    i.putExtra("Username",username);
-
-                                    // TODO: pass user to activity
+                                    i.putExtra(USERNAME_KEY, username);
                                     context.startActivity(i);
                                     ((Activity) context).finish();
                                 } else {
