@@ -43,4 +43,14 @@ public enum Emotion {
         }
         return emotionStringArray;
     }
+
+    @Override
+    public String toString() {
+        return "Emotion{" +
+                "id=" + id +
+                ", emojiCode=" + emojiCode +
+                ", colorCode=" + colorCode +
+                ", emojiName='" + emojiName + '\'' +
+                '}';
+    }
 }

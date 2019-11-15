@@ -286,7 +286,6 @@ public class ProfileListActivity extends AppCompatActivity implements FilterFrag
     }
 
     public void onOkPressed(boolean[] checkedItems){
-        final String username = getIntent().getExtras().getString("Username");
         final Emotion[] emotionArray = Emotion.values();
         List<Emotion> filterList = new ArrayList<Emotion>();
         for (int i = 0; i < checkedItems.length; i++){

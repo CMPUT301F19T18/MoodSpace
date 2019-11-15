@@ -2,6 +2,7 @@ package com.example.moodspace;
 
 import android.content.Context;
 import android.graphics.Color;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,62 +18,79 @@ import java.util.List;
 /**
  * Used for the emotion spinner
  * https://stackoverflow.com/a/48703213
+ * https://stackoverflow.com/a/41637506
  */
 public class EmotionAdapter extends ArrayAdapter<Emotion> {
+    private final String TAG = EmotionAdapter.class.getSimpleName();
     private final String INITIAL_TEXT = getContext().getString(R.string.ae_initial_emotion_text);
     private final int INITIAL_COLOR = Color.parseColor("#7f8c8d");
     private static final int RESOURCE = R.layout.emotion_spinner_row;
 
     private Context context;
-    private boolean initialTextWasShown;
 
-    public EmotionAdapter(Context context, List<Emotion> emotionList, boolean initialTextWasShown) {
+    public EmotionAdapter(Context context, List<Emotion> emotionList) {
         super(context, RESOURCE, emotionList);
         this.context = context;
-        this.initialTextWasShown = initialTextWasShown;
+    }
+
+    @Override
+    public View getDropDownView(int position, View convertView, @NonNull ViewGroup parent) {
+        if (position == 0) {
+            return initialSelection(parent, true);
+        }
+        return getCustomView(position, convertView, parent);
     }
 
     @NonNull
     @Override
-    public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
-        return initView(position, convertView, parent);
+    public View getView(int position, View convertView, @NonNull ViewGroup parent) {
+        if (position == 0) {
+            return initialSelection(parent, false);
+        }
+        return getCustomView(position, convertView, parent);
     }
+
 
     @Override
-    public View getDropDownView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
-        return initView(position, convertView, parent);
+    public int getCount() {
+        // Adjust for initial selection item
+        return super.getCount() + 1;
     }
 
-    public boolean selectionMade(Spinner spinner) {
-        return !((TextView) spinner.getSelectedView()).getText().toString().equals(INITIAL_TEXT);
+    private View initialSelection(@NonNull ViewGroup parent, boolean dropdown) {
+        LayoutInflater inflater = LayoutInflater.from(context);
+        final TextView view = (TextView) inflater.inflate(RESOURCE, parent, false);
+        view.setText(INITIAL_TEXT);
+        view.setBackgroundColor(INITIAL_COLOR);
+
+        if (dropdown) { // Hidden when the dropdown is opened
+            view.setHeight(0);
+        }
+
+        return view;
     }
 
-    private View initView(int position, View convertView, ViewGroup parent) {
-        if (convertView == null) {
-            convertView = LayoutInflater.from(getContext()).inflate(
-                    R.layout.emotion_spinner_row, parent, false
-            );
+    private View getCustomView(int position, View convertView, ViewGroup parent) {
+        // Distinguish "real" spinner items (that can be reused) from initial selection item
+        View row;
+        if (convertView == null || (convertView instanceof TextView)) {
+            row = LayoutInflater.from(getContext()).inflate(R.layout.emotion_spinner_row, parent, false);
+        } else {
+            row = convertView;
         }
 
-        // shows initial text and color if no selection was initially made
-        if (!initialTextWasShown) {
-            initialTextWasShown = true;
-            LayoutInflater inflater = LayoutInflater.from(context);
-            final TextView view = (TextView) inflater.inflate(RESOURCE, parent, false);
-            view.setText(INITIAL_TEXT);
-            view.setBackgroundColor(INITIAL_COLOR);
-            return view;
-        }
-
-        TextView emojiField = convertView.findViewById(R.id.emotion_spinner_row);
+        position = position - 1; // Adjust for initial selection item
         Emotion currentItem = getItem(position);
+        TextView emojiField = row.findViewById(R.id.emotion_spinner_row);
 
-        if (currentItem != null) {
+        if (currentItem == null) {
+            Log.w(TAG, "Current item is null at position " + position);
+        } else {
             String parsedText = currentItem.getEmojiString() + "      " + currentItem.getEmojiName();
             emojiField.setText(parsedText);
-            convertView.setBackgroundColor(currentItem.getColorCode());
+            row.setBackgroundColor(currentItem.getColorCode());
         }
-        return convertView;
-
+        return row;
     }
+
 }
