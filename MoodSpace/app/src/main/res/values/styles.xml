@@ -21,7 +21,7 @@
     </style>
 
     <style name="CounterStyle" parent="TextAppearance.AppCompat.Small">
-        <item name="android:textColor">@color/colorWhite</item>
+        <item name="android:textColor">@color/colorBlack</item>
     </style>
 
         <style name="AppTheme.NoActionBar">
