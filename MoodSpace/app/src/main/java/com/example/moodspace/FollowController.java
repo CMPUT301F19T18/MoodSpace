@@ -85,9 +85,29 @@ public class FollowController implements ControllerCallback {
      * TODO update both arrays
      */
     public void addFollower(final String user, final String target) {
-        final DocumentReference doc = db.collection("users").document(user);
+        // set user to follow target
+        db.collection("users")
+                .document(user)
+                .update(FOLLOWING_ARRAY, FieldValue.arrayUnion(target))
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        Log.d(TAG, String.format("add follower success (%s => %s)", user, target));
+                        cc.callback(ADD_FOLLOWER_SUCCESS);
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.d(TAG, String.format("failed to set %s to follow %s", user, target));
+                        cc.callback(ADD_FOLLOWER_FAIL);
+                    }
+                });
 
-        doc.update(FOLLOWING_ARRAY, FieldValue.arrayUnion(target))
+        // set target to have user following
+        db.collection("users")
+                .document(target)
+                .update(FOLLOWERS_ARRAY, FieldValue.arrayUnion(user))
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
@@ -102,6 +122,7 @@ public class FollowController implements ControllerCallback {
                         cc.callback(ADD_FOLLOWER_FAIL);
                     }
                 });
+
     }
 
     /**
@@ -241,6 +262,9 @@ public class FollowController implements ControllerCallback {
         //((Callback) cc).callbackFollowData();
     }
 
+    /**
+     * Forwards all callbacks from UserController to the normal ControllerCallback (activity)
+     */
     @Override
     public void callback(String callbackId) {
         cc.callback(callbackId);
