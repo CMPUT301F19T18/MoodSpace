@@ -1,16 +1,15 @@
 package com.example.moodspace;
 
+import android.os.Bundle;
+import android.view.View;
+import android.view.WindowManager;
+import android.widget.CheckBox;
+import android.widget.Toast;
+
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.AppCompatButton;
 import androidx.appcompat.widget.AppCompatEditText;
 import androidx.appcompat.widget.AppCompatTextView;
-
-import android.os.Bundle;
-import android.view.View;
-import android.view.WindowManager;
-import android.widget.Button;
-import android.widget.CheckBox;
-import android.widget.Toast;
 
 import io.paperdb.Paper;
 
@@ -36,7 +35,6 @@ public class LoginActivity extends AppCompatActivity {
         final AppCompatEditText username = findViewById(R.id.username);
         final AppCompatEditText password = findViewById(R.id.password);
         final AppCompatEditText veri_password = findViewById(R.id.password_veri);
-        final Button logOut = findViewById(R.id.nav_item_log_out);
 
         Paper.init(this);
         final CheckBox chkBoxRememberMe = findViewById(R.id.rememberMe);
@@ -54,6 +52,7 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 if (inLoginState) {
+                    chkBoxRememberMe.setVisibility(View.GONE);
                     loginButton.setText("Sign Up");
                     signUpLink.setText("Already registered? LOGIN");
                     veri_password.setVisibility(View.VISIBLE);
@@ -61,6 +60,7 @@ public class LoginActivity extends AppCompatActivity {
                 } else {
                     loginButton.setText("Login");
                     signUpLink.setText("New user? SIGN UP");
+                    chkBoxRememberMe.setVisibility(View.VISIBLE);
                     veri_password.setVisibility(View.GONE);
                     inLoginState = true;
                 }

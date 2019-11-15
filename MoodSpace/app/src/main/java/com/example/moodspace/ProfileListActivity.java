@@ -40,6 +40,8 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
+import io.paperdb.Paper;
+
 public class ProfileListActivity extends AppCompatActivity implements FilterFragment.OnFragmentInteractionListener {
     private static final String TAG = ProfileListActivity.class.getSimpleName();
     private final FirebaseFirestore db = FirebaseFirestore.getInstance();
@@ -116,6 +118,8 @@ public class ProfileListActivity extends AppCompatActivity implements FilterFrag
                                 "Map", Toast.LENGTH_SHORT).show();
                         return true;
                     case R.id.nav_item_log_out:
+                        Paper.book().delete(SavedUser.userNameKey);
+                        Paper.book().delete(SavedUser.passWordKey);
                         Intent loginScreen = new Intent(ProfileListActivity.this, LoginActivity.class);
                         loginScreen.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                         finish();
