@@ -133,27 +133,7 @@
 
                 android:layout_marginTop="12.7dp"
                 android:background="@drawable/blue_border_rounded_corner"
-                android:orientation="horizontal">
-
-                <!-- INPUT -->
-                <androidx.appcompat.widget.AppCompatEditText
-                    android:id="@+id/password_veri"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:background="@android:color/transparent"
-                    android:hint="Verify Password"
-                    android:inputType="textPassword"
-                    android:maxLength="10"
-                    android:maxLines="1"
-                    android:paddingLeft="42dp"
-                    android:paddingTop="15dp"
-                    android:paddingBottom="15dp"
-                    android:textCursorDrawable="@drawable/cursor_color"
-                    android:textSize="12sp"
-                    android:textStyle="bold"
-                    android:paddingStart="42dp" />
-
-            </RelativeLayout>
+                android:orientation="horizontal"/>
 
             <CheckBox
                 android:id="@+id/rememberMe"
@@ -209,14 +189,14 @@
                 android:id="@+id/signup_link"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="20dp"
-                android:layout_marginEnd="20dp"
                 android:layout_marginBottom="12dp"
                 android:padding="4dp"
                 android:text="New user? SIGN UP"
                 android:textColor="#fff"
                 android:textSize="14sp"
                 android:textStyle="bold" />
+
+
         </LinearLayout>
     </FrameLayout>
 </LinearLayout>
