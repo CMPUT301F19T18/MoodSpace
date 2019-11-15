@@ -45,7 +45,7 @@ public class AddEditActivity extends AppCompatActivity {
     private static final long MAX_DOWNLOAD_LIMIT = 30 * 1024 * 1024;
     private static final String TAG = AddEditActivity.class.getSimpleName();
 
-    AddEditController aec;
+    private AddEditController aec;
 
     // can be null if reusing a downloaded photo while editing
     private String inputPhotoPath = null;

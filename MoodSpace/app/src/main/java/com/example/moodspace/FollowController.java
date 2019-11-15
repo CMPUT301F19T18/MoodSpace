@@ -12,13 +12,19 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 
 /**
  * Followers can be thought of as a directed graph between users.
  * Both requests and following are represented in firestore as adjacency lists under:
  *   users -> (username) -> Following
+ *   users -> (username) -> Followers
  *   users -> (username) -> FollowRequestsFrom
  *
  * For notation,let x and y be users.
@@ -36,11 +42,16 @@ import java.util.List;
  * Note: A followee accepting a follow request does two things:
  *   - follower -/-> followee
  *   - follower => followee
+ *
+ * Note: The pairs "Following" & "Followers" and "FollowRequestsTo" & "FollowRequestsFrom" exist
+ *   to reduce query time at the cost of having to maintaining both lists at the same time.
  */
-public class FollowController {
+public class FollowController implements ControllerCallback {
     private static final String TAG = FollowController.class.getSimpleName();
     private static final String FOLLOWING_ARRAY = "Following";
+    private static final String FOLLOWERS_ARRAY = "Followers";
     private static final String FOLLOW_REQUESTS_FROM_ARRAY = "FollowRequestsFrom";
+    private static final String FOLLOW_REQUESTS_TO_ARRAY = "FollowRequestsTo";
 
     public static final String ADD_FOLLOWER_SUCCESS = "add follower success";
     public static final String ADD_FOLLOWER_FAIL = "add follower failure";
@@ -50,21 +61,28 @@ public class FollowController {
     public static final String SEND_REQUEST_FAIL = "send follow request fail";
     public static final String REMOVE_REQUEST_SUCCESS = "remove follow request success";
     public static final String REMOVE_REQUEST_FAIL = "remove follow request fail";
+    public static final String FOLLOWEE_MOOD_READ_FAIL = "followee mood read fail";
 
     private final FirebaseFirestore db = FirebaseFirestore.getInstance();
 
     private ControllerCallback cc;
+    private UserController uc;
 
     public FollowController(ControllerCallback cc) {
         this.cc = cc;
+        this.uc = new UserController(this);
     }
 
     public interface Callback {
-        void callbackFollowingMoods(List<MoodOther> followingMoodsList);
+        void callbackFollowingMoods(@NonNull List<MoodOther> followingMoodsList);
+        void callbackFollowData(@NonNull List<String> following, @NonNull List<String> followers,
+                                @NonNull List<String> followRequestsFrom,
+                                @NonNull List<String> followRequestsTo);
     }
 
     /**
      * user => target
+     * TODO update both arrays
      */
     public void addFollower(final String user, final String target) {
         final DocumentReference doc = db.collection("users").document(user);
@@ -89,6 +107,7 @@ public class FollowController {
     /**
      * user =/=> target
      * (unfollow)
+     * TODO update both arrays
      */
     public void removeFollower(final String user, final String target) {
         final DocumentReference doc = db.collection("users").document(user);
@@ -112,6 +131,7 @@ public class FollowController {
 
     /**
      * user -> target
+     * TODO update both arrays
      */
     public void sendFollowRequest(final String user, final String target) {
         final DocumentReference doc = db.collection("users").document(target);
@@ -138,6 +158,7 @@ public class FollowController {
     /**
      * user -/-> potentialFollowee
      * (also used for declining follow requests)
+     * TODO update both arrays
      */
     public void removeFollowRequest(final String user, final String target) {
         DocumentReference doc = db.collection("users").document(target);
@@ -162,44 +183,66 @@ public class FollowController {
     }
 
     /**
-     * gets all of the users that user is following, and for each user, gets the most recent mood
+     * - gets all of the users that user is following & and for each followee, gets the most recent mood
      */
     public void getFollowingMoods(String user) {
-        final DocumentReference doc = db.collection("users").document(user);
-        doc.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+        final HashSet<String> followingComplete = new HashSet<>();
+        final List<MoodOther> followingMoods = new ArrayList<>();
+
+        uc.getUserData(user, new UserController.CallbackUser() {
             @Override
-            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                if (!task.isSuccessful()) {
-                    Log.d(TAG, "Error reading user data when logging in for user " + user.toString());
-                    Log.d(TAG, Log.getStackTraceString(task.getException()));
-                    cc.callback(GET_USER_FAIL);
+            public void callbackUserData(DocumentSnapshot fetchedUserData, String callbackId) {
+                final List<String> followingList = (List<String>) fetchedUserData.get(FOLLOWING_ARRAY);
+                if (followingList == null) {
                     return;
                 }
-                if (task.getResult() == null) {
-                    cc.callback(USER_TASK_NULL);
-                    return;
-                }
-                if (!task.getResult().exists()) {
-                    cc.callback(USER_NONEXISTENT);
-                    return;
-                }
+                for (final String followee : followingList) {
+                    db.collection("users")
+                            .document(followee)
+                            .collection("Moods")
+                            .orderBy("date", Query.Direction.DESCENDING)
+                            .limit(1)
+                            .get()
+                            .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                                @Override
+                                public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                                    if (!task.isSuccessful()) {
+                                        Log.d(TAG, "Error reading followee mood data for user " + followee);
+                                        Log.d(TAG, Log.getStackTraceString(task.getException()));
+                                        cc.callback(FOLLOWEE_MOOD_READ_FAIL);
+                                        return;
+                                    }
+                                    // no mood (can happen if user's follower has no mood)
+                                    if (task.getResult() != null ) {
+                                        for (QueryDocumentSnapshot doc : task.getResult()) {
+                                            Mood mood = (Mood) doc.getData();
+                                            MoodOther moodOther = MoodOther.fromMood(mood, followee);
+                                            followingMoods.add(moodOther);
+                                        }
+                                    }
+                                    followingComplete.add(followee);
 
-                String fetchedPassword = (String) task.getResult().get("password");
-                if (fetchedPassword == null) {
-                    cc.callback(PASSWORD_FETCH_NULL);
-                    return;
+                                    // constantly checks whenever followingComplete is full
+                                    if (followingComplete.size() == followingList.size()) {
+                                        ((Callback) cc).callbackFollowingMoods(followingMoods);
+                                    }
+                                }
+                            });
                 }
-                if (fetchedPassword.equals(password)) {
-                    cc.callback(LOGIN);
-                } else {
-                    cc.callback(INCORRECT_PASSWORD);
-                }
-
             }
-        })
+        });
+    }
 
+    /**
+     * Gets all following data (following, followers, follow requests to/from) for the given user
+     */
+    public void getFollowData(final String user) {
+        // TODO stub
+        //((Callback) cc).callbackFollowData();
+    }
 
-        ((Callback) cc).callbackFollowingMoods(null);
-
+    @Override
+    public void callback(String callbackId) {
+        cc.callback(callbackId);
     }
 }

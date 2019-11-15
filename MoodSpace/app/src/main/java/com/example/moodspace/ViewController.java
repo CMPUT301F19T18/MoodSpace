@@ -1,7 +1,9 @@
 package com.example.moodspace;
 
 public class ViewController {
-    public ViewController() {
+    private ControllerCallback cc;
 
+    public ViewController(ControllerCallback cc) {
+        this.cc = cc;
     }
 }

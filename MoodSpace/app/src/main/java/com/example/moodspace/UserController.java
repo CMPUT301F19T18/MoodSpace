@@ -1,10 +1,8 @@
 package com.example.moodspace;
 
-import android.app.Activity;
-import android.content.Context;
-import android.content.Intent;
 import android.util.Log;
-import android.widget.Toast;
+
+import androidx.annotation.NonNull;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -18,8 +16,6 @@ import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.HashMap;
 
-import androidx.annotation.NonNull;
-
 /**
  * Communicates user logins & signups between the UI and the firestore database
  */
@@ -28,11 +24,11 @@ public class UserController {
 
     public static final String USERNAME_TAKEN = "username taken";
     public static final String USERNAME_NOT_TAKEN = "username not taken";
-    public static final String USERNAME_NONEXISTENT = "username doesn't exist";
+    public static final String USER_NONEXISTENT = "user doesn't exist";
     public static final String LOGIN = "successful login";
     public static final String LOGIN_READ_FAIL = "login read fail";
     public static final String INCORRECT_PASSWORD = "incorrect password";
-    public static final String PASSWORD_TASK_NULL = "password task result null";
+    public static final String USER_TASK_NULL = "user task result null";
     public static final String PASSWORD_FETCH_NULL = "password fetch null";
     public static final String USER_ADDITION_FAIL = "user addition fail";
     public static final String FILTER_INITIALIZE_FAIL = "filter initialize fail";
@@ -41,9 +37,12 @@ public class UserController {
 
     private ControllerCallback cc;
 
-
     public UserController(ControllerCallback cc) {
         this.cc = cc;
+    }
+
+    public interface CallbackUser {
+        void callbackUserData(DocumentSnapshot fetchedUserData, final String callbackId);
     }
 
     /**
@@ -124,17 +123,24 @@ public class UserController {
         }
     }
 
-    /**
-     * Logs in a user by checking with firebase to see if the username & password matches
-     *
-     * Possible errors that could occur:
-     * - username not found
-     * - password is wrong
-     */
-    public void loginUser(final User user) {
-        final String username = user.getUsername();
-        final String password = user.getPassword();
 
+    /**
+     * Fetches the user data from firestore given the username
+     *
+     * Requires UserController.CallbackUser interface to use
+     */
+    public void getUserData(String username, String callbackId) {
+        getUserData(username, (UserController.CallbackUser) cc, null);
+    }
+
+    /**
+     * Fetches the user data from firestore given the username
+     */
+    public void getUserData(String username, UserController.CallbackUser ccu) {
+        getUserData(username, ccu, null);
+    }
+
+    private void getUserData(final String username, final UserController.CallbackUser ccu, final String callbackId) {
         CollectionReference collectionReference = db.collection("users");
         collectionReference
                 .document(username)
@@ -143,31 +149,44 @@ public class UserController {
                     @Override
                     public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                         if (!task.isSuccessful()) {
-                            Log.d(TAG, "Error reading user data when logging in for user " + user.toString());
+                            Log.d(TAG, "Error reading user data when logging in for user " + username);
                             Log.d(TAG, Log.getStackTraceString(task.getException()));
                             cc.callback(LOGIN_READ_FAIL);
                             return;
                         }
                         if (task.getResult() == null) {
-                            cc.callback(PASSWORD_TASK_NULL);
+                            cc.callback(USER_TASK_NULL);
                             return;
                         }
                         if (!task.getResult().exists()) {
-                            cc.callback(USERNAME_NONEXISTENT);
+                            cc.callback(USER_NONEXISTENT);
                             return;
                         }
 
-                        String fetchedPassword = (String) task.getResult().get("password");
-                        if (fetchedPassword == null) {
-                            cc.callback(PASSWORD_FETCH_NULL);
-                            return;
-                        }
-                        if (fetchedPassword.equals(password)) {
-                            cc.callback(LOGIN);
-                        } else {
-                            cc.callback(INCORRECT_PASSWORD);
-                        }
+                        ccu.callbackUserData(task.getResult(), callbackId);
+
                     }
                 });
+    }
+
+    /**
+     * Logs in a user if the inputted password matches the fetched password
+     *
+     * @param inputtedUser inputted data from UI
+     * @param userData fetched data from firestore
+     */
+    public void attemptLogin(User inputtedUser, DocumentSnapshot userData) {
+        String fetchedPassword = (String) userData.get("password");
+        if (fetchedPassword == null) {
+            cc.callback(UserController.PASSWORD_FETCH_NULL);
+            return;
+        }
+
+        if (fetchedPassword.equals(inputtedUser.getPassword())) {
+            cc.callback(UserController.LOGIN);
+        } else {
+            cc.callback(UserController.INCORRECT_PASSWORD);
+        }
+
     }
 }

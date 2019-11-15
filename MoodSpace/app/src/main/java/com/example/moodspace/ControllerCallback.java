@@ -5,5 +5,5 @@ package com.example.moodspace;
  *   without having to store the activity inside the controller itself
  */
 public interface ControllerCallback {
-    void callback(String callbackId);
+    void callback(final String callbackId);
 }

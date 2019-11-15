@@ -1,32 +1,34 @@
 package com.example.moodspace;
 
+import android.content.Intent;
+import android.os.Bundle;
+import android.util.Log;
+import android.view.View;
+import android.widget.Toast;
+
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.AppCompatButton;
 import androidx.appcompat.widget.AppCompatEditText;
 import androidx.appcompat.widget.AppCompatTextView;
 
-import android.app.Activity;
-import android.content.Intent;
-import android.os.Bundle;
-import android.util.Log;
-import android.view.View;
-import android.widget.Button;
-import android.widget.Toast;
-
 import com.google.android.material.snackbar.Snackbar;
+import com.google.firebase.firestore.DocumentSnapshot;
 
 /**
  * Activity for logging in and signing up
  */
-public class LoginActivity extends AppCompatActivity implements ControllerCallback {
+public class LoginActivity extends AppCompatActivity
+        implements ControllerCallback {
     private static final String TAG = LoginActivity.class.getSimpleName();
+
     public static final String USERNAME_KEY = "moodspace.UserController.username";
 
     private UserController uc;
 
     // so you can't press the login button multiple times
     private boolean inLoginState = true;
-    private User currentUser;
+    private User inputtedUser;
+    private DocumentSnapshot fetchedUserData = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,36 +65,46 @@ public class LoginActivity extends AppCompatActivity implements ControllerCallba
             public void onClick(View view) {
                 String passwordText = password.getText().toString().trim();
                 String usernameText = username.getText().toString().trim();
-                currentUser = new User(usernameText, passwordText);
+                inputtedUser = new User(usernameText, passwordText);
 
                 if (LoginActivity.this.inLoginState) {
-                    if (usernameText.length() > 0 && passwordText.length() > 0) {
-                        uc.loginUser(currentUser);
-                        loginButton.setEnabled(false);
-                    } else {
+                    if (usernameText.length() == 0 || passwordText.length() == 0) {
                         Toast.makeText(LoginActivity.this,
                                 "Please enter a username and a password", Toast.LENGTH_SHORT).show();
+                        return;
                     }
+                    // logs in the user
+                    // fetches the user data from firestore only if not already gotten
+                    if (fetchedUserData == null || fetchedUserData.get("username") != usernameText) {
+                        uc.getUserData(usernameText, new UserController.CallbackUser() {
+                            @Override
+                            public void callbackUserData(DocumentSnapshot fetchedUserData, String callbackId) {
+                                LoginActivity.this.fetchedUserData = fetchedUserData;
+                                uc.attemptLogin(inputtedUser, fetchedUserData);
+                            }
+                        });
+                    } else {
+                        uc.attemptLogin(inputtedUser, fetchedUserData);
+                    }
+                    loginButton.setEnabled(false);
                 } else {
                     String veriPasswordText = veri_password.getText().toString().trim();
-                    if (usernameText.length() > 0 && passwordText.length() > 0 && veriPasswordText.length() > 0) {
-                        if (passwordText.equals(veriPasswordText)) {
-                            uc.checkUserExists(currentUser);
-                            loginButton.setEnabled(false);
-                        } else {
-                            Toast.makeText(LoginActivity.this,
-                                    "Please enter a matching password", Toast.LENGTH_SHORT).show();
-                        }
-                    } else {
+                    if (usernameText.length() == 0 || passwordText.length() == 0 || veriPasswordText.length() == 0) {
                         Toast.makeText(LoginActivity.this,
                                 "Please enter a username, a password, and a password verification.",
                                 Toast.LENGTH_SHORT).show();
+                        return;
                     }
-
+                    if (!passwordText.equals(veriPasswordText)) {
+                        Toast.makeText(LoginActivity.this,
+                                "Please enter a matching password", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                    uc.checkUserExists(inputtedUser);
+                    loginButton.setEnabled(false);
                 }
             }
         });
-
     }
 
     @Override
@@ -102,12 +114,12 @@ public class LoginActivity extends AppCompatActivity implements ControllerCallba
 
         switch (callbackId) {
             case UserController.USERNAME_NOT_TAKEN:
-                uc.signUpUser(currentUser);
+                uc.signUpUser(inputtedUser);
                 return;
 
             case UserController.LOGIN:
                 Intent i = new Intent(this, ProfileListActivity.class);
-                i.putExtra(USERNAME_KEY, currentUser.getUsername());
+                i.putExtra(USERNAME_KEY, inputtedUser.getUsername());
                 startActivity(i);
                 finish();
                 return;
@@ -127,21 +139,14 @@ public class LoginActivity extends AppCompatActivity implements ControllerCallba
                 loginButton.setEnabled(true);
                 return;
 
-            case UserController.USERNAME_NONEXISTENT:
+            case UserController.USER_NONEXISTENT:
                 Toast.makeText(this, "This username does not exist", Toast.LENGTH_SHORT).show();
                 loginButton.setEnabled(true);
                 return;
 
-            case UserController.PASSWORD_TASK_NULL:
+            case UserController.USER_TASK_NULL:
                 Snackbar.make(snackBarView,
-                        "Unexpected error: password task result should not be null",
-                        Snackbar.LENGTH_LONG).show();
-                loginButton.setEnabled(true);
-                return;
-
-            case UserController.PASSWORD_FETCH_NULL:
-                Snackbar.make(snackBarView,
-                        "Unexpected error: fetched password should not be null",
+                        "Unexpected error: user task result should not be null",
                         Snackbar.LENGTH_LONG).show();
                 loginButton.setEnabled(true);
                 return;

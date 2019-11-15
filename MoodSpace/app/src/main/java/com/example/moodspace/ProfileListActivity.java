@@ -40,11 +40,13 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
-public class ProfileListActivity extends AppCompatActivity implements FilterFragment.OnFragmentInteractionListener {
+public class ProfileListActivity extends AppCompatActivity
+        implements FilterFragment.OnFragmentInteractionListener,
+        ControllerCallback {
     private static final String TAG = ProfileListActivity.class.getSimpleName();
     private final FirebaseFirestore db = FirebaseFirestore.getInstance();
 
-    ViewController vc = new ViewController();
+    private ViewController vc;
     ArrayAdapter<Mood> moodAdapter;
     ArrayList<Mood> moodDataList;
     final boolean[] checkedItems = new boolean[Emotion.values().length];
@@ -56,6 +58,7 @@ public class ProfileListActivity extends AppCompatActivity implements FilterFrag
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_profile_list);
+        vc = new ViewController(this);
 
         username = getIntent().getExtras().getString(LoginActivity.USERNAME_KEY);
 
@@ -299,4 +302,8 @@ public class ProfileListActivity extends AppCompatActivity implements FilterFrag
     }
 
 
+    @Override
+    public void callback(String callbackId) {
+        // TODO stub
+    }
 }
