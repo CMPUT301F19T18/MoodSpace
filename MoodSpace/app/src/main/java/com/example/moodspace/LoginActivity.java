@@ -54,6 +54,7 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 if (inLoginState) {
+                    chkBoxRememberMe.setVisibility(View.GONE);
                     loginButton.setText("Sign Up");
                     signUpLink.setText("Already registered? LOGIN");
                     veri_password.setVisibility(View.VISIBLE);
@@ -61,6 +62,7 @@ public class LoginActivity extends AppCompatActivity {
                 } else {
                     loginButton.setText("Login");
                     signUpLink.setText("New user? SIGN UP");
+                    chkBoxRememberMe.setVisibility(View.VISIBLE);
                     veri_password.setVisibility(View.GONE);
                     inLoginState = true;
                 }
