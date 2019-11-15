@@ -4,9 +4,12 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 
@@ -162,8 +165,41 @@ public class FollowController {
      * gets all of the users that user is following, and for each user, gets the most recent mood
      */
     public void getFollowingMoods(String user) {
-        // TODO implement method
         final DocumentReference doc = db.collection("users").document(user);
+        doc.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (!task.isSuccessful()) {
+                    Log.d(TAG, "Error reading user data when logging in for user " + user.toString());
+                    Log.d(TAG, Log.getStackTraceString(task.getException()));
+                    cc.callback(GET_USER_FAIL);
+                    return;
+                }
+                if (task.getResult() == null) {
+                    cc.callback(USER_TASK_NULL);
+                    return;
+                }
+                if (!task.getResult().exists()) {
+                    cc.callback(USER_NONEXISTENT);
+                    return;
+                }
+
+                String fetchedPassword = (String) task.getResult().get("password");
+                if (fetchedPassword == null) {
+                    cc.callback(PASSWORD_FETCH_NULL);
+                    return;
+                }
+                if (fetchedPassword.equals(password)) {
+                    cc.callback(LOGIN);
+                } else {
+                    cc.callback(INCORRECT_PASSWORD);
+                }
+
+            }
+        })
+
+
         ((Callback) cc).callbackFollowingMoods(null);
+
     }
 }
