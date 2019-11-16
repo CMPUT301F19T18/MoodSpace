@@ -8,14 +8,15 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import java.util.List;
 
-public class FollowActivity extends AppCompatActivity implements ControllerCallback, FollowController.Callback {
+public class FollowActivity extends AppCompatActivity
+        implements ControllerCallback, FollowController.Callback {
     private static final String TAG = FollowActivity.class.getSimpleName();
-    private UserController uc;
+    private FollowController fc;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        uc = new UserController(this);
+        fc = new FollowController(this);
 
     }
 
@@ -30,6 +31,37 @@ public class FollowActivity extends AppCompatActivity implements ControllerCallb
         //View snackBarView = findViewById(R.id.whatever);
         if (callbackId instanceof FollowCallbackId) {
             switch ((FollowCallbackId) callbackId) {
+
+                case ADD_FOLLOWER_COMPLETE:
+                    return;
+                case ADD_USER_TO_FOLLOWING_FAIL:
+                    return;
+                case ADD_USER_AS_FOLLOWER_FAIL:
+                    return;
+
+                case REMOVE_FOLLOWER_COMPLETE:
+                    return;
+                case REMOVE_FROM_FOLLOWING_FAIL:
+                    return;
+                case REMOVE_AS_FOLLOWER_FAIL:
+                    return;
+
+                case ADD_FOLLOW_REQUEST_COMPLETE:
+                    return;
+                case ADD_FOLLOW_REQUEST_TO_FAIL:
+                    return;
+                case ADD_FOLLOW_REQUEST_FROM_FAIL:
+                    return;
+
+                case REMOVE_FOLLOW_REQUEST_COMPLETE:
+                    return;
+                case REMOVE_FOLLOW_REQUEST_TO_FAIL:
+                    return;
+                case REMOVE_FOLLOW_REQUEST_FROM_FAIL:
+                    return;
+
+                case FOLLOWEE_MOOD_READ_FAIL:
+                    return;
                 default:
                     return;
             }

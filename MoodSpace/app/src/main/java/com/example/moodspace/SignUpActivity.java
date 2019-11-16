@@ -46,24 +46,6 @@ public class SignUpActivity extends AppCompatActivity
         signUpButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                /*
-                } else {
-                    String veriPasswordText = veri_password.getText().toString().trim();
-                    if (usernameText.length() == 0 || passwordText.length() == 0 || veriPasswordText.length() == 0) {
-                        Toast.makeText(LoginActivity.this,
-                                "Please enter a username, a password, and a password verification.",
-                                Toast.LENGTH_SHORT).show();
-                        return;
-                    }
-                    if (!passwordText.equals(veriPasswordText)) {
-                        Toast.makeText(LoginActivity.this,
-                                "Please enter a matching password", Toast.LENGTH_SHORT).show();
-                        return;
-                    }
-                    uc.checkUserExists(inputtedUser);
-                    loginButton.setEnabled(false);
-                }
-                 */
                 final String passwordText = password.getText().toString().trim();
                 final String usernameText = username.getText().toString().trim();
                 String veriPasswordText = veri_password.getText().toString().trim();
