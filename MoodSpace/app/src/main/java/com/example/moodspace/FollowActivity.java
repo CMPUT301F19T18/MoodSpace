@@ -67,7 +67,7 @@ public class FollowActivity extends AppCompatActivity
             }
         } else if (callbackId instanceof UserCallbackId) {
             switch ((UserCallbackId) callbackId) {
-                case LOGIN_READ_FAIL:
+                case USER_READ_DATA_FAIL:
                     return;
                 case USER_TASK_NULL:
                     return;

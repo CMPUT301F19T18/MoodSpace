@@ -5,8 +5,9 @@ public enum UserCallbackId implements CallbackId {
     USERNAME_NOT_TAKEN,
     USER_NONEXISTENT,
     LOGIN,
-    LOGIN_READ_FAIL,
     INCORRECT_PASSWORD,
+
+    USER_READ_DATA_FAIL,
     USER_TASK_NULL,
     PASSWORD_FETCH_NULL,
     USER_ADDITION_FAIL,

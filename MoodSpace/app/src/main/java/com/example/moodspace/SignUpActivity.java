@@ -83,6 +83,7 @@ public class SignUpActivity extends AppCompatActivity
         this.callback(callbackId, null);
     }
 
+    // TODO unify login and sign up so code isn't copied and pasted
     @Override
     public void callback(CallbackId callbackId, Bundle bundle) {
 
@@ -115,6 +116,37 @@ public class SignUpActivity extends AppCompatActivity
                     Toast.makeText(this, "This username is taken", Toast.LENGTH_SHORT).show();
                     signUpButton.setEnabled(true);
                     return;
+
+                case LOGIN:
+                    if (bundle == null) {
+                        Snackbar.make(snackBarView,
+                                "Unexpected error: login user key bundle should not be null",
+                                Snackbar.LENGTH_LONG).show();
+                        signUpButton.setEnabled(true);
+                        return;
+                    }
+                    user = (User) bundle.getSerializable(LoginActivity.LOGIN_USER_KEY);
+                    if (user == null) {
+                        Snackbar.make(snackBarView,
+                                "Unexpected error: login user key result should not contain a null user",
+                                Snackbar.LENGTH_LONG).show();
+                        signUpButton.setEnabled(true);
+                        return;
+                    }
+                    Intent i = new Intent(this, ProfileListActivity.class);
+                    i.putExtra(LoginActivity.USERNAME_KEY, user.getUsername());
+                    startActivity(i);
+                    finish();
+                    return;
+
+                case USER_ADDITION_FAIL:
+                case FILTER_INITIALIZE_FAIL:
+                    Snackbar.make(snackBarView,
+                            "Failed to register user, please try again",
+                            Snackbar.LENGTH_LONG).show();
+                    signUpButton.setEnabled(true);
+                    return;
+
 
                 default:
                     Log.w(TAG, "unrecognized callback ID: " + callbackId);

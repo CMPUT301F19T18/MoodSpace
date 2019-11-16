@@ -27,7 +27,7 @@ public class LoginActivity extends AppCompatActivity
     private static final String TAG = LoginActivity.class.getSimpleName();
 
     public static final String USERNAME_KEY = "moodspace.LoginActivity.username";
-    public static final String SIGN_UP_USER_KEY = "moodspace.LoginActivity.signUpKey";
+    //public static final String SIGN_UP_USER_KEY = "moodspace.LoginActivity.signUpKey";
     public static final String LOGIN_USER_KEY = "moodspace.LoginActivity.login";
 
     private UserController uc;
@@ -141,6 +141,7 @@ public class LoginActivity extends AppCompatActivity
 
         if (callbackId instanceof UserCallbackId) {
             switch ((UserCallbackId) callbackId) {
+                /*
                 case USERNAME_NOT_TAKEN:
                     if (bundle == null) {
                         Snackbar.make(snackBarView,
@@ -159,6 +160,7 @@ public class LoginActivity extends AppCompatActivity
                     }
                     uc.signUpUser(user);
                     return;
+                 */
 
                 case LOGIN:
                     if (bundle == null) {
@@ -191,11 +193,6 @@ public class LoginActivity extends AppCompatActivity
                     loginButton.setEnabled(true);
                     return;
 
-                case LOGIN_READ_FAIL:
-                    Toast.makeText(this, "Login failed, please try again", Toast.LENGTH_SHORT).show();
-                    loginButton.setEnabled(true);
-                    return;
-
                 case INCORRECT_PASSWORD:
                     Toast.makeText(this, "Incorrect password, please try again", Toast.LENGTH_SHORT).show();
                     loginButton.setEnabled(true);
@@ -203,6 +200,11 @@ public class LoginActivity extends AppCompatActivity
 
                 case USER_NONEXISTENT:
                     Toast.makeText(this, "This username does not exist", Toast.LENGTH_SHORT).show();
+                    loginButton.setEnabled(true);
+                    return;
+
+                case USER_READ_DATA_FAIL:
+                    Toast.makeText(this, "Login failed, please try again", Toast.LENGTH_SHORT).show();
                     loginButton.setEnabled(true);
                     return;
 

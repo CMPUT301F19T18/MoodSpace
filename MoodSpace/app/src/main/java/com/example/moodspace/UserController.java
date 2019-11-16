@@ -54,7 +54,7 @@ public class UserController {
                 } else {
                     Log.d(TAG, "Username " + user.getUsername() + " is not taken");
                     cc.callback(UserCallbackId.USERNAME_NOT_TAKEN,
-                            newUserBundle(LoginActivity.SIGN_UP_USER_KEY, user));
+                            newUserBundle(SignUpActivity.SIGN_UP_USER_KEY, user));
                 }
             }
         });
@@ -145,9 +145,9 @@ public class UserController {
                     @Override
                     public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                         if (!task.isSuccessful()) {
-                            Log.d(TAG, "Error reading user data when logging in for user " + username);
+                            Log.d(TAG, "Error reading user data for user " + username);
                             Log.d(TAG, Log.getStackTraceString(task.getException()));
-                            cc.callback(UserCallbackId.LOGIN_READ_FAIL);
+                            cc.callback(UserCallbackId.USER_READ_DATA_FAIL);
                             return;
                         }
                         if (task.getResult() == null) {
