@@ -9,7 +9,6 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -20,8 +19,6 @@ import com.google.firebase.firestore.QuerySnapshot;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-
-import static com.example.moodspace.Utils.newStringBundle;
 
 /**
  * Followers can be thought of as a directed graph between users.
@@ -42,10 +39,6 @@ import static com.example.moodspace.Utils.newStringBundle;
  *    - x wants to follow y
  *    - "x" is contained in y's "FollowRequestsFrom" array
  *
- * Note: A followee accepting a follow request does two things:
- *   - follower -/-> followee
- *   - follower => followee
- *
  * Note: The pairs "Following" & "Followers" and "FollowRequestsTo" & "FollowRequestsFrom" exist
  *   to reduce query time at the cost of having to maintaining both lists at the same time.
  */
@@ -56,7 +49,8 @@ public class FollowController implements ControllerCallback {
     private static final String FOLLOW_REQUESTS_FROM_ARRAY = "FollowRequestsFrom";
     private static final String FOLLOW_REQUESTS_TO_ARRAY = "FollowRequestsTo";
 
-    public static final String TARGET_USERNAME_KEY = "moodspace.FollowController.targetUsernameKey";
+    public static final String TARGETS_COMPLETE_KEY = "moodspace.FollowController.targetsCompleteKey";
+    public static final String TARGETS_SUCCESSFUL_KEY = "moodspace.FollowController.targetsSuccessfulKey";
     public static final String IS_SUCCESSFUL_KEY = "moodspace.FollowController.isSuccessfulKey";
 
     private final FirebaseFirestore db = FirebaseFirestore.getInstance();
@@ -88,16 +82,16 @@ public class FollowController implements ControllerCallback {
      * @param isAddition whether it adds or removes from the array
      * @param logSuccess the log message if the task succeeds
      * @param logFail the log message if the task fails
+     * @param counter stores the number of sub-tasks that must be completed until its parent task is complete
      * @param failCallbackId the callbackId for when the modifier has failed
      * @param completeCallbackId the callbackId for when the modifier is complete
      */
     private void arrayModifier(final String user, final String target, final String arrayName,
-                               final boolean getUserArray, boolean isAddition,
+                               boolean getUserArray, boolean isAddition,
                                final String logSuccess, final String logFail,
+                               final CompletedTaskCounter counter,
                                final FollowCallbackId failCallbackId,
                                final FollowCallbackId completeCallbackId) {
-        final HashSet<String> usersComplete = new HashSet<>();
-        final HashSet<String> usersSuccessful = new HashSet<>();
 
         // access users
         String user1, user2;
@@ -124,8 +118,7 @@ public class FollowController implements ControllerCallback {
                     @Override
                     public void onSuccess(Void aVoid) {
                         Log.d(TAG, logSuccess);
-                        callbackComplete(usersComplete, usersSuccessful, user, target,
-                                true, completeCallbackId);
+                        callbackComplete(counter, user, target, true, completeCallbackId);
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
@@ -133,28 +126,27 @@ public class FollowController implements ControllerCallback {
                     public void onFailure(@NonNull Exception e) {
                         Log.d(TAG, logFail);
                         cc.callback(failCallbackId);
-                        usersComplete.add(user);
-                        callbackComplete(usersComplete, usersSuccessful, user, target,
-                                true, completeCallbackId);
+                        callbackComplete(counter, user, target, false, completeCallbackId);
                     }
                 });
     }
 
     /**
-     * Callback only once both tasks are complete, so when the size of usersComplete is 2.
+     * Callback only once all subtasks are complete as according to the counter
      */
-    private void callbackComplete(final HashSet<String> usersComplete, final HashSet<String> usersSuccessful,
-                                  String user, String target, boolean isSuccess, FollowCallbackId completeCode) {
-        usersComplete.add(user);
+    private void callbackComplete(final CompletedTaskCounter counter, String user, String target, boolean isSuccess,
+                                  FollowCallbackId completeCode) {
+        counter.incrementComplete();
         if (isSuccess) {
-            usersSuccessful.add(user);
+            counter.incrementSuccess();
         }
 
-        if (usersComplete.size() == 2) {
-            Log.d(TAG, String.format("%s with user=%s and target=%s", completeCode, user, target));
+        if (counter.isComplete()) {
+            Log.d(TAG, String.format("completed %s with user=%s and target=%s", completeCode, user, target));
+
             Bundle bundle = new Bundle();
-            bundle.putString(TARGET_USERNAME_KEY, target);
-            bundle.putBoolean(IS_SUCCESSFUL_KEY, usersSuccessful.size() == 2);
+            bundle.putBoolean(IS_SUCCESSFUL_KEY, counter.isSuccess());
+
             cc.callback(completeCode, bundle);
         }
     }
@@ -163,10 +155,18 @@ public class FollowController implements ControllerCallback {
      * user => target
      */
     public void addFollower(final String user, final String target) {
+        addFollower(user, target, null);
+    }
+    private void addFollower(String user, String target, CompletedTaskCounter counter) {
+        if (counter == null) {
+            counter = CompletedTaskCounter.getDefault();
+        }
+
         // user.following U {target}
         this.arrayModifier(user, target, FOLLOWING_ARRAY, true, true,
                 String.format("successfully set %s to follow %s", user, target),
                 String.format("failed to set %s to follow %s", user, target),
+                counter,
                 FollowCallbackId.ADD_USER_TO_FOLLOWING_FAIL,
                 FollowCallbackId.ADD_FOLLOWER_COMPLETE);
 
@@ -174,6 +174,7 @@ public class FollowController implements ControllerCallback {
         this.arrayModifier(user, target, FOLLOWERS_ARRAY, false, true,
                 String.format("successfully set %s to have %s as a follower", target, user),
                 String.format("failed to set %s to have %s as a follower", target, user),
+                counter,
                 FollowCallbackId.ADD_USER_AS_FOLLOWER_FAIL,
                 FollowCallbackId.ADD_FOLLOWER_COMPLETE);
     }
@@ -183,10 +184,18 @@ public class FollowController implements ControllerCallback {
      * (unfollow)
      */
     public void removeFollower(final String user, final String target) {
+        removeFollower(user, target, null);
+    }
+    private void removeFollower(final String user, final String target, CompletedTaskCounter counter) {
+        if (counter == null) {
+            counter = CompletedTaskCounter.getDefault();
+        }
+
         // user.following \ {target}
         this.arrayModifier(user, target, FOLLOWING_ARRAY, true, false,
                 String.format("successfully removed %s from following %s", user, target),
                 String.format("failed to remove %s from following %s", user, target),
+                counter,
                 FollowCallbackId.REMOVE_FROM_FOLLOWING_FAIL,
                 FollowCallbackId.REMOVE_FOLLOWER_COMPLETE);
 
@@ -194,6 +203,7 @@ public class FollowController implements ControllerCallback {
         this.arrayModifier(user, target, FOLLOWERS_ARRAY, false, false,
                 String.format("successfully removed %s from being a follower of %s", target, user),
                 String.format("failed to remove %s from being a follower of %s", target, user),
+                counter,
                 FollowCallbackId.REMOVE_AS_FOLLOWER_FAIL,
                 FollowCallbackId.REMOVE_FOLLOWER_COMPLETE);
     }
@@ -202,10 +212,18 @@ public class FollowController implements ControllerCallback {
      * user -> target
      */
     public void sendFollowRequest(final String user, final String target) {
+        sendFollowRequest(user, target, null);
+    }
+    private void sendFollowRequest(final String user, final String target, CompletedTaskCounter counter) {
+        if (counter == null) {
+            counter = CompletedTaskCounter.getDefault();
+        }
+
         // user.follow_requests_to U {target}
         this.arrayModifier(user, target, FOLLOW_REQUESTS_TO_ARRAY, true, true,
                 String.format("successfully uploaded pending follow request (%s -> %s)", user, target),
                 String.format("failed to upload pending follow request (%s -> %s)", user, target),
+                counter,
                 FollowCallbackId.ADD_FOLLOW_REQUEST_TO_FAIL,
                 FollowCallbackId.ADD_FOLLOW_REQUEST_COMPLETE);
 
@@ -213,6 +231,7 @@ public class FollowController implements ControllerCallback {
         this.arrayModifier(user, target, FOLLOW_REQUESTS_FROM_ARRAY, false, true,
                 String.format("successfully set %s to have a follow request from %s", target, user),
                 String.format("failed to set %s to have a follow request from %s", target, user),
+                counter,
                 FollowCallbackId.ADD_FOLLOW_REQUEST_FROM_FAIL,
                 FollowCallbackId.ADD_FOLLOW_REQUEST_COMPLETE);
     }
@@ -222,10 +241,18 @@ public class FollowController implements ControllerCallback {
      * (also used for declining follow requests)
      */
     public void removeFollowRequest(final String user, final String target) {
+        removeFollowRequest(user, target, null);
+    }
+    private void removeFollowRequest(final String user, final String target, CompletedTaskCounter counter) {
+        if (counter == null) {
+            counter = CompletedTaskCounter.getDefault();
+        }
+
         // user.follow_requests_to \ {target}
         this.arrayModifier(user, target, FOLLOW_REQUESTS_TO_ARRAY, true, false,
                 String.format("successfully removed %s's follow req from %s's follow req to array", target, user),
                 String.format("failed to remove %s's follow req from %s's follow req to array", target, user),
+                counter,
                 FollowCallbackId.REMOVE_FOLLOW_REQUEST_TO_FAIL,
                 FollowCallbackId.REMOVE_FOLLOW_REQUEST_COMPLETE);
 
@@ -233,24 +260,42 @@ public class FollowController implements ControllerCallback {
         this.arrayModifier(user, target, FOLLOW_REQUESTS_FROM_ARRAY, false, false,
                 String.format("successfully removed %s's follow req from %s's follow req from array", user, target),
                 String.format("failed to remove %s's follow req from %s's follow req from array", user, target),
+                counter,
                 FollowCallbackId.REMOVE_FOLLOW_REQUEST_FROM_FAIL,
                 FollowCallbackId.REMOVE_FOLLOW_REQUEST_COMPLETE);
+    }
+
+    /**
+     * Note: A user accepting a follow request does two things:
+     *   - target -/-> user
+     *   - target => user
+     */
+    public void acceptFollowRequest(String user, String target) {
+        int targetsAffected = 4;
+        CompletedTaskCounter counter = new CompletedTaskCounter(targetsAffected);
+
+        this.removeFollowRequest(target, user, counter);
+        this.addFollower(target, user, counter);
     }
 
     /**
      * - gets all of the users that user is following & and for each followee, gets the most recent mood
      */
     public void getFollowingMoods(String user) {
-        final HashSet<String> followingComplete = new HashSet<>();
         final List<MoodOther> followingMoods = new ArrayList<>();
 
         uc.getUserData(user, new UserController.CallbackUser() {
             @Override
             public void callbackUserData(DocumentSnapshot fetchedUserData, String callbackId) {
-                final List<String> followingList = (List<String>) fetchedUserData.get(FOLLOWING_ARRAY);
-                if (followingList == null) {
+                final List<String> followingList = getListFromUser(fetchedUserData, FOLLOWING_ARRAY);
+
+                // calls back an empty list user isn't following anyone
+                if (followingList.size() == 0) {
+                    ((Callback) cc).callbackFollowingMoods(followingMoods);
                     return;
                 }
+
+                final CompletedTaskCounter counter = new CompletedTaskCounter(followingList.size());
                 for (final String followee : followingList) {
                     db.collection("users")
                             .document(followee)
@@ -265,20 +310,20 @@ public class FollowController implements ControllerCallback {
                                         Log.d(TAG, "Error reading followee mood data for user " + followee);
                                         Log.d(TAG, Log.getStackTraceString(task.getException()));
                                         cc.callback(FollowCallbackId.FOLLOWEE_MOOD_READ_FAIL);
-                                        return;
-                                    }
-                                    // no mood (can happen if user's follower has no mood)
-                                    if (task.getResult() != null ) {
-                                        for (QueryDocumentSnapshot doc : task.getResult()) {
-                                            Mood mood = (Mood) doc.getData();
-                                            MoodOther moodOther = MoodOther.fromMood(mood, followee);
-                                            followingMoods.add(moodOther);
+                                    } else {
+                                        // no mood (can happen if user's follower has no mood)
+                                        if (task.getResult() != null ) {
+                                            for (QueryDocumentSnapshot doc : task.getResult()) {
+                                                Mood mood = (Mood) doc.getData();
+                                                MoodOther moodOther = MoodOther.fromMood(mood, followee);
+                                                followingMoods.add(moodOther);
+                                            }
                                         }
                                     }
-                                    followingComplete.add(followee);
 
-                                    // constantly checks whenever followingComplete is full
-                                    if (followingComplete.size() == followingList.size()) {
+                                    // constantly checks whenever the counter is complete
+                                    counter.incrementComplete();
+                                    if (counter.isComplete()) {
                                         ((Callback) cc).callbackFollowingMoods(followingMoods);
                                     }
                                 }
@@ -289,34 +334,33 @@ public class FollowController implements ControllerCallback {
     }
 
     /**
+     * Converts an array from firestore to a regular String list
+     */
+    @NonNull
+    private List<String> getListFromUser(DocumentSnapshot fetchedUserData, String arrayName) {
+        final List<String> list = new ArrayList<>();
+        final List<?> genericList = (List<?>) fetchedUserData.get(arrayName);
+        if (genericList != null) {
+            for (Object o: genericList) {
+                list.add((String) o);
+            }
+        }
+
+        return list;
+    }
+
+    /**
      * Gets all following data (following, followers, follow requests to/from) for the given user
      */
     public void getFollowData(final String user) {
         uc.getUserData(user, new UserController.CallbackUser() {
             @Override
             public void callbackUserData(DocumentSnapshot fetchedUserData, String callbackId) {
-                List<String> following = (List<String>) fetchedUserData.get(FOLLOWING_ARRAY);
-                if (following == null) {
-                    following = new ArrayList<>();
-                }
-
-                List<String> followers = (List<String>) fetchedUserData.get(FOLLOWERS_ARRAY);
-                if (followers == null) {
-                    followers = new ArrayList<>();
-                }
-
-                List<String> followRequestsFrom = (List<String>) fetchedUserData.get(FOLLOW_REQUESTS_FROM_ARRAY);
-                if (followRequestsFrom == null) {
-                    followRequestsFrom = new ArrayList<>();
-                }
-
-                List<String> followRequestsTo = (List<String>) fetchedUserData.get(FOLLOW_REQUESTS_TO_ARRAY);
-                if (followRequestsTo == null) {
-                    followRequestsTo = new ArrayList<>();
-                }
-
+                List<String> following = getListFromUser(fetchedUserData, FOLLOWING_ARRAY);
+                List<String> followers = getListFromUser(fetchedUserData, FOLLOWERS_ARRAY);
+                List<String> followRequestsFrom = getListFromUser(fetchedUserData, FOLLOW_REQUESTS_FROM_ARRAY);
+                List<String> followRequestsTo = getListFromUser(fetchedUserData, FOLLOW_REQUESTS_TO_ARRAY);
                 ((Callback) cc).callbackFollowData(user, following, followers, followRequestsFrom, followRequestsTo);
-
             }
         });
     }
@@ -332,5 +376,44 @@ public class FollowController implements ControllerCallback {
     @Override
     public void callback(CallbackId callbackId, Bundle bundle) {
         cc.callback(callbackId, bundle);
+    }
+}
+
+class CompletedTaskCounter {
+    private int limit;
+    private int complete = 0;
+    private int success = 0;
+
+    public CompletedTaskCounter(int limit) {
+        if (limit <= 0) {
+            throw new IllegalArgumentException("inputted limit should be greater than 0");
+        }
+        this.limit = limit;
+    }
+
+    public static CompletedTaskCounter getDefault() {
+        return new CompletedTaskCounter(2);
+    }
+
+    public void incrementComplete() {
+        if (complete + 1 > limit) {
+            throw new IllegalArgumentException("Did not expect to increment complete past max");
+        }
+        complete++;
+    }
+
+    public void incrementSuccess() {
+        if (success + 1 > limit) {
+            throw new IllegalArgumentException("Did not expect to increment success past max");
+        }
+        success++;
+    }
+
+    public boolean isComplete() {
+        return complete == limit;
+    }
+
+    public boolean isSuccess() {
+        return success == limit;
     }
 }
