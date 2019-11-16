@@ -3,6 +3,7 @@ package com.example.moodspace;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.os.Bundle;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -50,6 +51,25 @@ public final class Utils {
                 });
         AlertDialog alert = builder.create();
         alert.show();
+    }
+
+
+    /**
+     * Simply gets a bundle with a key -> user mapping
+     */
+    public static Bundle newUserBundle(String key, User user) {
+        Bundle bundle = new Bundle();
+        bundle.putSerializable(key, user);
+        return bundle;
+    }
+
+    /**
+     * Simply gets a bundle with a key -> string mapping
+     */
+    public static Bundle newStringBundle(String key, String string) {
+        Bundle bundle = new Bundle();
+        bundle.putString(key, string);
+        return bundle;
     }
 
 }

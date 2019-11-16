@@ -142,6 +142,13 @@ public class LoginActivity extends AppCompatActivity
         if (callbackId instanceof UserCallbackId) {
             switch ((UserCallbackId) callbackId) {
                 case USERNAME_NOT_TAKEN:
+                    if (bundle == null) {
+                        Snackbar.make(snackBarView,
+                                "Unexpected error: sign up user key bundle should not be null",
+                                Snackbar.LENGTH_LONG).show();
+                        loginButton.setEnabled(true);
+                        return;
+                    }
                     user = (User) bundle.getSerializable(SIGN_UP_USER_KEY);
                     if (user == null) {
                         Snackbar.make(snackBarView,
@@ -154,6 +161,13 @@ public class LoginActivity extends AppCompatActivity
                     return;
 
                 case LOGIN:
+                    if (bundle == null) {
+                        Snackbar.make(snackBarView,
+                                "Unexpected error: login user key bundle should not be null",
+                                Snackbar.LENGTH_LONG).show();
+                        loginButton.setEnabled(true);
+                        return;
+                    }
                     user = (User) bundle.getSerializable(LOGIN_USER_KEY);
                     if (user == null) {
                         Snackbar.make(snackBarView,

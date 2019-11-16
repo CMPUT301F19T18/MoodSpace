@@ -21,6 +21,8 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 
+import static com.example.moodspace.Utils.newStringBundle;
+
 /**
  * Followers can be thought of as a directed graph between users.
  * Both requests and following are represented in firestore as adjacency lists under:
@@ -54,6 +56,9 @@ public class FollowController implements ControllerCallback {
     private static final String FOLLOW_REQUESTS_FROM_ARRAY = "FollowRequestsFrom";
     private static final String FOLLOW_REQUESTS_TO_ARRAY = "FollowRequestsTo";
 
+    public static final String TARGET_USERNAME_KEY = "moodspace.FollowController.targetUsernameKey";
+    public static final String IS_SUCCESSFUL_KEY = "moodspace.FollowController.isSuccessfulKey";
+
     private final FirebaseFirestore db = FirebaseFirestore.getInstance();
 
     private ControllerCallback cc;
@@ -72,79 +77,105 @@ public class FollowController implements ControllerCallback {
                                 @NonNull List<String> followRequestsTo);
     }
 
+
+    /**
+     * Used to generalize array additions/removals.
+     *
+     * @param user main user that is logged in
+     * @param target any user that isn't the logged in user
+     * @param arrayName follow-related array as defined in the constants of this class
+     * @param getUserArray if true, gets user.array, otherwise gets target.array
+     * @param isAddition whether it adds or removes from the array
+     * @param logSuccess the log message if the task succeeds
+     * @param logFail the log message if the task fails
+     * @param failCallbackId the callbackId for when the modifier has failed
+     * @param completeCallbackId the callbackId for when the modifier is complete
+     */
+    private void arrayModifier(final String user, final String target, final String arrayName,
+                               final boolean getUserArray, boolean isAddition,
+                               final String logSuccess, final String logFail,
+                               final FollowCallbackId failCallbackId,
+                               final FollowCallbackId completeCallbackId) {
+        final HashSet<String> usersComplete = new HashSet<>();
+        final HashSet<String> usersSuccessful = new HashSet<>();
+
+        // access users
+        String user1, user2;
+        if (getUserArray) {
+            user1 = user;
+            user2 = target;
+        } else {
+            user1 = target;
+            user2 = user;
+        }
+
+        // whether it adds or removes
+        FieldValue modifier;
+        if (isAddition) {
+            modifier = FieldValue.arrayUnion(user2);
+        } else {
+            modifier = FieldValue.arrayRemove(user2);
+        }
+
+        db.collection("users")
+                .document(user1)
+                .update(arrayName, modifier)
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        Log.d(TAG, logSuccess);
+                        callbackComplete(usersComplete, usersSuccessful, user, target,
+                                true, completeCallbackId);
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.d(TAG, logFail);
+                        cc.callback(failCallbackId);
+                        usersComplete.add(user);
+                        callbackComplete(usersComplete, usersSuccessful, user, target,
+                                true, completeCallbackId);
+                    }
+                });
+    }
+
     /**
      * Callback only once both tasks are complete, so when the size of usersComplete is 2.
      */
     private void callbackComplete(final HashSet<String> usersComplete, final HashSet<String> usersSuccessful,
-                                  String user, String target, boolean isSuccess,
-                                  FollowCallbackId successCode, FollowCallbackId completeCode) {
+                                  String user, String target, boolean isSuccess, FollowCallbackId completeCode) {
         usersComplete.add(user);
         if (isSuccess) {
             usersSuccessful.add(user);
         }
 
         if (usersComplete.size() == 2) {
-            cc.callback(completeCode);
-            if (usersSuccessful.size() == 2) {
-                cc.callback(successCode);
-            }
+            Log.d(TAG, String.format("%s with user=%s and target=%s", completeCode, user, target));
+            Bundle bundle = new Bundle();
+            bundle.putString(TARGET_USERNAME_KEY, target);
+            bundle.putBoolean(IS_SUCCESSFUL_KEY, usersSuccessful.size() == 2);
+            cc.callback(completeCode, bundle);
         }
-
-
     }
 
     /**
      * user => target
      */
     public void addFollower(final String user, final String target) {
-        final HashSet<String> usersComplete = new HashSet<>();
-        final HashSet<String> usersSuccessful = new HashSet<>();
+        // user.following U {target}
+        this.arrayModifier(user, target, FOLLOWING_ARRAY, true, true,
+                String.format("successfully set %s to follow %s", user, target),
+                String.format("failed to set %s to follow %s", user, target),
+                FollowCallbackId.ADD_USER_TO_FOLLOWING_FAIL,
+                FollowCallbackId.ADD_FOLLOWER_COMPLETE);
 
-        // set user to follow target
-        db.collection("users")
-                .document(user)
-                .update(FOLLOWING_ARRAY, FieldValue.arrayUnion(target))
-                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void aVoid) {
-                        Log.d(TAG, String.format("successfully set %s to follow %s", user, target));
-                        callbackComplete(usersComplete, usersSuccessful, user, target, true,
-                                FollowCallbackId.ADD_FOLLOWER_SUCCESS, FollowCallbackId.ADD_FOLLOWER_COMPLETE);
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Log.d(TAG, String.format("failed to set %s to follow %s", user, target));
-                        cc.callback(FollowCallbackId.ADD_USER_TO_FOLLOWING_FAIL);
-                        usersComplete.add(user);
-                        callbackComplete(usersComplete, usersSuccessful, user, target, false,
-                                FollowCallbackId.ADD_FOLLOWER_SUCCESS, FollowCallbackId.ADD_FOLLOWER_COMPLETE);
-                    }
-                });
-
-        // set target to have user following
-        db.collection("users")
-                .document(target)
-                .update(FOLLOWERS_ARRAY, FieldValue.arrayUnion(user))
-                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void aVoid) {
-                        Log.d(TAG, String.format("successfully set %s to have %s as a follower", target, user));
-                        callbackComplete(usersComplete, usersSuccessful, user, target, true,
-                                FollowCallbackId.ADD_FOLLOWER_SUCCESS, FollowCallbackId.ADD_FOLLOWER_COMPLETE);
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Log.d(TAG, String.format("failed to set %s to have %s as a follower", target, user));
-                        cc.callback(FollowCallbackId.ADD_USER_AS_FOLLOWER_FAIL);
-                        callbackComplete(usersComplete, usersSuccessful, user, target, false,
-                                FollowCallbackId.ADD_FOLLOWER_SUCCESS, FollowCallbackId.ADD_FOLLOWER_COMPLETE);
-                    }
-                });
-
+        // target.followers U {user}
+        this.arrayModifier(user, target, FOLLOWERS_ARRAY, false, true,
+                String.format("successfully set %s to have %s as a follower", target, user),
+                String.format("failed to set %s to have %s as a follower", target, user),
+                FollowCallbackId.ADD_USER_AS_FOLLOWER_FAIL,
+                FollowCallbackId.ADD_FOLLOWER_COMPLETE);
     }
 
     /**
@@ -152,136 +183,58 @@ public class FollowController implements ControllerCallback {
      * (unfollow)
      */
     public void removeFollower(final String user, final String target) {
-        final HashSet<String> usersComplete = new HashSet<>();
-        final HashSet<String> usersSuccessful = new HashSet<>();
+        // user.following \ {target}
+        this.arrayModifier(user, target, FOLLOWING_ARRAY, true, false,
+                String.format("successfully removed %s from following %s", user, target),
+                String.format("failed to remove %s from following %s", user, target),
+                FollowCallbackId.REMOVE_FROM_FOLLOWING_FAIL,
+                FollowCallbackId.REMOVE_FOLLOWER_COMPLETE);
 
-        db.collection("users")
-                .document(user)
-                .update(FOLLOWING_ARRAY, FieldValue.arrayRemove(target))
-                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void aVoid) {
-                        Log.d(TAG, String.format("successfully removed %s from following %s", user, target));
-                        callbackComplete(usersComplete, usersSuccessful, user, target, true,
-                                FollowCallbackId.REMOVE_FOLLOWER_SUCCESS, FollowCallbackId.REMOVE_FOLLOWER_COMPLETE);
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Log.d(TAG, String.format("failed to remove %s from following %s", user, target));
-                        cc.callback(FollowCallbackId.REMOVE_FROM_FOLLOWING_FAIL);
-                        callbackComplete(usersComplete, usersSuccessful, user, target, false,
-                                FollowCallbackId.REMOVE_FOLLOWER_SUCCESS, FollowCallbackId.REMOVE_FOLLOWER_COMPLETE);
-                    }
-                });
-
-        db.collection("users")
-                .document(target)
-                .update(FOLLOWERS_ARRAY, FieldValue.arrayRemove(user))
-                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void aVoid) {
-                        Log.d(TAG, String.format("successfully removed %s from following %s", user, target));
-                        callbackComplete(usersComplete, usersSuccessful, user, target, true,
-                                FollowCallbackId.REMOVE_FOLLOWER_SUCCESS, FollowCallbackId.REMOVE_FOLLOWER_COMPLETE);
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Log.d(TAG, String.format("failed to remove %s from following %s", user, target));
-                        cc.callback(FollowCallbackId.REMOVE_AS_FOLLOWER_FAIL);
-                        callbackComplete(usersComplete, usersSuccessful, user, target, false,
-                                FollowCallbackId.REMOVE_FOLLOWER_SUCCESS, FollowCallbackId.REMOVE_FOLLOWER_COMPLETE);
-                    }
-                });
-
-
+        // target.followers \ {user}
+        this.arrayModifier(user, target, FOLLOWERS_ARRAY, false, false,
+                String.format("successfully removed %s from being a follower of %s", target, user),
+                String.format("failed to remove %s from being a follower of %s", target, user),
+                FollowCallbackId.REMOVE_AS_FOLLOWER_FAIL,
+                FollowCallbackId.REMOVE_FOLLOWER_COMPLETE);
     }
 
     /**
      * user -> target
-     * TODO update both arrays
      */
     public void sendFollowRequest(final String user, final String target) {
-        /*
-                                user, target));
-         */
+        // user.follow_requests_to U {target}
+        this.arrayModifier(user, target, FOLLOW_REQUESTS_TO_ARRAY, true, true,
+                String.format("successfully uploaded pending follow request (%s -> %s)", user, target),
+                String.format("failed to upload pending follow request (%s -> %s)", user, target),
+                FollowCallbackId.ADD_FOLLOW_REQUEST_TO_FAIL,
+                FollowCallbackId.ADD_FOLLOW_REQUEST_COMPLETE);
 
-        final HashSet<String> usersComplete = new HashSet<>();
-        final HashSet<String> usersSuccessful = new HashSet<>();
-
-        db.collection("users")
-                .document(target)
-                .update(FOLLOW_REQUESTS_FROM_ARRAY, FieldValue.arrayUnion(user))
-                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void aVoid) {
-                        Log.d(TAG, String.format("successfully submitted a follow request (%s -> %s)",
-                                user, target));
-                        callbackComplete(usersComplete, usersSuccessful, user, target, false,
-                                FollowCallbackId.ADD_FOLLOW_REQUEST_SUCCESS, FollowCallbackId.ADD_FOLLOW_REQUEST_COMPLETE);
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                                Log.d(TAG, String.format("failed to submit a follow request (%s -> %s)",
-                                user, target));
-                        cc.callback(FollowCallbackId.SUBMIT_FOLLOW_REQUEST_FAIL);
-                    }
-                });
-
-        db.collection("users")
-                .document(user)
-                .update(FOLLOW_REQUESTS_TO_ARRAY, FieldValue.arrayUnion(target))
-                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void aVoid) {
-                        Log.d(TAG, String.format("successfully uploaded pending follow request (%s -> %s)",
-                                user, target));
-                        callbackComplete(usersComplete, usersSuccessful, user, target, false,
-                                FollowCallbackId.ADD_FOLLOW_REQUEST_SUCCESS, FollowCallbackId.ADD_FOLLOW_REQUEST_COMPLETE);
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Log.d(TAG, String.format("failed to upload pending follow request (%s -> %s)",
-                                user, target));
-                        cc.callback(FollowCallbackId.UPLOAD_FOLLOW_REQUEST_FAIL);
-                    }
-                });
-
-
+        // target.follow_requests_from U {user}
+        this.arrayModifier(user, target, FOLLOW_REQUESTS_FROM_ARRAY, false, true,
+                String.format("successfully set %s to have a follow request from %s", target, user),
+                String.format("failed to set %s to have a follow request from %s", target, user),
+                FollowCallbackId.ADD_FOLLOW_REQUEST_FROM_FAIL,
+                FollowCallbackId.ADD_FOLLOW_REQUEST_COMPLETE);
     }
 
     /**
      * user -/-> potentialFollowee
      * (also used for declining follow requests)
-     * TODO update both arrays
      */
     public void removeFollowRequest(final String user, final String target) {
-        DocumentReference doc = db.collection("users").document(target);
+        // user.follow_requests_to \ {target}
+        this.arrayModifier(user, target, FOLLOW_REQUESTS_TO_ARRAY, true, false,
+                String.format("successfully removed %s's follow req from %s's follow req to array", target, user),
+                String.format("failed to remove %s's follow req from %s's follow req to array", target, user),
+                FollowCallbackId.REMOVE_FOLLOW_REQUEST_TO_FAIL,
+                FollowCallbackId.REMOVE_FOLLOW_REQUEST_COMPLETE);
 
-        doc.update(FOLLOW_REQUESTS_FROM_ARRAY, FieldValue.arrayRemove(user))
-                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void aVoid) {
-                        Log.d(TAG, String.format("remove follow request success (%s -> %s)",
-                                user, target));
-                        cc.callback(REMOVE_REQUEST_SUCCESS);
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Log.d(TAG, String.format("failed to remove follow request (%s => %s)",
-                                user, target));
-                        cc.callback(REMOVE_REQUEST_FAIL);
-                    }
-                });
+        // target.follow_requests_from \ {user}
+        this.arrayModifier(user, target, FOLLOW_REQUESTS_FROM_ARRAY, false, false,
+                String.format("successfully removed %s's follow req from %s's follow req from array", user, target),
+                String.format("failed to remove %s's follow req from %s's follow req from array", user, target),
+                FollowCallbackId.REMOVE_FOLLOW_REQUEST_FROM_FAIL,
+                FollowCallbackId.REMOVE_FOLLOW_REQUEST_COMPLETE);
     }
 
     /**
@@ -339,8 +292,33 @@ public class FollowController implements ControllerCallback {
      * Gets all following data (following, followers, follow requests to/from) for the given user
      */
     public void getFollowData(final String user) {
-        // TODO stub
-        //((Callback) cc).callbackFollowData();
+        uc.getUserData(user, new UserController.CallbackUser() {
+            @Override
+            public void callbackUserData(DocumentSnapshot fetchedUserData, String callbackId) {
+                List<String> following = (List<String>) fetchedUserData.get(FOLLOWING_ARRAY);
+                if (following == null) {
+                    following = new ArrayList<>();
+                }
+
+                List<String> followers = (List<String>) fetchedUserData.get(FOLLOWERS_ARRAY);
+                if (followers == null) {
+                    followers = new ArrayList<>();
+                }
+
+                List<String> followRequestsFrom = (List<String>) fetchedUserData.get(FOLLOW_REQUESTS_FROM_ARRAY);
+                if (followRequestsFrom == null) {
+                    followRequestsFrom = new ArrayList<>();
+                }
+
+                List<String> followRequestsTo = (List<String>) fetchedUserData.get(FOLLOW_REQUESTS_TO_ARRAY);
+                if (followRequestsTo == null) {
+                    followRequestsTo = new ArrayList<>();
+                }
+
+                ((Callback) cc).callbackFollowData(user, following, followers, followRequestsFrom, followRequestsTo);
+
+            }
+        });
     }
 
     @Override

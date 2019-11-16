@@ -1,6 +1,5 @@
 package com.example.moodspace;
 
-import android.os.Bundle;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -18,6 +17,8 @@ import com.google.firebase.firestore.QuerySnapshot;
 import java.util.HashMap;
 
 import io.paperdb.Paper;
+
+import static com.example.moodspace.Utils.newUserBundle;
 
 /**
  * Communicates user logins & signups between the UI and the firestore database
@@ -53,7 +54,7 @@ public class UserController {
                 } else {
                     Log.d(TAG, "Username " + user.getUsername() + " is not taken");
                     cc.callback(UserCallbackId.USERNAME_NOT_TAKEN,
-                            getUserBundle(LoginActivity.SIGN_UP_USER_KEY, user));
+                            newUserBundle(LoginActivity.SIGN_UP_USER_KEY, user));
                 }
             }
         });
@@ -80,7 +81,7 @@ public class UserController {
                     public void onSuccess(Void aVoid) {
                         Log.d(TAG, "User was successfully added");
                         cc.callback(UserCallbackId.LOGIN,
-                                getUserBundle(LoginActivity.LOGIN_USER_KEY, user));
+                                newUserBundle(LoginActivity.LOGIN_USER_KEY, user));
                     }
                 }).
                 addOnFailureListener(new OnFailureListener() {
@@ -179,19 +180,10 @@ public class UserController {
 
         if (fetchedPassword.equals(inputtedUser.getPassword())) {
             cc.callback(UserCallbackId.LOGIN,
-                    getUserBundle(LoginActivity.LOGIN_USER_KEY, inputtedUser));
+                    newUserBundle(LoginActivity.LOGIN_USER_KEY, inputtedUser));
         } else {
             cc.callback(UserCallbackId.INCORRECT_PASSWORD);
         }
-    }
-
-    /**
-     * Simply gets a bundle with a key -> user mapping
-     */
-    private Bundle getUserBundle(String key, User user) {
-        Bundle bundle = new Bundle();
-        bundle.putSerializable(key, user);
-        return bundle;
     }
 
     public void rememberUser(User user) {

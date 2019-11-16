@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/signup_view"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".SignUpActivity"
     android:background="@drawable/gradient_background"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    tools:context=".SignUpActivity">
 
     <FrameLayout
         android:id="@+id/logo"
@@ -31,13 +31,13 @@
     <androidx.appcompat.widget.LinearLayoutCompat
         android:layout_width="wrap_content"
         android:layout_height="0dp"
-        android:minWidth="315dp"
+        android:layout_gravity="center"
         android:layout_marginTop="50dp"
         android:layout_marginBottom="50dp"
         android:layout_weight="5"
-        android:layout_gravity="center"
-        android:orientation="vertical"
-        android:background="@drawable/blue_border_rounded_corner">
+        android:background="@drawable/blue_border_rounded_corner"
+        android:minWidth="315dp"
+        android:orientation="vertical">
 
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
@@ -107,16 +107,16 @@
 
         <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/signup_btn"
-            android:layout_marginTop="30dp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
+            android:layout_marginLeft="30dp"
+            android:layout_marginTop="30dp"
+            android:layout_marginRight="30dp"
             android:background="@drawable/blue_fill__rounded_color"
             android:gravity="center"
             android:paddingTop="14dp"
             android:paddingBottom="14dp"
-            android:layout_marginLeft="30dp"
-            android:layout_marginRight="30dp"
             android:text="Sign Up"
 
             android:textColor="#ffffff"
@@ -131,18 +131,18 @@
         android:background="@drawable/blue_bg"
         android:scaleY="-1">
 
-    <androidx.appcompat.widget.AppCompatTextView
-        android:scaleY = "-1"
-        android:id="@+id/login_link"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:layout_marginBottom="12dp"
-        android:padding="4dp"
-        android:text="Already have an account? Log in"
-        android:textColor="#fff"
-        android:textSize="14sp"
-        android:textStyle="bold" />
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/login_link"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginBottom="12dp"
+            android:padding="4dp"
+            android:scaleY="-1"
+            android:text="Already have an account? Log in"
+            android:textColor="#fff"
+            android:textSize="14sp"
+            android:textStyle="bold" />
     </FrameLayout>
 
 </LinearLayout>
