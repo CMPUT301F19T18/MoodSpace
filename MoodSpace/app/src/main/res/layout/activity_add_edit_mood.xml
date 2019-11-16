@@ -102,7 +102,6 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="10dp"
                     android:layout_marginEnd="10dp"
-                    android:textColorHint="@color/colorHint"
                     app:counterEnabled="true"
                     app:counterMaxLength="20">
 
@@ -113,7 +112,7 @@
                         android:hint="@string/ae_reason_text"
                         android:inputType="text"
                         android:maxLength="20"
-                        android:textColor="@color/colorWhite"
+                        android:textColor="@color/colorBlack"
                         android:textSize="16sp" />
                 </com.google.android.material.textfield.TextInputLayout>
 
@@ -169,7 +168,7 @@
                     android:id="@+id/image_button"
                     android:layout_width="0dp"
                     android:layout_height="0dp"
-                    android:background="@color/colorPrimary"
+                    android:background="@android:color/darker_gray"
                     android:text="@string/ae_add_photo_text"
                     android:textColor="@color/colorWhite"
                     android:textSize="18sp"
@@ -203,7 +202,7 @@
                     android:id="@+id/map_button"
                     android:layout_width="0dp"
                     android:layout_height="0dp"
-                    android:background="@color/colorPrimary"
+                    android:background="@android:color/darker_gray"
                     android:text="@string/ae_add_location_text"
                     android:textColor="@color/colorWhite"
                     android:textSize="18sp"
@@ -226,7 +225,7 @@
         android:layout_marginEnd="4dp"
         android:layout_marginRight="4dp"
         android:layout_marginBottom="8dp"
-        android:background="@color/colorAccent"
+        android:background="@android:color/holo_blue_dark"
         android:text="@string/am_cancel_text"
         android:textColor="@color/colorWhite"
         android:textSize="18sp"
@@ -245,7 +244,7 @@
         android:layout_marginEnd="8dp"
         android:layout_marginRight="8dp"
         android:layout_marginBottom="8dp"
-        android:background="@color/colorAccent"
+        android:background="@android:color/holo_blue_dark"
         android:textColor="@color/colorWhite"
         android:textSize="18sp"
         android:textStyle="bold"

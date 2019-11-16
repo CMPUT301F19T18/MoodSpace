@@ -1,5 +1,6 @@
 package com.example.moodspace;
 
+import android.os.Bundle;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -16,11 +17,15 @@ import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.HashMap;
 
+import io.paperdb.Paper;
+
 /**
  * Communicates user logins & signups between the UI and the firestore database
  */
 public class UserController {
     private static final String TAG = UserController.class.getSimpleName();
+    public static final String PAPER_USERNAME_KEY = "moodspace.Paper.username";
+    public static final String PAPER_PASSWORD_KEY = "moodspace.Paper.password";
 
     private final FirebaseFirestore db = FirebaseFirestore.getInstance();
 
@@ -47,8 +52,8 @@ public class UserController {
                     cc.callback(UserCallbackId.USERNAME_TAKEN);
                 } else {
                     Log.d(TAG, "Username " + user.getUsername() + " is not taken");
-                    cc.callback(UserCallbackId.USERNAME_NOT_TAKEN);
-                    //signUpUser(user);
+                    cc.callback(UserCallbackId.USERNAME_NOT_TAKEN,
+                            getUserBundle(LoginActivity.SIGN_UP_USER_KEY, user));
                 }
             }
         });
@@ -74,7 +79,8 @@ public class UserController {
                     @Override
                     public void onSuccess(Void aVoid) {
                         Log.d(TAG, "User was successfully added");
-                        cc.callback(UserCallbackId.LOGIN);
+                        cc.callback(UserCallbackId.LOGIN,
+                                getUserBundle(LoginActivity.LOGIN_USER_KEY, user));
                     }
                 }).
                 addOnFailureListener(new OnFailureListener() {
@@ -119,7 +125,7 @@ public class UserController {
      * Requires UserController.CallbackUser interface to use
      */
     public void getUserData(String username, String callbackId) {
-        getUserData(username, (UserController.CallbackUser) cc, null);
+        getUserData(username, (UserController.CallbackUser) cc, callbackId);
     }
 
     /**
@@ -164,7 +170,7 @@ public class UserController {
      * @param inputtedUser inputted data from UI
      * @param userData fetched data from firestore
      */
-    public void attemptLogin(User inputtedUser, DocumentSnapshot userData) {
+    public void checkPassword(User inputtedUser, DocumentSnapshot userData) {
         String fetchedPassword = (String) userData.get("password");
         if (fetchedPassword == null) {
             cc.callback(UserCallbackId.PASSWORD_FETCH_NULL);
@@ -172,10 +178,24 @@ public class UserController {
         }
 
         if (fetchedPassword.equals(inputtedUser.getPassword())) {
-            cc.callback(UserCallbackId.LOGIN);
+            cc.callback(UserCallbackId.LOGIN,
+                    getUserBundle(LoginActivity.LOGIN_USER_KEY, inputtedUser));
         } else {
             cc.callback(UserCallbackId.INCORRECT_PASSWORD);
         }
+    }
 
+    /**
+     * Simply gets a bundle with a key -> user mapping
+     */
+    private Bundle getUserBundle(String key, User user) {
+        Bundle bundle = new Bundle();
+        bundle.putSerializable(key, user);
+        return bundle;
+    }
+
+    public void rememberUser(User user) {
+        Paper.book().write(PAPER_USERNAME_KEY, user.getUsername());
+        Paper.book().write(PAPER_PASSWORD_KEY, user.getPassword());
     }
 }

@@ -5,10 +5,13 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 
+import android.view.WindowManager;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -38,7 +41,8 @@ import java.util.UUID;
  * Activity for adding / editing moods
  * - editing is also used to view the details of your own moods
  */
-public class AddEditActivity extends AppCompatActivity {
+public class AddEditActivity extends AppCompatActivity
+        implements AdapterView.OnItemSelectedListener {
     private static final int PICK_IMAGE = 1;
     private static final int GALLERY_PERMISSIONS_REQUEST = 1;
     // TODO: change back down to 8 when jpgs can be uploaded properly
@@ -52,6 +56,8 @@ public class AddEditActivity extends AppCompatActivity {
     private boolean hasPhoto = false;
     private boolean changedPhoto = false;
     private Mood currentMood = null;
+    private Emotion selectedEmotion = null;
+
     private FirebaseStorage fbStorage = FirebaseStorage.getInstance();
 
     /**
@@ -61,6 +67,10 @@ public class AddEditActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            getWindow().setFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS,
+                    WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+        }
         setContentView(R.layout.activity_add_edit_mood);
 
         final String username = getIntent().getStringExtra("USERNAME");
@@ -71,9 +81,9 @@ public class AddEditActivity extends AppCompatActivity {
         final Spinner emotionSpinner = findViewById(R.id.emotionSelector);
         List<Emotion> emotionList = Arrays.asList(Emotion.values());
         // last argument is initialTextWasShown (true if EditActivity, false if AddActivity)
-        final EmotionAdapter emotionAdapter = new EmotionAdapter(
-                this, emotionList, !this.isAddActivity());
+        final EmotionAdapter emotionAdapter = new EmotionAdapter(this, emotionList);
         emotionSpinner.setAdapter(emotionAdapter);
+        emotionSpinner.setOnItemSelectedListener(this);
 
         // creates social situation spinner
         final Spinner socialSitSpinner = findViewById(R.id.situationSelector);
@@ -91,7 +101,7 @@ public class AddEditActivity extends AppCompatActivity {
             public void onClick(View v) {
 
                 // requires an emotion to be selected
-                if (!emotionAdapter.selectionMade(emotionSpinner)) {
+                if (selectedEmotion == null) {
                     Toast.makeText(AddEditActivity.this, "Select an emotion", Toast.LENGTH_SHORT).show();
                     return;
                 }
@@ -115,7 +125,6 @@ public class AddEditActivity extends AppCompatActivity {
                 String id;
                 Date date;
                 boolean hasPhoto = AddEditActivity.this.hasPhoto;
-                Emotion emotion = (Emotion) emotionSpinner.getSelectedItem();
                 SocialSituation socialSit = (SocialSituation) socialSitSpinner.getSelectedItem();
 
                 // reuses parameters if editing
@@ -128,7 +137,7 @@ public class AddEditActivity extends AppCompatActivity {
                     date = currentMood.getDate();
                 }
 
-                Mood mood = new Mood(id, date, emotion, reasonText, hasPhoto, socialSit);
+                Mood mood = new Mood(id, date, selectedEmotion, reasonText, hasPhoto, socialSit);
                 if (AddEditActivity.this.isAddActivity()) {
                     aec.addMood(username, mood);
                 } else {
@@ -220,7 +229,8 @@ public class AddEditActivity extends AppCompatActivity {
             backBtn.setText(getString(R.string.em_cancel_text));
 
             // fills in fields with previous values
-            int emotionIndex = emotionAdapter.getPosition(currentMood.getEmotion());
+            // adds for it to work with "please select emotion" position
+            int emotionIndex = emotionAdapter.getPosition(currentMood.getEmotion()) + 1;
             emotionSpinner.setSelection(emotionIndex);
             int socialSitIndex = socialSituationAdapter.getPosition(currentMood.getSocialSituation());
             socialSitSpinner.setSelection(socialSitIndex);
@@ -337,4 +347,16 @@ public class AddEditActivity extends AppCompatActivity {
         this.changedPhoto |= changedPhoto;
         this.hasPhoto = true;
     }
+
+    @Override
+    public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+        // subtracts by one to work with "please select an emotion"
+        if (i == 0) {
+            return;
+        }
+        selectedEmotion = (Emotion) adapterView.getItemAtPosition(i - 1);
+    }
+
+    @Override
+    public void onNothingSelected(AdapterView<?> adapterView) {}
 }

@@ -1,9 +1,12 @@
 package com.example.moodspace;
 
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.view.WindowManager;
+import android.widget.CheckBox;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -14,25 +17,32 @@ import androidx.appcompat.widget.AppCompatTextView;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.firestore.DocumentSnapshot;
 
+import io.paperdb.Paper;
+
 /**
- * Activity for logging in and signing up
+ * Activity for logging in as an existing user
  */
 public class LoginActivity extends AppCompatActivity
         implements ControllerCallback {
     private static final String TAG = LoginActivity.class.getSimpleName();
 
-    public static final String USERNAME_KEY = "moodspace.UserController.username";
+    public static final String USERNAME_KEY = "moodspace.LoginActivity.username";
+    public static final String SIGN_UP_USER_KEY = "moodspace.LoginActivity.signUpKey";
+    public static final String LOGIN_USER_KEY = "moodspace.LoginActivity.login";
 
     private UserController uc;
 
     // so you can't press the login button multiple times
     private boolean inLoginState = true;
-    private User inputtedUser;
     private DocumentSnapshot fetchedUserData = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            getWindow().setFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS,
+                    WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+        }
         setContentView(R.layout.activity_login);
 
         final AppCompatButton loginButton = findViewById(R.id.login_btn);
@@ -41,31 +51,33 @@ public class LoginActivity extends AppCompatActivity
         final AppCompatEditText password = findViewById(R.id.password);
         final AppCompatEditText veri_password = findViewById(R.id.password_veri);
 
+        Paper.init(this);
+
+        final String savedUsername = Paper.book().read(UserController.PAPER_USERNAME_KEY);
+        final String savedPassword = Paper.book().read(UserController.PAPER_PASSWORD_KEY);
+
         uc = new UserController(this);
 
-        veri_password.setVisibility(View.GONE);
+        // logs in if there exists a saved username/password
+        // TODO create and move to initial loading activity
+        if (savedUsername != null && savedPassword != null) {
+            attemptLogin(new User(savedUsername, savedPassword));
+        }
+
         signUpLink.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (inLoginState) {
-                    loginButton.setText("Sign Up");
-                    signUpLink.setText("Already registered? LOGIN");
-                    veri_password.setVisibility(View.VISIBLE);
-                    inLoginState = false;
-                } else {
-                    loginButton.setText("Login");
-                    signUpLink.setText("New user? SIGN UP");
-                    veri_password.setVisibility(View.GONE);
-                    inLoginState = true;
-                }
+                Intent signUpScreen = new Intent(LoginActivity.this, SignUpActivity.class);
+                startActivity(signUpScreen);
             }
         });
+
         loginButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 String passwordText = password.getText().toString().trim();
                 String usernameText = username.getText().toString().trim();
-                inputtedUser = new User(usernameText, passwordText);
+                final User inputtedUser = new User(usernameText, passwordText);
 
                 if (LoginActivity.this.inLoginState) {
                     if (usernameText.length() == 0 || passwordText.length() == 0) {
@@ -73,19 +85,7 @@ public class LoginActivity extends AppCompatActivity
                                 "Please enter a username and a password", Toast.LENGTH_SHORT).show();
                         return;
                     }
-                    // logs in the user
-                    // fetches the user data from firestore only if not already gotten
-                    if (fetchedUserData == null || fetchedUserData.get("username") != usernameText) {
-                        uc.getUserData(usernameText, new UserController.CallbackUser() {
-                            @Override
-                            public void callbackUserData(DocumentSnapshot fetchedUserData, String callbackId) {
-                                LoginActivity.this.fetchedUserData = fetchedUserData;
-                                uc.attemptLogin(inputtedUser, fetchedUserData);
-                            }
-                        });
-                    } else {
-                        uc.attemptLogin(inputtedUser, fetchedUserData);
-                    }
+                    attemptLogin(inputtedUser);
                     loginButton.setEnabled(false);
                 } else {
                     String veriPasswordText = veri_password.getText().toString().trim();
@@ -107,6 +107,24 @@ public class LoginActivity extends AppCompatActivity
         });
     }
 
+    /**
+     * attempts to log in the user.
+     * - fetches the user data from firestore only if not already gotten
+     */
+    private void attemptLogin(final User user) {
+        final String username = user.getUsername();
+        if (fetchedUserData == null || fetchedUserData.get("username") != username) {
+            uc.getUserData(username, new UserController.CallbackUser() {
+                @Override
+                public void callbackUserData(DocumentSnapshot fetchedUserData, String callbackId) {
+                    LoginActivity.this.fetchedUserData = fetchedUserData;
+                    uc.checkPassword(user, fetchedUserData);
+                }
+            });
+        } else {
+            uc.checkPassword(user, fetchedUserData);
+        }
+    }
 
 
     @Override
@@ -116,18 +134,40 @@ public class LoginActivity extends AppCompatActivity
 
     @Override
     public void callback(CallbackId callbackId, Bundle bundle) {
+        final CheckBox chkBoxRememberMe = findViewById(R.id.rememberMe);
         final AppCompatButton loginButton = findViewById(R.id.login_btn);
         View snackBarView = findViewById(R.id.login_view);
+        User user;
 
         if (callbackId instanceof UserCallbackId) {
             switch ((UserCallbackId) callbackId) {
                 case USERNAME_NOT_TAKEN:
-                    uc.signUpUser(inputtedUser);
+                    user = (User) bundle.getSerializable(SIGN_UP_USER_KEY);
+                    if (user == null) {
+                        Snackbar.make(snackBarView,
+                                "Unexpected error: sign up user key result should not contain a null user",
+                                Snackbar.LENGTH_LONG).show();
+                        loginButton.setEnabled(true);
+                        return;
+                    }
+                    uc.signUpUser(user);
                     return;
 
                 case LOGIN:
+                    user = (User) bundle.getSerializable(LOGIN_USER_KEY);
+                    if (user == null) {
+                        Snackbar.make(snackBarView,
+                                "Unexpected error: login user key result should not contain a null user",
+                                Snackbar.LENGTH_LONG).show();
+                        loginButton.setEnabled(true);
+                        return;
+                    }
+                    // stores username and password if checked
+                    if (chkBoxRememberMe.isChecked()) {
+                        uc.rememberUser(user);
+                    }
                     Intent i = new Intent(this, ProfileListActivity.class);
-                    i.putExtra(USERNAME_KEY, inputtedUser.getUsername());
+                    i.putExtra(USERNAME_KEY, user.getUsername());
                     startActivity(i);
                     finish();
                     return;
@@ -175,5 +215,3 @@ public class LoginActivity extends AppCompatActivity
         }
     }
 }
-
-

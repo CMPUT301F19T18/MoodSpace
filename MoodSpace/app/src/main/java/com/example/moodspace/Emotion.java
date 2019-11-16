@@ -3,9 +3,9 @@ package com.example.moodspace;
 import android.graphics.Color;
 
 public enum Emotion {
-    HAPPY(1, 0x1F604, "#badc58", "Happy"),
-    ANGRY(2, 0x1F621, "#eb4d4b", "Angry"),
-    SAD(3, 0x1F62D, "#00a8ff", "Sad");
+    HAPPY(1, 0x1F604, "#ffe9ab", "Happy"),
+    ANGRY(2, 0x1F621, "#FF8585", "Angry"),
+    SAD(3, 0x1F62D, "#6F94E3", "Sad");
 
     private final int id;
     private final int emojiCode;
@@ -42,5 +42,15 @@ public enum Emotion {
             emotionStringArray[i] = emotionArray[i].getEmojiName() + " " + emotionArray[i].getEmojiString();
         }
         return emotionStringArray;
+    }
+
+    @Override
+    public String toString() {
+        return "Emotion{" +
+                "id=" + id +
+                ", emojiCode=" + emojiCode +
+                ", colorCode=" + colorCode +
+                ", emojiName='" + emojiName + '\'' +
+                '}';
     }
 }
