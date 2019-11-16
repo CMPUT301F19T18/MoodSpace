@@ -15,7 +15,7 @@ import androidx.appcompat.widget.AppCompatTextView;
 /**
  * Activity for signing up as a new user
  */
-public class SignupActivity extends AppCompatActivity {
+public class SignUpActivity extends AppCompatActivity {
     UserController uc;
 
     @Override
@@ -33,7 +33,7 @@ public class SignupActivity extends AppCompatActivity {
         final AppCompatEditText password = findViewById(R.id.password);
         final AppCompatEditText veri_password = findViewById(R.id.password_veri);
 
-        uc = new UserController(SignupActivity.this);
+        uc = new UserController(SignUpActivity.this);
 
         signupButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -45,11 +45,11 @@ public class SignupActivity extends AppCompatActivity {
                     if (passwordText.equals(veriPasswordText)) {
                         uc.checkUserExists(new User(usernameText, passwordText));
                     } else {
-                        Toast.makeText(SignupActivity.this,
+                        Toast.makeText(SignUpActivity.this,
                                 "Please enter a matching password", Toast.LENGTH_SHORT).show();
                     }
                 } else {
-                    Toast.makeText(SignupActivity.this,
+                    Toast.makeText(SignUpActivity.this,
                             "Please enter a username, a password, and a password verification.",
                             Toast.LENGTH_SHORT).show();
                 }
@@ -59,7 +59,7 @@ public class SignupActivity extends AppCompatActivity {
         loginLink.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view){
-                Intent loginScreen = new Intent(SignupActivity.this, LoginActivity.class);
+                Intent loginScreen = new Intent(SignUpActivity.this, LoginActivity.class);
                 startActivity(loginScreen);
                 finish();
             }
