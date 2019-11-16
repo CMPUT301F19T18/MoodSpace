@@ -20,6 +20,8 @@ import java.util.HashMap;
 
 import androidx.annotation.NonNull;
 
+import io.paperdb.Paper;
+
 /**
  * Communicates user logins & signups between the UI and the firestore database
  */
@@ -120,9 +122,10 @@ public class UserController {
      * - username not found
      * - password is wrong
      */
-    public void loginUser(User user) {
+    public void loginUser(boolean isChecked, User user) {
         final String username = user.getUsername();
         final String password = user.getPassword();
+        final boolean checked = isChecked;
 
         CollectionReference collectionReference = db.collection("users");
         collectionReference
@@ -134,6 +137,10 @@ public class UserController {
                         if (task.isSuccessful()) {
                             if (task.getResult().exists()) {
                                 if (task.getResult().get("password").equals(password)) {
+                                    if (checked) {
+                                        Paper.book().write(SavedUser.userNameKey,username);
+                                        Paper.book().write(SavedUser.passWordKey,password);
+                                    }
                                     Intent i = new Intent(context, ProfileListActivity.class);
                                     i.putExtra(USERNAME_KEY, username);
                                     context.startActivity(i);

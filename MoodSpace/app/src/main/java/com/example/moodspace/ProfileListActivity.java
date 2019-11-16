@@ -1,6 +1,7 @@
 package com.example.moodspace;
 
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.ContextMenu;
@@ -9,6 +10,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
@@ -40,6 +42,8 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
+import io.paperdb.Paper;
+
 public class ProfileListActivity extends AppCompatActivity implements FilterFragment.OnFragmentInteractionListener {
     private static final String TAG = ProfileListActivity.class.getSimpleName();
     private final FirebaseFirestore db = FirebaseFirestore.getInstance();
@@ -55,8 +59,11 @@ public class ProfileListActivity extends AppCompatActivity implements FilterFrag
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            getWindow().setFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS,
+                    WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+        }
         setContentView(R.layout.activity_profile_list);
-
         username = getIntent().getExtras().getString(UserController.USERNAME_KEY);
 
         Toolbar toolbar = findViewById(R.id.toolbar);
@@ -117,6 +124,8 @@ public class ProfileListActivity extends AppCompatActivity implements FilterFrag
                                 "Map", Toast.LENGTH_SHORT).show();
                         return true;
                     case R.id.nav_item_log_out:
+                        Paper.book().delete(SavedUser.userNameKey);
+                        Paper.book().delete(SavedUser.passWordKey);
                         Intent loginScreen = new Intent(ProfileListActivity.this, LoginActivity.class);
                         loginScreen.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                         finish();
@@ -287,7 +296,6 @@ public class ProfileListActivity extends AppCompatActivity implements FilterFrag
     }
 
     public void onOkPressed(boolean[] checkedItems){
-        final String username = getIntent().getExtras().getString("Username");
         final Emotion[] emotionArray = Emotion.values();
         List<Emotion> filterList = new ArrayList<Emotion>();
         for (int i = 0; i < checkedItems.length; i++){
