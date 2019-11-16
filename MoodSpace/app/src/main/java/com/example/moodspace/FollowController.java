@@ -206,7 +206,6 @@ public class FollowController implements ControllerCallback {
      */
     public void sendFollowRequest(final String user, final String target) {
         /*
-                        Log.d(TAG, String.format("successfully uploaded pending follow request (%s -> %s)",
                                 user, target));
          */
 
@@ -221,7 +220,6 @@ public class FollowController implements ControllerCallback {
                     public void onSuccess(Void aVoid) {
                         Log.d(TAG, String.format("successfully submitted a follow request (%s -> %s)",
                                 user, target));
-                        cc.callback(FollowCallbackId.SEND_REQUEST_SUCCESS);
                         callbackComplete(usersComplete, usersSuccessful, user, target, false,
                                 FollowCallbackId.ADD_FOLLOW_REQUEST_SUCCESS, FollowCallbackId.ADD_FOLLOW_REQUEST_COMPLETE);
                     }
@@ -231,9 +229,32 @@ public class FollowController implements ControllerCallback {
                     public void onFailure(@NonNull Exception e) {
                                 Log.d(TAG, String.format("failed to submit a follow request (%s -> %s)",
                                 user, target));
-                        cc.callback(FollowCallbackId.SEND_REQUEST_FAIL);
+                        cc.callback(FollowCallbackId.SUBMIT_FOLLOW_REQUEST_FAIL);
                     }
                 });
+
+        db.collection("users")
+                .document(user)
+                .update(FOLLOW_REQUESTS_TO_ARRAY, FieldValue.arrayUnion(target))
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        Log.d(TAG, String.format("successfully uploaded pending follow request (%s -> %s)",
+                                user, target));
+                        callbackComplete(usersComplete, usersSuccessful, user, target, false,
+                                FollowCallbackId.ADD_FOLLOW_REQUEST_SUCCESS, FollowCallbackId.ADD_FOLLOW_REQUEST_COMPLETE);
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.d(TAG, String.format("failed to upload pending follow request (%s -> %s)",
+                                user, target));
+                        cc.callback(FollowCallbackId.UPLOAD_FOLLOW_REQUEST_FAIL);
+                    }
+                });
+
+
     }
 
     /**
@@ -290,7 +311,7 @@ public class FollowController implements ControllerCallback {
                                     if (!task.isSuccessful()) {
                                         Log.d(TAG, "Error reading followee mood data for user " + followee);
                                         Log.d(TAG, Log.getStackTraceString(task.getException()));
-                                        cc.callback(FOLLOWEE_MOOD_READ_FAIL);
+                                        cc.callback(FollowCallbackId.FOLLOWEE_MOOD_READ_FAIL);
                                         return;
                                     }
                                     // no mood (can happen if user's follower has no mood)
