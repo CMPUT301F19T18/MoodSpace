@@ -292,7 +292,7 @@ public class ProfileListActivity extends AppCompatActivity
     public void onOkPressed(boolean[] checkedItems){
         final String username = getIntent().getExtras().getString("Username");
         final Emotion[] emotionArray = Emotion.values();
-        List<Emotion> filterList = new ArrayList<Emotion>();
+        List<Emotion> filterList = new ArrayList<>();
         for (int i = 0; i < checkedItems.length; i++){
             if (checkedItems[i] == false) {
                 filterList.add(emotionArray[i]);
@@ -301,9 +301,13 @@ public class ProfileListActivity extends AppCompatActivity
         update(username, filterList);
     }
 
+    @Override
+    public void callback(CallbackId callbackId) {
+        this.callback(callbackId, null);
+    }
 
     @Override
-    public void callback(String callbackId) {
+    public void callback(CallbackId callbackId, Bundle bundle) {
         // TODO stub
     }
 }

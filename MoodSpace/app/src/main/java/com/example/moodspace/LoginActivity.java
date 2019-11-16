@@ -107,60 +107,71 @@ public class LoginActivity extends AppCompatActivity
         });
     }
 
+
+
     @Override
-    public void callback(String callbackId) {
+    public void callback(CallbackId callbackId) {
+        this.callback(callbackId, null);
+    }
+
+    @Override
+    public void callback(CallbackId callbackId, Bundle bundle) {
         final AppCompatButton loginButton = findViewById(R.id.login_btn);
         View snackBarView = findViewById(R.id.login_view);
 
-        switch (callbackId) {
-            case UserController.USERNAME_NOT_TAKEN:
-                uc.signUpUser(inputtedUser);
-                return;
+        if (callbackId instanceof UserCallbackId) {
+            switch ((UserCallbackId) callbackId) {
+                case USERNAME_NOT_TAKEN:
+                    uc.signUpUser(inputtedUser);
+                    return;
 
-            case UserController.LOGIN:
-                Intent i = new Intent(this, ProfileListActivity.class);
-                i.putExtra(USERNAME_KEY, inputtedUser.getUsername());
-                startActivity(i);
-                finish();
-                return;
+                case LOGIN:
+                    Intent i = new Intent(this, ProfileListActivity.class);
+                    i.putExtra(USERNAME_KEY, inputtedUser.getUsername());
+                    startActivity(i);
+                    finish();
+                    return;
 
-            case UserController.USERNAME_TAKEN:
-                Toast.makeText(this, "This username is taken", Toast.LENGTH_SHORT).show();
-                loginButton.setEnabled(true);
-                return;
+                case USERNAME_TAKEN:
+                    Toast.makeText(this, "This username is taken", Toast.LENGTH_SHORT).show();
+                    loginButton.setEnabled(true);
+                    return;
 
-            case UserController.LOGIN_READ_FAIL:
-                Toast.makeText(this, "Login failed, please try again", Toast.LENGTH_SHORT).show();
-                loginButton.setEnabled(true);
-                return;
+                case LOGIN_READ_FAIL:
+                    Toast.makeText(this, "Login failed, please try again", Toast.LENGTH_SHORT).show();
+                    loginButton.setEnabled(true);
+                    return;
 
-            case UserController.INCORRECT_PASSWORD:
-                Toast.makeText(this, "Incorrect password, please try again", Toast.LENGTH_SHORT).show();
-                loginButton.setEnabled(true);
-                return;
+                case INCORRECT_PASSWORD:
+                    Toast.makeText(this, "Incorrect password, please try again", Toast.LENGTH_SHORT).show();
+                    loginButton.setEnabled(true);
+                    return;
 
-            case UserController.USER_NONEXISTENT:
-                Toast.makeText(this, "This username does not exist", Toast.LENGTH_SHORT).show();
-                loginButton.setEnabled(true);
-                return;
+                case USER_NONEXISTENT:
+                    Toast.makeText(this, "This username does not exist", Toast.LENGTH_SHORT).show();
+                    loginButton.setEnabled(true);
+                    return;
 
-            case UserController.USER_TASK_NULL:
-                Snackbar.make(snackBarView,
-                        "Unexpected error: user task result should not be null",
-                        Snackbar.LENGTH_LONG).show();
-                loginButton.setEnabled(true);
-                return;
+                case USER_TASK_NULL:
+                    Snackbar.make(snackBarView,
+                            "Unexpected error: user task result should not be null",
+                            Snackbar.LENGTH_LONG).show();
+                    loginButton.setEnabled(true);
+                    return;
 
-            case UserController.USER_ADDITION_FAIL:
-            case UserController.FILTER_INITIALIZE_FAIL:
-                Snackbar.make(snackBarView,
-                        "Failed to register user, please try again",
-                        Snackbar.LENGTH_LONG).show();
-                loginButton.setEnabled(true);
-                return;
+                case USER_ADDITION_FAIL:
+                case FILTER_INITIALIZE_FAIL:
+                    Snackbar.make(snackBarView,
+                            "Failed to register user, please try again",
+                            Snackbar.LENGTH_LONG).show();
+                    loginButton.setEnabled(true);
+                    return;
 
-            default:
-                Log.w(TAG, "unrecognized callback ID: " + callbackId);
+                default:
+                    Log.w(TAG, "unrecognized callback ID: " + callbackId);
+            }
+        } else {
+            Log.w(TAG, "unrecognized callback ID: " + callbackId);
         }
     }
 }

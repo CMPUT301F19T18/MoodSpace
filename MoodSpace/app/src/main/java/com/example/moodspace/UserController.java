@@ -22,17 +22,6 @@ import java.util.HashMap;
 public class UserController {
     private static final String TAG = UserController.class.getSimpleName();
 
-    public static final String USERNAME_TAKEN = "username taken";
-    public static final String USERNAME_NOT_TAKEN = "username not taken";
-    public static final String USER_NONEXISTENT = "user doesn't exist";
-    public static final String LOGIN = "successful login";
-    public static final String LOGIN_READ_FAIL = "login read fail";
-    public static final String INCORRECT_PASSWORD = "incorrect password";
-    public static final String USER_TASK_NULL = "user task result null";
-    public static final String PASSWORD_FETCH_NULL = "password fetch null";
-    public static final String USER_ADDITION_FAIL = "user addition fail";
-    public static final String FILTER_INITIALIZE_FAIL = "filter initialize fail";
-
     private final FirebaseFirestore db = FirebaseFirestore.getInstance();
 
     private ControllerCallback cc;
@@ -55,10 +44,10 @@ public class UserController {
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
                 if (task.getResult() != null && task.getResult().size() > 0) {
                     Log.d(TAG, "Username " + user.getUsername() + " is taken");
-                    cc.callback(USERNAME_TAKEN);
+                    cc.callback(UserCallbackId.USERNAME_TAKEN);
                 } else {
                     Log.d(TAG, "Username " + user.getUsername() + " is not taken");
-                    cc.callback(USERNAME_NOT_TAKEN);
+                    cc.callback(UserCallbackId.USERNAME_NOT_TAKEN);
                     //signUpUser(user);
                 }
             }
@@ -85,7 +74,7 @@ public class UserController {
                     @Override
                     public void onSuccess(Void aVoid) {
                         Log.d(TAG, "User was successfully added");
-                        cc.callback(LOGIN);
+                        cc.callback(UserCallbackId.LOGIN);
                     }
                 }).
                 addOnFailureListener(new OnFailureListener() {
@@ -93,7 +82,7 @@ public class UserController {
                     public void onFailure(@NonNull Exception e) {
                         Log.d(TAG, "Error has occurred when adding user " + user.toString());
                         Log.d(TAG, Log.getStackTraceString(e));
-                        cc.callback(USER_ADDITION_FAIL);
+                        cc.callback(UserCallbackId.USER_ADDITION_FAIL);
                     }
                 });
 
@@ -117,7 +106,7 @@ public class UserController {
                         public void onFailure(@NonNull Exception e) {
                             Log.d(TAG, "Error has occurred when adding filter " + emotion.getEmojiName());
                             Log.d(TAG, Log.getStackTraceString(e));
-                            cc.callback(FILTER_INITIALIZE_FAIL);
+                            cc.callback(UserCallbackId.FILTER_INITIALIZE_FAIL);
                         }
                     });
         }
@@ -151,15 +140,15 @@ public class UserController {
                         if (!task.isSuccessful()) {
                             Log.d(TAG, "Error reading user data when logging in for user " + username);
                             Log.d(TAG, Log.getStackTraceString(task.getException()));
-                            cc.callback(LOGIN_READ_FAIL);
+                            cc.callback(UserCallbackId.LOGIN_READ_FAIL);
                             return;
                         }
                         if (task.getResult() == null) {
-                            cc.callback(USER_TASK_NULL);
+                            cc.callback(UserCallbackId.USER_TASK_NULL);
                             return;
                         }
                         if (!task.getResult().exists()) {
-                            cc.callback(USER_NONEXISTENT);
+                            cc.callback(UserCallbackId.USER_NONEXISTENT);
                             return;
                         }
 
@@ -178,14 +167,14 @@ public class UserController {
     public void attemptLogin(User inputtedUser, DocumentSnapshot userData) {
         String fetchedPassword = (String) userData.get("password");
         if (fetchedPassword == null) {
-            cc.callback(UserController.PASSWORD_FETCH_NULL);
+            cc.callback(UserCallbackId.PASSWORD_FETCH_NULL);
             return;
         }
 
         if (fetchedPassword.equals(inputtedUser.getPassword())) {
-            cc.callback(UserController.LOGIN);
+            cc.callback(UserCallbackId.LOGIN);
         } else {
-            cc.callback(UserController.INCORRECT_PASSWORD);
+            cc.callback(UserCallbackId.INCORRECT_PASSWORD);
         }
 
     }
