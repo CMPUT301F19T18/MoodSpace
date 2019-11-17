@@ -17,6 +17,8 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 
@@ -332,6 +334,17 @@ public class FollowController implements ControllerCallback {
                                     // constantly checks whenever the counter is complete
                                     counter.incrementComplete();
                                     if (counter.isComplete()) {
+                                        // sorts array by date after all moods are gotten
+                                        // oldest -> newest
+                                        Collections.sort(followingMoods, new Comparator<MoodOther>() {
+                                            @Override
+                                            public int compare(MoodOther o1, MoodOther o2) {
+                                                return o1.getDate().compareTo(o2.getDate());
+                                            }
+                                        });
+                                        // reverses it to newest -> oldest
+                                        Collections.reverse(followingMoods);
+
                                         ((Callback) cc).callbackFollowingMoods(user, followingMoods);
                                     }
                                 }

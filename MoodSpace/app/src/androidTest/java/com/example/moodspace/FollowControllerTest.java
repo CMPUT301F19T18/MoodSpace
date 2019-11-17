@@ -329,6 +329,11 @@ public class FollowControllerTest {
         assertTrue(cc.receivedCallbackIds.contains(FollowCallbackId.ADD_FOLLOW_REQUEST_COMPLETE));
     }
 
+    /**
+     * 4 => 1 (happy, sad)
+     * 4 => 3 (no moods)
+     */
+
     @AfterClass
     public static void destroyUsers() {
         // TODO stub
