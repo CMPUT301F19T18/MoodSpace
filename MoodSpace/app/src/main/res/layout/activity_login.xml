@@ -105,7 +105,6 @@
                     android:background="@android:color/transparent"
                     android:hint="Password"
                     android:inputType="textPassword"
-                    android:maxLength="10"
                     android:maxLines="1"
                     android:paddingLeft="10dp"
                     android:paddingTop="15dp"
