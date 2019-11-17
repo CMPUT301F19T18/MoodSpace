@@ -49,7 +49,6 @@ import static org.hamcrest.core.StringContains.containsString;
 public class ProfileListActivityTest {
     private String username = "TEST_ProfileListActivityTest";
     private String password = "TEST_ProfileListActivityTest";
-    private final FirebaseFirestore db = FirebaseFirestore.getInstance();
 
     @Rule
     public ActivityTestRule<LoginActivity> activityRule = new ActivityTestRule<>(LoginActivity.class);
