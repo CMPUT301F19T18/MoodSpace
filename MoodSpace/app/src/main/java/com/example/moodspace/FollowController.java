@@ -49,8 +49,6 @@ public class FollowController implements ControllerCallback {
     private static final String FOLLOW_REQUESTS_FROM_ARRAY = "FollowRequestsFrom";
     private static final String FOLLOW_REQUESTS_TO_ARRAY = "FollowRequestsTo";
 
-    public static final String TARGETS_COMPLETE_KEY = "moodspace.FollowController.targetsCompleteKey";
-    public static final String TARGETS_SUCCESSFUL_KEY = "moodspace.FollowController.targetsSuccessfulKey";
     public static final String IS_SUCCESSFUL_KEY = "moodspace.FollowController.isSuccessfulKey";
 
     private final FirebaseFirestore db = FirebaseFirestore.getInstance();
@@ -74,9 +72,10 @@ public class FollowController implements ControllerCallback {
 
     /**
      * Used to generalize array additions/removals.
+     * Note that target and user must be different users.
      *
-     * @param user main user (current logged in user)
-     * @param target any user that the main user
+     * @param user main user (currently logged in user)
+     * @param target any user that isn't the main user
      * @param arrayName follow-related array as defined in the constants of this class
      * @param getUserArray if true, modifies target w.r.t. user.array,
      *                     otherwise modifies user w.r.t. target.array
@@ -133,7 +132,7 @@ public class FollowController implements ControllerCallback {
     }
 
     /**
-     * Callback only once all subtasks are complete as according to the counter
+     * Callback only once all sub-tasks are complete as according to the counter
      */
     private void callbackComplete(final CompletedTaskCounter counter, String user, String target, boolean isSuccess,
                                   FollowCallbackId completeCode) {
