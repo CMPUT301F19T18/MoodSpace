@@ -28,10 +28,6 @@ import static junit.framework.TestCase.assertTrue;
  *      - angry
  *  TEST_FollowControllerTest3
  *  TEST_FollowControllerTest4
- *
- *  TODO tests:
- *   - moodother array
- *      - sorted?
  */
 @RunWith(AndroidJUnit4.class)
 @LargeTest
