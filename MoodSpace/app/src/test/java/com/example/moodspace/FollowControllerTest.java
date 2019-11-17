@@ -15,13 +15,13 @@ public class FollowControllerTest {
 
     /**
      * Initializing users:
-     *  TEST_follow1:
+     *  TEST_FollowControllerTest1:
      *      - happy
      *      - sad
-     *  TEST_follow2
+     *  TEST_FollowControllerTest2
      *      - angry
-     *  TEST_follow3
-     *  TEST_follow4
+     *  TEST_FollowControllerTest3
+     *  TEST_FollowControllerTest4
      */
     @BeforeClass
     public static void initializeUsers() {
