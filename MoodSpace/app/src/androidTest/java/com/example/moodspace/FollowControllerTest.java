@@ -22,8 +22,8 @@ import static junit.framework.TestCase.assertTrue;
 /**
  * Users:
  *  TEST_FollowControllerTest1:
- *      - happy
- *      - sad
+ *      - happy (newest)
+ *      - sad (oldest)
  *  TEST_FollowControllerTest2
  *      - angry
  *  TEST_FollowControllerTest3
@@ -330,9 +330,57 @@ public class FollowControllerTest {
     }
 
     /**
-     * 4 => 1 (happy, sad)
+     * 4 => 1 (happy)
+     * 4 => 2 (angry)
      * 4 => 3 (no moods)
+     * order should be newest to oldest (happy, angry)
      */
+    @Test
+    public void testFollowingMoods() throws InterruptedException {
+        fc.addFollower(user4, user1);
+        fc.addFollower(user4, user2);
+        fc.addFollower(user4, user3);
+        Thread.sleep(5000);
+
+        // makes sure they all are complete and successful
+        assertEquals(cc.receivedCallbackIds.size(), 3);
+        for (CallbackId cid: cc.receivedCallbackIds) {
+            assertEquals(cid, FollowCallbackId.ADD_FOLLOWER_COMPLETE);
+        }
+        for (Bundle b: cc.receivedBundles) {
+            assertNotNull(b);
+            assertTrue(b.containsKey(FollowController.IS_SUCCESSFUL_KEY));
+            assertTrue(b.getBoolean(FollowController.IS_SUCCESSFUL_KEY));
+        }
+
+        fc.getFollowingMoods(user4);
+        Thread.sleep(4000);
+
+        assertEquals(cc.user, user4);
+        assertEquals(cc.followingMoodList.size(), 2);
+        assertEquals(cc.followingMoodList.get(0).getEmotion(), Emotion.HAPPY);
+        assertEquals(cc.followingMoodList.get(1).getEmotion(), Emotion.ANGRY);
+
+        // clean up
+        cc.receivedCallbackIds.clear();
+        cc.receivedBundles.clear();
+
+        fc.removeFollower(user4, user1);
+        fc.removeFollower(user4, user2);
+        fc.removeFollower(user4, user3);
+        Thread.sleep(5000);
+
+        // makes sure they all are complete and successful
+        assertEquals(cc.receivedCallbackIds.size(), 3);
+        for (CallbackId cid: cc.receivedCallbackIds) {
+            assertEquals(cid, FollowCallbackId.REMOVE_FOLLOWER_COMPLETE);
+        }
+        for (Bundle b: cc.receivedBundles) {
+            assertNotNull(b);
+            assertTrue(b.containsKey(FollowController.IS_SUCCESSFUL_KEY));
+            assertTrue(b.getBoolean(FollowController.IS_SUCCESSFUL_KEY));
+        }
+    }
 
     @AfterClass
     public static void destroyUsers() {

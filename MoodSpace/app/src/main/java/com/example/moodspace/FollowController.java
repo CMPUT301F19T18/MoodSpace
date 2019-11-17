@@ -19,7 +19,6 @@ import com.google.firebase.firestore.QuerySnapshot;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashSet;
 import java.util.List;
 
 /**
@@ -323,8 +322,10 @@ public class FollowController implements ControllerCallback {
                                     } else {
                                         // no mood (can happen if user's follower has no mood)
                                         if (task.getResult() != null ) {
+                                            // even though it's a for loop,
+                                            // it should still have at most 1 mood by the limit
                                             for (QueryDocumentSnapshot doc : task.getResult()) {
-                                                Mood mood = (Mood) doc.getData();
+                                                Mood mood = Mood.fromDocSnapshot(doc);
                                                 MoodOther moodOther = MoodOther.fromMood(mood, followee);
                                                 followingMoods.add(moodOther);
                                             }
