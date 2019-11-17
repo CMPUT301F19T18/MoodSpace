@@ -1,5 +1,7 @@
 package com.example.moodspace;
 
+import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.filters.LargeTest;
 import androidx.test.rule.ActivityTestRule;
 
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -8,6 +10,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 
 import static androidx.test.espresso.Espresso.onData;
 import static androidx.test.espresso.Espresso.onView;
@@ -26,14 +29,30 @@ import static org.hamcrest.core.IsAnything.anything;
 import static org.hamcrest.core.IsNot.not;
 import static org.hamcrest.core.StringContains.containsString;
 
+/**
+ * Users:
+ *  TEST_AddMoodTest (no moods)
+ *
+ * TODO tests:
+ *  - add mood button
+ *      - check activity
+ *  - add mood button, click submit without selecting mood
+ *      - check error
+ *      - check activity
+ *  - add mood button, select mood, click submit
+ *      - check mood exists in firestore
+ *      - check mood exists in list
+ *      - check mood
+ *  - @AfterClass: remove all moods
+ */
+@RunWith(AndroidJUnit4.class)
+@LargeTest
 public class AddMoodTest {
-
-    private String username;
-    private String password;
-    private String angry;
-    private String happy;
-    private String sad;
-    private final FirebaseFirestore db = FirebaseFirestore.getInstance();
+    private final String username = "TEST_AddMoodTest";
+    private final String password = "TEST_AddMoodTest";
+    private final String angry = new String(Character.toChars(0x1F621));
+    private final String happy = new String(Character.toChars(0x1F604));
+    private final String sad = new String(Character.toChars(0x1F62D));
 
     @Rule
     public ActivityTestRule<LoginActivity> mActivityRule =
@@ -41,15 +60,6 @@ public class AddMoodTest {
     @Rule
     public ActivityTestRule<AddEditActivity> mActivityRule2 =
             new ActivityTestRule<>(AddEditActivity.class);
-    @Before
-    public void initValidString() {
-        // Specify a valid string.
-        username = "AddTest";
-        password = "AddTest";
-        angry = new String(Character.toChars(0x1F621));
-        happy = new String(Character.toChars(0x1F604));
-        sad = new String(Character.toChars(0x1F62D));
-    }
 
     @Test
     public void addMoods() throws InterruptedException {
@@ -58,6 +68,7 @@ public class AddMoodTest {
 
         onView(withId(R.id.login_btn)).perform(click());
         Thread.sleep(3000);
+
         // Add Happy Mood with Alone social situation and set reason to alone time.
         onView(withId(R.id.addMoodButton)).perform(click());
         onView(withId(R.id.emotionSelector)).perform(click());

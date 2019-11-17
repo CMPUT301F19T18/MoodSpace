@@ -11,6 +11,8 @@ import android.net.Uri;
 import android.provider.MediaStore;
 
 import androidx.test.espresso.intent.rule.IntentsTestRule;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.filters.LargeTest;
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.rule.GrantPermissionRule;
 
@@ -20,6 +22,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -41,6 +44,16 @@ import static junit.framework.TestCase.assertTrue;
 import static org.hamcrest.Matchers.anything;
 import static org.hamcrest.core.IsNot.not;
 
+/**
+ * No users used
+ *
+ * TODO:
+ *  - make sure imageview matches
+ *  - separate with unit tests
+ *  - @AfterClass: remove image from firestore
+ */
+@RunWith(AndroidJUnit4.class)
+@LargeTest
 public class PictureTest {
     private File file;
 

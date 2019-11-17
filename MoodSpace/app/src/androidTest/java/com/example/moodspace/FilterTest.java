@@ -3,22 +3,15 @@ package com.example.moodspace;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewParent;
-import android.widget.Checkable;
 
-import androidx.test.espresso.UiController;
-import androidx.test.espresso.ViewAction;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
 import androidx.test.rule.ActivityTestRule;
 
-import com.google.firebase.firestore.FirebaseFirestore;
-
-import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.hamcrest.Matchers;
 import org.hamcrest.TypeSafeMatcher;
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -31,37 +24,44 @@ import static androidx.test.espresso.action.ViewActions.scrollTo;
 import static androidx.test.espresso.action.ViewActions.typeText;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.ViewMatchers.hasDescendant;
-import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withClassName;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
-import static androidx.test.espresso.matcher.ViewMatchers.withSpinnerText;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
 import static org.hamcrest.Matchers.anything;
 import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.core.IsNot.not;
 
+/**
+ * Users:
+ *  - TEST_FilterTest
+ *      - happy
+ *      - angry
+ *      - can view all
+ *
+ * TODO tests:
+ *  - @BeforeClass: create user, add dummy moods
+ *  - do nothing
+ *      - check all moods are shown
+ *  - filter so nothing shows
+ *      - check that nothing shows
+ *  - filter so one shows
+ *      - check one mood shows
+ *  - reset filter
+ *      - check all moods are shown
+ *  - @AfterClass: remove user, filters and moods
+ */
 @RunWith(AndroidJUnit4.class)
 @LargeTest
-public class FilterTests {
-    private String username;
-    private String password;
-    private String angry;
-    private String happy;
-    private final FirebaseFirestore db = FirebaseFirestore.getInstance();
+public class FilterTest {
+    private String username = "TEST_FilterTest";
+    private String password = "TEST_FilterTest";
+    private String angry = new String(Character.toChars(0x1F621));
+    private String happy = new String(Character.toChars(0x1F604));
 
     @Rule
     public ActivityTestRule<LoginActivity> activityRule =
             new ActivityTestRule<>(LoginActivity.class);
-    @Before
-    public void initValidString() {
-        // Specify a valid string.
-        username = "FilterTest";
-        password = "password";
-        angry = new String(Character.toChars(0x1F621));
-        happy = new String(Character.toChars(0x1F604));
-    }
 
     @Test
     public void filter() throws InterruptedException {

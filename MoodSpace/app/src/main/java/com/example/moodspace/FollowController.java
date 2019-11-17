@@ -75,10 +75,11 @@ public class FollowController implements ControllerCallback {
     /**
      * Used to generalize array additions/removals.
      *
-     * @param user main user that is logged in
-     * @param target any user that isn't the logged in user
+     * @param user main user (current logged in user)
+     * @param target any user that the main user
      * @param arrayName follow-related array as defined in the constants of this class
-     * @param getUserArray if true, gets user.array, otherwise gets target.array
+     * @param getUserArray if true, modifies target w.r.t. user.array,
+     *                     otherwise modifies user w.r.t. target.array
      * @param isAddition whether it adds or removes from the array
      * @param logSuccess the log message if the task succeeds
      * @param logFail the log message if the task fails
