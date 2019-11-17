@@ -8,6 +8,8 @@ public class DummyControllerCallback implements ControllerCallback {
     private ArrayList<CallbackId> receivedCallbackIds = new ArrayList<>();
     private ArrayList<Bundle> receivedBundles = new ArrayList<>();
 
+    public DummyControllerCallback() { }
+
     @Override
     public void callback(CallbackId callbackId) {
         callback(callbackId, null);

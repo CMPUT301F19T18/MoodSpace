@@ -62,7 +62,7 @@ public class FollowController implements ControllerCallback {
     }
 
     public interface Callback {
-        void callbackFollowingMoods(@NonNull List<MoodOther> followingMoodsList);
+        void callbackFollowingMoods(@NonNull String user, @NonNull List<MoodOther> followingMoodsList);
         void callbackFollowData(@NonNull String user, @NonNull List<String> following,
                                 @NonNull List<String> followers,
                                 @NonNull List<String> followRequestsFrom,
@@ -281,7 +281,7 @@ public class FollowController implements ControllerCallback {
     /**
      * - gets all of the users that user is following & and for each followee, gets the most recent mood
      */
-    public void getFollowingMoods(String user) {
+    public void getFollowingMoods(final String user) {
         final List<MoodOther> followingMoods = new ArrayList<>();
 
         uc.getUserData(user, new UserController.CallbackUser() {
@@ -291,7 +291,7 @@ public class FollowController implements ControllerCallback {
 
                 // calls back an empty list user isn't following anyone
                 if (followingList.size() == 0) {
-                    ((Callback) cc).callbackFollowingMoods(followingMoods);
+                    ((Callback) cc).callbackFollowingMoods(user, followingMoods);
                     return;
                 }
 
@@ -324,7 +324,7 @@ public class FollowController implements ControllerCallback {
                                     // constantly checks whenever the counter is complete
                                     counter.incrementComplete();
                                     if (counter.isComplete()) {
-                                        ((Callback) cc).callbackFollowingMoods(followingMoods);
+                                        ((Callback) cc).callbackFollowingMoods(user, followingMoods);
                                     }
                                 }
                             });

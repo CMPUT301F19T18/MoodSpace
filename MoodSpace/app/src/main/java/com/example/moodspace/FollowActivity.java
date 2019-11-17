@@ -82,7 +82,7 @@ public class FollowActivity extends AppCompatActivity
     }
 
     @Override
-    public void callbackFollowingMoods(@NonNull List<MoodOther> followingMoodsList) {
+    public void callbackFollowingMoods(@NonNull String user, @NonNull List<MoodOther> followingMoodsList) {
         // TODO stub
     }
 
