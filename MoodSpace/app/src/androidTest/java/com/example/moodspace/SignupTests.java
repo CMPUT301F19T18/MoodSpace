@@ -13,24 +13,23 @@ import androidx.test.rule.ActivityTestRule;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import org.hamcrest.Matcher;
-import org.junit.Before;
+import org.junit.After;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TestRule;
+import org.junit.rules.TestWatcher;
+import org.junit.runner.Description;
 import org.junit.runner.RunWith;
 
-import static android.os.Trace.isEnabled;
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.action.ViewActions.closeSoftKeyboard;
-import static androidx.test.espresso.action.ViewActions.scrollTo;
 import static androidx.test.espresso.action.ViewActions.typeText;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.RootMatchers.withDecorView;
-import static androidx.test.espresso.matcher.ViewMatchers.isClickable;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
-import static org.hamcrest.CoreMatchers.allOf;
 import static org.hamcrest.core.IsNot.not;
 
 @RunWith(AndroidJUnit4.class)
@@ -39,19 +38,33 @@ import static org.hamcrest.core.IsNot.not;
  * Login to verify that the account has been created from before then log out
  * Delete the account from firebase db for future tests.
  */
-public class SignupTests {
-    private String username;
-    private String password;
+public class SignupTests extends TestWatcher {
+    private final String username = "signuptest";
+    private final String password = "signuptest";
     private final FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+    //public OnFailed removeUserRule = new OnFailed();
+
+    /**
+     *  Always removes the user if failed
+     */
+    @Rule
+    public TestRule watchman = new TestWatcher() {
+        private final FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+        @Override
+        protected void failed(Throwable e, Description description) {
+            db.collection("users").document(username).delete();
+            try {
+                Thread.sleep(2000);
+            } catch (InterruptedException ex) {
+                ex.printStackTrace();
+            }
+        }
+    };
 
     @Rule
     public ActivityTestRule<LoginActivity> activityRule = new ActivityTestRule<>(LoginActivity.class);
-
-    @Before
-    public void initValidString() {
-        username = "signuptest";
-        password = "signuptest";
-    }
 
     @Test
     public void testsignUp() throws InterruptedException {
@@ -60,7 +73,7 @@ public class SignupTests {
         onView(withId(R.id.password)).perform(typeText(password), closeSoftKeyboard());
         onView(withId(R.id.password_veri)).perform(typeText(password), closeSoftKeyboard());
         onView(withId(R.id.signup_btn)).perform(click());
-        Thread.sleep(1500);
+        Thread.sleep(3000);
 
         onView(withId(R.id.drawer_layout)).perform(DrawerActions.open());
         Thread.sleep(1500);
@@ -72,6 +85,7 @@ public class SignupTests {
         onView(withId(R.id.password)).perform(typeText(password), closeSoftKeyboard());
         onView(withId(R.id.password_veri)).perform(typeText(password), closeSoftKeyboard());
         onView(withId(R.id.signup_btn)).perform(click());
+        Thread.sleep(1000);
 //        Show existing user error.
         onView(withText("This username is taken")).inRoot(withDecorView(not(activityRule.getActivity().getWindow().getDecorView())))
         .check(matches(isDisplayed()));
@@ -103,7 +117,14 @@ public class SignupTests {
         onView(withId(R.id.drawer_layout)).perform(DrawerActions.open());
         onView(withId(R.id.nav_view)).perform(NavigationViewActions.navigateTo(R.id.nav_item_log_out));
         Thread.sleep(1500);
+    }
+
+    @After
+    public void tearDownUsers() {
         //Delete account for future tests.
+        // TODO change to safer delete using UserController
         db.collection("users").document(username).delete();
     }
+
 }
+
