@@ -5,8 +5,8 @@ import android.os.Bundle;
 import java.util.ArrayList;
 
 public class DummyControllerCallback implements ControllerCallback {
-    private ArrayList<CallbackId> receivedCallbackIds = new ArrayList<>();
-    private ArrayList<Bundle> receivedBundles = new ArrayList<>();
+    ArrayList<CallbackId> receivedCallbackIds = new ArrayList<>();
+    ArrayList<Bundle> receivedBundles = new ArrayList<>();
 
     public DummyControllerCallback() { }
 

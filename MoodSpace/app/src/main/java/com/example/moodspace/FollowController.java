@@ -41,6 +41,9 @@ import java.util.List;
  *
  * Note: The pairs "Following" & "Followers" and "FollowRequestsTo" & "FollowRequestsFrom" exist
  *   to reduce query time at the cost of having to maintaining both lists at the same time.
+ *
+ * Note: Currently, removing a follower / follow req will return successful
+ *   EVEN IF there was no follower / follow req avaliable to remove.
  */
 public class FollowController implements ControllerCallback {
     private static final String TAG = FollowController.class.getSimpleName();
@@ -92,6 +95,11 @@ public class FollowController implements ControllerCallback {
                                final CompletedTaskCounter counter,
                                final FollowCallbackId failCallbackId,
                                final FollowCallbackId completeCallbackId) {
+
+        // if the user and the target are the same, simply returns unsuccessful
+        if (user.equals(target)) {
+            callbackComplete(counter, user, target, false, completeCallbackId);
+        }
 
         // access users
         String user1, user2;
