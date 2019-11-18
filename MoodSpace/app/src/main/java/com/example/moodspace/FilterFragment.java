@@ -15,7 +15,7 @@ import androidx.fragment.app.DialogFragment;
 public class FilterFragment extends DialogFragment {
     private static final String TAG = FilterFragment.class.getSimpleName();
 
-    FilterController fc;
+    private FilterController fc;
 
     private OnFragmentInteractionListener listener;
     private String username;

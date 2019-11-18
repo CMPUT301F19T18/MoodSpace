@@ -12,7 +12,7 @@ public class Mood implements Serializable {
 
     private String id;
     private Emotion emotion;
-    // both date and time are stored under the date variable (formatted in DateUtils)
+    // both date and time are stored under the date variable (formatted in Utils)
     private Date date;
     private String reasonText;
     private boolean hasPhoto;

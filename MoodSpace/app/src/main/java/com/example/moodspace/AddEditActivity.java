@@ -49,7 +49,7 @@ public class AddEditActivity extends AppCompatActivity
     private static final long MAX_DOWNLOAD_LIMIT = 30 * 1024 * 1024;
     private static final String TAG = AddEditActivity.class.getSimpleName();
 
-    AddEditController aec;
+    private AddEditController aec;
 
     // can be null if reusing a downloaded photo while editing
     private String inputPhotoPath = null;
@@ -261,8 +261,8 @@ public class AddEditActivity extends AppCompatActivity
             // displays date and time
             TextView dateInfo = findViewById(R.id.date);
             TextView timeInfo = findViewById(R.id.time);
-            String parsedDate = DateUtils.formatDate(currentMood.getDate());
-            String parsedTime = DateUtils.formatTime(currentMood.getDate());
+            String parsedDate = Utils.formatDate(currentMood.getDate());
+            String parsedTime = Utils.formatTime(currentMood.getDate());
             dateInfo.setText(parsedDate);
             timeInfo.setText(parsedTime);
         }

@@ -5,7 +5,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.ContextMenu;
-import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -21,6 +20,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -44,11 +44,13 @@ import java.util.List;
 
 import io.paperdb.Paper;
 
-public class ProfileListActivity extends AppCompatActivity implements FilterFragment.OnFragmentInteractionListener {
+public class ProfileListActivity extends AppCompatActivity
+        implements FilterFragment.OnFragmentInteractionListener,
+        ControllerCallback {
     private static final String TAG = ProfileListActivity.class.getSimpleName();
     private final FirebaseFirestore db = FirebaseFirestore.getInstance();
 
-    ViewController vc = new ViewController();
+    private ViewController vc;
     ArrayAdapter<Mood> moodAdapter;
     ArrayList<Mood> moodDataList;
     final boolean[] checkedItems = new boolean[Emotion.values().length];
@@ -64,7 +66,9 @@ public class ProfileListActivity extends AppCompatActivity implements FilterFrag
                     WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
         }
         setContentView(R.layout.activity_profile_list);
-        username = getIntent().getExtras().getString(UserController.USERNAME_KEY);
+        vc = new ViewController(this);
+
+        username = getIntent().getExtras().getString(LoginActivity.USERNAME_KEY);
 
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -97,7 +101,7 @@ public class ProfileListActivity extends AppCompatActivity implements FilterFrag
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                drawerLayout.openDrawer(Gravity.LEFT);
+                drawerLayout.openDrawer(GravityCompat.START);
             }
         });
 
@@ -124,8 +128,8 @@ public class ProfileListActivity extends AppCompatActivity implements FilterFrag
                                 "Map", Toast.LENGTH_SHORT).show();
                         return true;
                     case R.id.nav_item_log_out:
-                        Paper.book().delete(SavedUser.userNameKey);
-                        Paper.book().delete(SavedUser.passWordKey);
+                        Paper.book().delete(UserController.PAPER_USERNAME_KEY);
+                        Paper.book().delete(UserController.PAPER_PASSWORD_KEY);
                         Intent loginScreen = new Intent(ProfileListActivity.this, LoginActivity.class);
                         loginScreen.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                         finish();
@@ -297,7 +301,7 @@ public class ProfileListActivity extends AppCompatActivity implements FilterFrag
 
     public void onOkPressed(boolean[] checkedItems){
         final Emotion[] emotionArray = Emotion.values();
-        List<Emotion> filterList = new ArrayList<Emotion>();
+        List<Emotion> filterList = new ArrayList<>();
         for (int i = 0; i < checkedItems.length; i++){
             if (checkedItems[i] == false) {
                 filterList.add(emotionArray[i]);
@@ -306,5 +310,13 @@ public class ProfileListActivity extends AppCompatActivity implements FilterFrag
         update(username, filterList);
     }
 
+    @Override
+    public void callback(CallbackId callbackId) {
+        this.callback(callbackId, null);
+    }
 
+    @Override
+    public void callback(CallbackId callbackId, Bundle bundle) {
+        // TODO stub
+    }
 }

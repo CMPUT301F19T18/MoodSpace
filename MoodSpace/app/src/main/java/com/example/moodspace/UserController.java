@@ -1,10 +1,8 @@
 package com.example.moodspace;
 
-import android.app.Activity;
-import android.content.Context;
-import android.content.Intent;
 import android.util.Log;
-import android.widget.Toast;
+
+import androidx.annotation.NonNull;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -18,40 +16,45 @@ import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.HashMap;
 
-import androidx.annotation.NonNull;
-
 import io.paperdb.Paper;
+
+import static com.example.moodspace.Utils.newUserBundle;
 
 /**
  * Communicates user logins & signups between the UI and the firestore database
  */
 public class UserController {
     private static final String TAG = UserController.class.getSimpleName();
-    public static final String USERNAME_KEY = "moodspace.UserController.username";
+    public static final String PAPER_USERNAME_KEY = "moodspace.Paper.username";
+    public static final String PAPER_PASSWORD_KEY = "moodspace.Paper.password";
 
     private final FirebaseFirestore db = FirebaseFirestore.getInstance();
 
-    private Context context;
+    private ControllerCallback cc;
 
+    public UserController(ControllerCallback cc) {
+        this.cc = cc;
+    }
 
-    public UserController(Context context) {
-        this.context = context;
+    public interface CallbackUser {
+        void callbackUserData(DocumentSnapshot fetchedUserData, final String callbackId);
     }
 
     /**
      * Used to ensure all users have a unique username
      */
-    public void checkUserExists(User user) {
-        final User enteredUser = user;
+    public void checkUserExists(final User user) {
         Query query = db.collection("users").whereEqualTo("username", user.getUsername());
         query.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
                 if (task.getResult() != null && task.getResult().size() > 0) {
-                    Toast.makeText(context, "This username is taken", Toast.LENGTH_SHORT).show();
+                    Log.d(TAG, "Username " + user.getUsername() + " is taken");
+                    cc.callback(UserCallbackId.USERNAME_TAKEN);
                 } else {
-                    //add a new user to Firestore database
-                    signUpUser(enteredUser);
+                    Log.d(TAG, "Username " + user.getUsername() + " is not taken");
+                    cc.callback(UserCallbackId.USERNAME_NOT_TAKEN,
+                            newUserBundle(SignUpActivity.SIGN_UP_USER_KEY, user));
                 }
             }
         });
@@ -61,7 +64,7 @@ public class UserController {
      * Signs up a user by creating a user entry in firebase
      * - Also creates default filter values for each user
      */
-    public void signUpUser(User user) {
+    public void signUpUser(final User user) {
         final String username = user.getUsername();
         String password = user.getPassword();
 
@@ -77,56 +80,63 @@ public class UserController {
                     @Override
                     public void onSuccess(Void aVoid) {
                         Log.d(TAG, "User was successfully added");
-                        Intent i = new Intent(context, ProfileListActivity.class);
-                        i.putExtra(USERNAME_KEY, username);
-                        context.startActivity(i);
-                        ((Activity) context).finish();
+                        cc.callback(UserCallbackId.LOGIN,
+                                newUserBundle(LoginActivity.LOGIN_USER_KEY, user));
                     }
                 }).
                 addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
-                        Log.d(TAG, "Error has occurred " + e.getMessage());
+                        Log.d(TAG, "Error has occurred when adding user " + user.toString());
+                        Log.d(TAG, Log.getStackTraceString(e));
+                        cc.callback(UserCallbackId.USER_ADDITION_FAIL);
                     }
                 });
 
         // create the default filter with all emotions
-        Emotion[] emotionArray = Emotion.values();
         HashMap<String, Object> data = new HashMap<>();
-        for (int i = 0; i < emotionArray.length; i++) {
-            data.put("emotion", emotionArray[i]);
+        for (final Emotion emotion : Emotion.values()) {
+            data.put("emotion", emotion);
             db.collection("users")
                     .document(username)
                     .collection("Filter")
-                    .document(emotionArray[i].getEmojiName())
+                    .document(emotion.getEmojiName())
                     .set(data)
                     .addOnSuccessListener(new OnSuccessListener<Void>() {
                         @Override
                         public void onSuccess(Void aVoid) {
-                            Log.d(TAG, "Data addition successful");
+                            Log.d(TAG, "Filter " + emotion.getEmojiName() + " was successfully added");
                         }
                     })
                     .addOnFailureListener(new OnFailureListener() {
                         @Override
                         public void onFailure(@NonNull Exception e) {
-                            Log.d(TAG, "Data addition failed" + e.toString());
+                            Log.d(TAG, "Error has occurred when adding filter " + emotion.getEmojiName());
+                            Log.d(TAG, Log.getStackTraceString(e));
+                            cc.callback(UserCallbackId.FILTER_INITIALIZE_FAIL);
                         }
                     });
         }
     }
 
-    /**
-     * Logs in a user by checking with firebase to see if the username & password matches
-     *
-     * Possible errors that could occur:
-     * - username not found
-     * - password is wrong
-     */
-    public void loginUser(boolean isChecked, User user) {
-        final String username = user.getUsername();
-        final String password = user.getPassword();
-        final boolean checked = isChecked;
 
+    /**
+     * Fetches the user data from firestore given the username
+     *
+     * Requires UserController.CallbackUser interface to use
+     */
+    public void getUserData(String username, String callbackId) {
+        getUserData(username, (UserController.CallbackUser) cc, callbackId);
+    }
+
+    /**
+     * Fetches the user data from firestore given the username
+     */
+    public void getUserData(String username, UserController.CallbackUser ccu) {
+        getUserData(username, ccu, null);
+    }
+
+    private void getUserData(final String username, final UserController.CallbackUser ccu, final String callbackId) {
         CollectionReference collectionReference = db.collection("users");
         collectionReference
                 .document(username)
@@ -134,32 +144,50 @@ public class UserController {
                 .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                        if (task.isSuccessful()) {
-                            if (task.getResult().exists()) {
-                                if (task.getResult().get("password").equals(password)) {
-                                    if (checked) {
-                                        Paper.book().write(SavedUser.userNameKey,username);
-                                        Paper.book().write(SavedUser.passWordKey,password);
-                                    }
-                                    Intent i = new Intent(context, ProfileListActivity.class);
-                                    i.putExtra(USERNAME_KEY, username);
-                                    context.startActivity(i);
-                                    ((Activity) context).finish();
-                                } else {
-                                    Toast.makeText(context, "Incorrect password", Toast.LENGTH_SHORT).show();
-                                }
-                            } else {
-                                Toast.makeText(context, "This username does not exist", Toast.LENGTH_SHORT).show();
-                            }
-
-                        } else {
-                            String ex = "";
-                            if (task.getException() != null) {
-                                ex = task.getException().getMessage();
-                            }
-                            Log.d(TAG, "Error reading user data " + ex);
+                        if (!task.isSuccessful()) {
+                            Log.d(TAG, "Error reading user data for user " + username);
+                            Log.d(TAG, Log.getStackTraceString(task.getException()));
+                            cc.callback(UserCallbackId.USER_READ_DATA_FAIL);
+                            return;
                         }
+                        if (task.getResult() == null) {
+                            cc.callback(UserCallbackId.USER_TASK_NULL);
+                            return;
+                        }
+                        if (!task.getResult().exists()) {
+                            cc.callback(UserCallbackId.USER_NONEXISTENT);
+                            return;
+                        }
+
+                        ccu.callbackUserData(task.getResult(), callbackId);
+
                     }
                 });
+    }
+
+    /**
+     * Logs in a user if the inputted password matches the fetched password
+     *
+     * @param inputtedUser inputted data from UI
+     * @param userData fetched data from firestore
+     */
+    public void checkPassword(User inputtedUser, DocumentSnapshot userData) {
+        String fetchedPassword = (String) userData.get("password");
+        if (fetchedPassword == null) {
+            cc.callback(UserCallbackId.PASSWORD_FETCH_NULL);
+            return;
+        }
+
+        if (fetchedPassword.equals(inputtedUser.getPassword())) {
+            cc.callback(UserCallbackId.LOGIN,
+                    newUserBundle(LoginActivity.LOGIN_USER_KEY, inputtedUser));
+        } else {
+            cc.callback(UserCallbackId.INCORRECT_PASSWORD);
+        }
+    }
+
+    public void rememberUser(User user) {
+        Paper.book().write(PAPER_USERNAME_KEY, user.getUsername());
+        Paper.book().write(PAPER_PASSWORD_KEY, user.getPassword());
     }
 }
