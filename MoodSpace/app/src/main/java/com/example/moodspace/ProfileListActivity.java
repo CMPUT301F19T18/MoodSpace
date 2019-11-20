@@ -275,6 +275,18 @@ public class ProfileListActivity extends AppCompatActivity
                             Date ts = doc.getTimestamp("date").toDate();
                             String reason = doc.getString("reasonText");
                             Boolean hasPhoto = doc.getBoolean("hasPhoto");
+                            double lat;
+                            double lon;
+
+                            try{
+                            lat = doc.getDouble("lat");
+                            lon = doc.getDouble("lon");}
+                            catch (Exception ex) {
+                                lat = -1000;
+                                lon = -1000;
+                            }
+
+
                             SocialSituation socialSit;
                             // TODO get rid once database is wiped
                             try { // backwards compatibility
@@ -289,7 +301,7 @@ public class ProfileListActivity extends AppCompatActivity
                             }
 
                             String id = doc.getId();
-                            Mood newMood = new Mood(id, ts, emotion, reason, hasPhoto, socialSit);
+                            Mood newMood = new Mood(id, ts, emotion, reason, hasPhoto, socialSit, lat, lon);
                             if (filterList.contains(emotion)){
                                 moodDataList.add(newMood);
                             }
