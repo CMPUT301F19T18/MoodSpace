@@ -58,6 +58,7 @@ public class ProfileListActivity extends AppCompatActivity
     private String moodId;
     private String username;
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -124,8 +125,8 @@ public class ProfileListActivity extends AppCompatActivity
                                 "Following", Toast.LENGTH_SHORT).show();
                         return true;
                     case R.id.nav_item_map:
-                        Toast.makeText(ProfileListActivity.this,
-                                "Map", Toast.LENGTH_SHORT).show();
+                        Intent intent = new Intent(ProfileListActivity.this, MapsActivity.class);
+                        startActivity(intent);
                         return true;
                     case R.id.nav_item_log_out:
                         Paper.book().delete(UserController.PAPER_USERNAME_KEY);
