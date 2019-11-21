@@ -1,6 +1,7 @@
 package com.example.moodspace;
 
 import android.content.Context;
+import android.graphics.drawable.Drawable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -9,6 +10,7 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
 
 import java.util.ArrayList;
 
@@ -48,8 +50,10 @@ public class MoodViewList extends ArrayAdapter<Mood> {
         moodInfo.setText(emotion.getEmojiString());
         date.setText(DateUtils.formatDate(mood.getDate()));
         time.setText(DateUtils.formatTime(mood.getDate()));
+        String background = emotion.getEmojiName().toLowerCase() + "_color";
+        int id = context.getResources().getIdentifier(background,"drawable", context.getPackageName());
 
-        view.setBackgroundColor(emotion.getColorCode());
+        view.setBackgroundResource(id);
 
         return view;
     }
