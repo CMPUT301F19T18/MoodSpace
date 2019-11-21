@@ -4,6 +4,7 @@ import androidx.test.espresso.Espresso;
 import androidx.test.espresso.contrib.DrawerActions;
 import androidx.test.espresso.contrib.NavigationViewActions;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.filters.LargeTest;
 import androidx.test.rule.ActivityTestRule;
 
 import org.junit.Before;
@@ -24,6 +25,7 @@ import static androidx.test.espresso.matcher.ViewMatchers.withId;
  * Enters the username and password again and clicks the remember me option. After logging into the profile page, we close the app again and restart.
  * This time it should login immediately without entering any account details, finally log out.
  */
+@LargeTest
 public class LoginActivityTest {
     private String username;
     private String password;
@@ -44,9 +46,9 @@ public class LoginActivityTest {
 
         onView(withId(R.id.login_btn)).perform(click());
         Thread.sleep(1500);
-
-        Espresso.pressBackUnconditionally();
-        activityRule.launchActivity(null);
+    }
+    @Test
+    public void testRememberMe() throws InterruptedException {
 
         onView(withId(R.id.username)).perform(typeText(username), closeSoftKeyboard());
         onView(withId(R.id.password)).perform(typeText(password), closeSoftKeyboard());

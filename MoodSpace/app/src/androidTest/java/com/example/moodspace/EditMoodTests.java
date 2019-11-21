@@ -28,7 +28,7 @@ public class EditMoodTests {
     private String username;
     private String password;
     private String angry;
-    private String happy;
+    private String enjoyment;
     private String sad;
     private final FirebaseFirestore db = FirebaseFirestore.getInstance();
 
@@ -41,7 +41,7 @@ public class EditMoodTests {
         username = "EditTest";
         password = "EditTest";
         angry = new String(Character.toChars(0x1F621));
-        happy = new String(Character.toChars(0x1F604));
+        enjoyment = new String(Character.toChars(0x1F604));
         sad = new String(Character.toChars(0x1F62D));
     }
 
@@ -53,7 +53,7 @@ public class EditMoodTests {
         onView(withId(R.id.login_btn)).perform(click());
         Thread.sleep(3000);
 
-        // Add Happy Mood make social situation as "Alone" and set reason to "Quiet"
+        // Add Enjoyment Mood make social situation as "Alone" and set reason to "Quiet"
         onView(withId(R.id.addMoodButton)).perform(click());
         onView(withId(R.id.emotionSelector)).perform(click());
         onData(anything()).atPosition(1).perform(click());
@@ -86,7 +86,7 @@ public class EditMoodTests {
         onView(withId(R.id.situationSelector)).check(matches(withSpinnerText(containsString("With another person"))));
         onView(withId(R.id.reason_text)).check(matches(withText(containsString("Gaming"))));
         onView(withId(R.id.emotionSelector)).check(matches(not(withSpinnerText(containsString(sad)))));
-        onView(withId(R.id.emotionSelector)).check(matches(not(withSpinnerText(containsString(happy)))));
+        onView(withId(R.id.emotionSelector)).check(matches(not(withSpinnerText(containsString(enjoyment)))));
 
         onView(withId(R.id.emotionSelector)).perform(click());
         onData(anything()).atPosition(2).perform(click());
@@ -102,7 +102,7 @@ public class EditMoodTests {
         onView(withId(R.id.situationSelector)).check(matches(withSpinnerText(containsString("With two to several people"))));
         onView(withId(R.id.reason_text)).check(matches(withText(containsString("Movie night"))));
         onView(withId(R.id.emotionSelector)).check(matches(not(withSpinnerText(containsString(angry)))));
-        onView(withId(R.id.emotionSelector)).check(matches(not(withSpinnerText(containsString(happy)))));
+        onView(withId(R.id.emotionSelector)).check(matches(not(withSpinnerText(containsString(enjoyment)))));
         onView(withId(R.id.backBtn)).perform(click());
 
     }
