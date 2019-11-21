@@ -12,6 +12,7 @@ import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationManager;
@@ -30,6 +31,8 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.OnMapReadyCallback;
 
+import com.google.android.gms.maps.model.BitmapDescriptor;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.material.navigation.NavigationView;
@@ -39,6 +42,8 @@ import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
+
+import java.util.Date;
 
 import io.paperdb.Paper;
 
@@ -100,9 +105,26 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                                 lon = -1000;
                             }
 
+                            Date ts = doc.getTimestamp("date").toDate();
+                            Emotion emotion = Emotion.valueOf(doc.getString("emotion"));
+                            BitmapDescriptor color = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE);
+                            switch (emotion.getEmojiName()){
+                                case "Happy":
+                                    color = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_YELLOW);
+                                    break;
+                                case "Sad":
+                                    color = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_VIOLET);
+                                    break;
+                                case "Angry":
+                                    color = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED);
+                                    break;
+                            }
                             if(lat != -1000){
                                 LatLng sydney = new LatLng(lat,lon);
-                                mMap.addMarker(new MarkerOptions().position(sydney));
+                                mMap.addMarker(new MarkerOptions().position(sydney)
+                                        .title(emotion.getEmojiString())
+                                        .snippet(ts.toString())
+                                        .icon(color));
                                 mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
                             }
                         }
