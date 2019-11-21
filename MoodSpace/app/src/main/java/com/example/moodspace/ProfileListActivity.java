@@ -126,6 +126,7 @@ public class ProfileListActivity extends AppCompatActivity
                         return true;
                     case R.id.nav_item_map:
                         Intent intent = new Intent(ProfileListActivity.this, MapsActivity.class);
+                        intent.putExtra("username", username);
                         startActivity(intent);
                         return true;
                     case R.id.nav_item_log_out:
