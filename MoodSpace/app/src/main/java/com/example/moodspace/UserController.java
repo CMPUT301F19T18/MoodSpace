@@ -92,31 +92,6 @@ public class UserController {
                         cc.callback(UserCallbackId.USER_ADDITION_FAIL);
                     }
                 });
-
-        // create the default filter with all emotions
-        HashMap<String, Object> data = new HashMap<>();
-        for (final Emotion emotion : Emotion.values()) {
-            data.put("emotion", emotion);
-            db.collection("users")
-                    .document(username)
-                    .collection("Filter")
-                    .document(emotion.getEmojiName())
-                    .set(data)
-                    .addOnSuccessListener(new OnSuccessListener<Void>() {
-                        @Override
-                        public void onSuccess(Void aVoid) {
-                            Log.d(TAG, "Filter " + emotion.getEmojiName() + " was successfully added");
-                        }
-                    })
-                    .addOnFailureListener(new OnFailureListener() {
-                        @Override
-                        public void onFailure(@NonNull Exception e) {
-                            Log.d(TAG, "Error has occurred when adding filter " + emotion.getEmojiName());
-                            Log.d(TAG, Log.getStackTraceString(e));
-                            cc.callback(UserCallbackId.FILTER_INITIALIZE_FAIL);
-                        }
-                    });
-        }
     }
 
 
