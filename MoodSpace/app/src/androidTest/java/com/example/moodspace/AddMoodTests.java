@@ -1,10 +1,7 @@
 package com.example.moodspace;
 
-import android.widget.TextView;
-
 import androidx.test.rule.ActivityTestRule;
 
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import org.junit.Before;
@@ -16,26 +13,20 @@ import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.action.ViewActions.closeSoftKeyboard;
 import static androidx.test.espresso.action.ViewActions.typeText;
-import static androidx.test.espresso.assertion.ViewAssertions.matches;
-import static androidx.test.espresso.matcher.RootMatchers.withDecorView;
-import static androidx.test.espresso.matcher.ViewMatchers.isCompletelyDisplayed;
-import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withSpinnerText;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
-import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.core.AllOf.allOf;
 import static org.hamcrest.core.IsAnything.anything;
 import static org.hamcrest.core.IsNot.not;
-import static org.hamcrest.core.StringContains.containsString;
 
 public class AddMoodTests {
 
     private String username;
     private String password;
     private String angry;
-    private String happy;
+    private String enjoyment;
     private String sad;
     private final FirebaseFirestore db = FirebaseFirestore.getInstance();
 
@@ -51,7 +42,7 @@ public class AddMoodTests {
         username = "AddTest";
         password = "AddTest";
         angry = new String(Character.toChars(0x1F621));
-        happy = new String(Character.toChars(0x1F604));
+        enjoyment = new String(Character.toChars(0x1F604));
         sad = new String(Character.toChars(0x1F62D));
     }
 
@@ -62,7 +53,7 @@ public class AddMoodTests {
 
         onView(withId(R.id.login_btn)).perform(click());
         Thread.sleep(1500);
-        // Add Happy Mood with Alone social situation and set reason to alone time.
+        // Add Enjoyment Mood with Alone social situation and set reason to alone time.
         onView(withId(R.id.addMoodButton)).perform(click());
         onView(withId(R.id.emotionSelector)).perform(click());
         onData(anything()).atPosition(0).perform(click());
@@ -110,7 +101,7 @@ public class AddMoodTests {
 //                .inAdapterView(allOf(withId(R.id.moodList), isCompletelyDisplayed()))
 //                .atPosition(0).perform(click());
 //        onView(withId(R.id.emotionSelector)).check(matches(not(withSpinnerText(containsString(angry)))));
-//        onView(withId(R.id.emotionSelector)).check(matches(not(withSpinnerText(containsString(happy)))));
+//        onView(withId(R.id.emotionSelector)).check(matches(not(withSpinnerText(containsString(enjoyment)))));
 //        onView(withId(R.id.situationSelector)).check(matches(withSpinnerText(containsString("With two to several people"))));
 //        onView(withId(R.id.reason_text)).check(matches(withText(containsString("Movie night"))));
 

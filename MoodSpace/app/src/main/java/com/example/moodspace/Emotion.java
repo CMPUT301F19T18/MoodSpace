@@ -3,9 +3,15 @@ package com.example.moodspace;
 import android.graphics.Color;
 
 public enum Emotion {
-    HAPPY(1, 0x1F604, "#ffe9ab", "Happy"),
-    ANGRY(2, 0x1F621, "#FF8585", "Angry"),
-    SAD(3, 0x1F62D, "#6F94E3", "Sad");
+    ENJOYMENT(1, 0x1F604, "#fcb52b", "Enjoyment"),
+    ANGRY(2, 0x1F621, "#a03d3e", "Angry"),
+    SAD(3, 0x1F62D, "#3e6baa", "Sadness"),
+    DISGUST(4, 0x1F922,"#4f9429", "Disgust"),
+    FEAR(5, 0x1F631, "#5a3b85", "Fear"),
+    CONTEMPT(6, 0x1f612, "#e9663d", "Contempt"),
+    SURPRISE(7, 0x1F62E, "#54eeee", "Surprise");
+
+
 
     private final int id;
     private final int emojiCode;
