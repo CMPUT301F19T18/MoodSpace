@@ -21,7 +21,7 @@ import static org.hamcrest.core.AllOf.allOf;
 import static org.hamcrest.core.IsAnything.anything;
 import static org.hamcrest.core.IsNot.not;
 
-public class AddMoodTests {
+public class AddMoodTest {
 
     private String username;
     private String password;

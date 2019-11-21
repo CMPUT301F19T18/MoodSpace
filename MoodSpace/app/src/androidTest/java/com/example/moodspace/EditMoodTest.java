@@ -24,7 +24,7 @@ import static org.hamcrest.core.IsAnything.anything;
 import static org.hamcrest.core.IsNot.not;
 import static org.hamcrest.core.StringContains.containsString;
 
-public class EditMoodTests {
+public class EditMoodTest {
     private String username;
     private String password;
     private String angry;

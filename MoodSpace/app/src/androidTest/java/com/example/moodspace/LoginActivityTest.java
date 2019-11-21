@@ -30,6 +30,7 @@ public class LoginActivityTest {
     private String username;
     private String password;
 
+
     @Rule
     public ActivityTestRule<LoginActivity> activityRule = new ActivityTestRule<>(LoginActivity.class);
 
@@ -39,6 +40,9 @@ public class LoginActivityTest {
         password = "logintest";
     }
 
+    /**
+     * tests that you can sign up
+     */
     @Test
     public void testlogin() throws InterruptedException {
         onView(withId(R.id.username)).perform(typeText(username), closeSoftKeyboard());
