@@ -1,6 +1,7 @@
 package com.example.moodspace;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
@@ -32,6 +33,12 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.material.navigation.NavigationView;
+import com.google.firebase.firestore.EventListener;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 
 import io.paperdb.Paper;
 
@@ -43,6 +50,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     private FusedLocationProviderClient fusedLocationProviderClient;
     private String username;
     private int MY_PERMISSIONS_REQUEST_FINE_LOCATION = 123;
+    private final FirebaseFirestore db = FirebaseFirestore.getInstance();
+    private int mode = 0; // 0 means own moods and 1 means following moods
 
 
 
@@ -63,7 +72,42 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         setupNavBar(toolbar);
         setupMapView(savedInstanceState);
 
+        //TODO make tabs and using mode and onclicklisteners refresh map with new markers
+        //TODO marker color should be mood specific and should have a popup of username and emoji
+        //TODO maybe on click viewactivity will open with that mood
+        displayOwnMoods();
 
+
+    }
+
+    private void displayOwnMoods() {
+        db.collection("users")
+                .document(username)
+                .collection("Moods")
+                .orderBy("date", Query.Direction.DESCENDING)
+                .addSnapshotListener(new EventListener<QuerySnapshot>() {
+                    @Override
+                    public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException e) {
+                        for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
+                            double lat;
+                            double lon;
+
+                            try{
+                                lat = doc.getDouble("lat");
+                                lon = doc.getDouble("lon");}
+                            catch (Exception ex) {
+                                lat = -1000;
+                                lon = -1000;
+                            }
+
+                            if(lat != -1000){
+                                LatLng sydney = new LatLng(lat,lon);
+                                mMap.addMarker(new MarkerOptions().position(sydney));
+                                mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
+                            }
+                        }
+                    }
+                });
     }
 
     private Location getDeviceLocation(){
@@ -241,13 +285,9 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         mMapView.onLowMemory();
     }
 
-        @Override
-        public void onMapReady(GoogleMap googleMap) {
-            mMap = googleMap;
+    @Override
+    public void onMapReady(GoogleMap googleMap) {
+        mMap = googleMap;
 
-            // Add a marker in Sydney and move the camera
-            LatLng sydney = new LatLng(-34, 151);
-            mMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
-            mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
-
-        }}
+    }
+}
