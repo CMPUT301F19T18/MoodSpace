@@ -107,16 +107,28 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
                             Date ts = doc.getTimestamp("date").toDate();
                             Emotion emotion = Emotion.valueOf(doc.getString("emotion"));
-                            BitmapDescriptor color = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE);
+                            BitmapDescriptor color;
                             switch (emotion.getEmojiName()){
-                                case "Happy":
+                                case "Enjoyment":
                                     color = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_YELLOW);
                                     break;
-                                case "Sad":
+                                case "Sadness":
+                                    color = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE);
+                                    break;
+                                case "Anger":
+                                    color = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED);
+                                    break;
+                                case "Fear" :
                                     color = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_VIOLET);
                                     break;
-                                case "Angry":
-                                    color = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED);
+                                case "Disgust"  :
+                                    color = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN);
+                                    break;
+                                case "Contempt":
+                                    color = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE);
+                                    break;
+                                default:
+                                    color = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_CYAN);
                                     break;
                             }
                             if(lat != -1000){
