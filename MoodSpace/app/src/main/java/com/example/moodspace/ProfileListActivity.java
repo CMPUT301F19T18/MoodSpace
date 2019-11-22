@@ -58,6 +58,7 @@ public class ProfileListActivity extends AppCompatActivity
     private String moodId;
     private String username;
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -124,8 +125,9 @@ public class ProfileListActivity extends AppCompatActivity
                                 "Following", Toast.LENGTH_SHORT).show();
                         return true;
                     case R.id.nav_item_map:
-                        Toast.makeText(ProfileListActivity.this,
-                                "Map", Toast.LENGTH_SHORT).show();
+                        Intent intent = new Intent(ProfileListActivity.this, MapsActivity.class);
+                        intent.putExtra("username", username);
+                        startActivity(intent);
                         return true;
                     case R.id.nav_item_log_out:
                         Paper.book().delete(UserController.PAPER_USERNAME_KEY);
@@ -275,6 +277,18 @@ public class ProfileListActivity extends AppCompatActivity
                             Date ts = doc.getTimestamp("date").toDate();
                             String reason = doc.getString("reasonText");
                             Boolean hasPhoto = doc.getBoolean("hasPhoto");
+                            double lat;
+                            double lon;
+
+                            try{
+                            lat = doc.getDouble("lat");
+                            lon = doc.getDouble("lon");}
+                            catch (Exception ex) {
+                                lat = -1000;
+                                lon = -1000;
+                            }
+
+
                             SocialSituation socialSit;
                             // TODO get rid once database is wiped
                             try { // backwards compatibility
@@ -289,8 +303,9 @@ public class ProfileListActivity extends AppCompatActivity
                             }
 
                             String id = doc.getId();
-                            Mood newMood = new Mood(id, ts, emotion, reason, hasPhoto, socialSit);
-                            if (!(filterList.contains(emotion))){
+
+                            Mood newMood = new Mood(id, ts, emotion, reason, hasPhoto, socialSit, lat, lon);
+                            if (filterList.contains(emotion)){
                                 moodDataList.add(newMood);
                             }
                         }
