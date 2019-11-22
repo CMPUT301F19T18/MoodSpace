@@ -1,23 +1,26 @@
 package com.example.moodspace;
 
 import android.os.Bundle;
-import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
 
+import org.junit.After;
 import org.junit.AfterClass;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
 import static junit.framework.TestCase.assertEquals;
 import static junit.framework.TestCase.assertNotNull;
 import static junit.framework.TestCase.assertTrue;
+import static org.junit.Assert.assertFalse;
 
 /**
  * Users:
@@ -32,8 +35,10 @@ import static junit.framework.TestCase.assertTrue;
 @RunWith(AndroidJUnit4.class)
 @LargeTest
 public class FollowControllerTest {
-    DummyFollowCallback cc = new DummyFollowCallback();
-    FollowController fc = new FollowController(cc);
+    DummyFollowCallback cc;
+    FollowController fc;
+    private static final int SLEEP_TIME = 6000;
+    private static final int LONG_SLEEP_TIME = 10000;
     private static final String user1 = "TEST_FollowControllerTest1";
     private static final String user2 = "TEST_FollowControllerTest2";
     private static final String user3 = "TEST_FollowControllerTest3";
@@ -44,6 +49,15 @@ public class FollowControllerTest {
     public static void initializeUsers() {
         // TODO stub
         // implement once UserController and AddEditController is better
+
+        // NOTE: because this isn't done yet, if tests fail,
+        //   arrays might have to be cleared manually in firestore.
+    }
+
+    @Before
+    public void initializeDummy() {
+        cc = new DummyFollowCallback();
+        fc = new FollowController(cc);
     }
 
     /**
@@ -55,10 +69,9 @@ public class FollowControllerTest {
             fc.getFollowData(user);
         }
 
-        Thread.sleep(3000);
+        Thread.sleep(LONG_SLEEP_TIME);
 
         for (String user: users) {
-            fc.getFollowData(user);
             assertTrue(cc.followDataMap.containsKey(user));
 
             FollowDataStorage data = cc.followDataMap.get(user);
@@ -82,10 +95,10 @@ public class FollowControllerTest {
 
         // 1 => 2
         fc.addFollower(user1, user2);
-        Thread.sleep(3000);
+        Thread.sleep(SLEEP_TIME);
         fc.getFollowData(user1);
         fc.getFollowData(user2);
-        Thread.sleep(3000);
+        Thread.sleep(SLEEP_TIME);
 
         // callback should be complete
         assertEquals(cc.receivedCallbackIds.size(), 1);
@@ -126,10 +139,10 @@ public class FollowControllerTest {
         cc.receivedBundles.clear();
 
         fc.removeFollower(user1, user2);
-        Thread.sleep(3000);
+        Thread.sleep(SLEEP_TIME);
         fc.getFollowData(user1);
         fc.getFollowData(user2);
-        Thread.sleep(3000);
+        Thread.sleep(SLEEP_TIME);
 
         // callback should be complete
         assertEquals(cc.receivedCallbackIds.size(), 1);
@@ -173,10 +186,10 @@ public class FollowControllerTest {
 
         // 3 -> 4
         fc.sendFollowRequest(user3, user4);
-        Thread.sleep(3000);
+        Thread.sleep(SLEEP_TIME);
         fc.getFollowData(user3);
         fc.getFollowData(user4);
-        Thread.sleep(3000);
+        Thread.sleep(SLEEP_TIME);
 
         // callback should be complete
         assertEquals(cc.receivedCallbackIds.size(), 1);
@@ -217,10 +230,10 @@ public class FollowControllerTest {
         cc.receivedBundles.clear();
 
         fc.removeFollowRequest(user3, user4);
-        Thread.sleep(3000);
+        Thread.sleep(SLEEP_TIME);
         fc.getFollowData(user3);
         fc.getFollowData(user4);
-        Thread.sleep(3000);
+        Thread.sleep(SLEEP_TIME);
 
         // callback should be complete
         assertEquals(cc.receivedCallbackIds.size(), 1);
@@ -254,19 +267,16 @@ public class FollowControllerTest {
 
     /**
      * attempts to 3 =/> 4 even though all arrays are null
-     * currently is a SUCCESSFUL result
-     * TODO finish
+     * currently is a SUCCESSFUL result, may change later
      */
     @Test
     public void testRemoveNonexistentFollower() throws InterruptedException {
-        int i;
-        Bundle bundle;
         FollowDataStorage data;
 
         // makes sure 3 is not following 4 and 4 is not a follower of 3
         fc.getFollowData(user3);
         fc.getFollowData(user4);
-        Thread.sleep(3000);
+        Thread.sleep(SLEEP_TIME);
 
         assertTrue(cc.followDataMap.containsKey(user3));
         data = cc.followDataMap.get(user3);
@@ -279,13 +289,44 @@ public class FollowControllerTest {
         assertEquals(data.followers.size(), 0);
 
         fc.removeFollower(user3, user4);
-        Thread.sleep(3000);
+        Thread.sleep(SLEEP_TIME);
 
         // callback should be complete
         assertEquals(cc.receivedCallbackIds.size(), 1);
-        Log.d("TEST", cc.receivedCallbackIds.toString());
-
     }
+
+    /**
+     * 3 => 3
+     * (shouldn't work)
+     */
+    @Test
+    public void testAddFollowerToSelf() throws InterruptedException {
+        fc.addFollower(user3, user3);
+        Thread.sleep(SLEEP_TIME);
+        fc.getFollowData(user3);
+        Thread.sleep(SLEEP_TIME);
+
+        // callback should be complete
+        assertEquals(cc.receivedCallbackIds.size(), 1);
+        assertTrue(cc.receivedCallbackIds.contains(FollowCallbackId.ADD_FOLLOWER_COMPLETE));
+
+        // callback should NOT be successful
+        assertEquals(cc.receivedBundles.size(), 1);
+        int i = cc.receivedCallbackIds.indexOf(FollowCallbackId.ADD_FOLLOWER_COMPLETE);
+        Bundle bundle = cc.receivedBundles.get(i);
+        assertNotNull(bundle);
+        assertTrue(bundle.containsKey(FollowController.IS_SUCCESSFUL_KEY));
+        assertFalse(bundle.getBoolean(FollowController.IS_SUCCESSFUL_KEY));
+
+        assertTrue(cc.followDataMap.containsKey(user3));
+        FollowDataStorage data = cc.followDataMap.get(user3);
+        assertNotNull(data);
+        assertEquals(data.followers.size(), 0);
+        assertEquals(data.following.size(), 0);
+        assertEquals(data.followRequestsFrom.size(), 0);
+        assertEquals(data.followRequestsTo.size(), 0);
+    }
+
 
     /**
      * 4 sends follow request to 2
@@ -294,16 +335,15 @@ public class FollowControllerTest {
      * 2 accepts 4
      * 4 -/> 2
      * 4 => 2
-     *
-     * TODO finish
     */
+    @Test
     public void testAcceptRequest() throws InterruptedException {
         int i;
         Bundle bundle;
 
         // 4 -> 2
         fc.sendFollowRequest(user4, user2);
-        Thread.sleep(3000);
+        Thread.sleep(SLEEP_TIME);
 
         // callback should be complete
         assertEquals(cc.receivedCallbackIds.size(), 1);
@@ -317,12 +357,73 @@ public class FollowControllerTest {
         assertTrue(bundle.containsKey(FollowController.IS_SUCCESSFUL_KEY));
         assertTrue(bundle.getBoolean(FollowController.IS_SUCCESSFUL_KEY));
 
-        // 2 accepts 4
-        fc.acceptFollowRequest(user2, user4);
-        Thread.sleep(3000);
+        cc.receivedCallbackIds.clear();
+        cc.receivedBundles.clear();
+        cc.followDataMap.clear();
 
+        // 2 accepts 4
+        // so 4 => 2
+        fc.acceptFollowRequest(user2, user4);
+        Thread.sleep(LONG_SLEEP_TIME);
+
+        // callback should be complete
         assertEquals(cc.receivedCallbackIds.size(), 1);
-        assertTrue(cc.receivedCallbackIds.contains(FollowCallbackId.ADD_FOLLOW_REQUEST_COMPLETE));
+        assertTrue(cc.receivedCallbackIds.contains(FollowCallbackId.ACCEPT_FOLLOW_REQUEST_COMPLETE));
+        assertEquals(cc.receivedBundles.size(), 1);
+
+        // callback should be successful
+        i = cc.receivedCallbackIds.indexOf(FollowCallbackId.ACCEPT_FOLLOW_REQUEST_COMPLETE);
+        bundle = cc.receivedBundles.get(i);
+        assertNotNull(bundle);
+        assertTrue(bundle.containsKey(FollowController.IS_SUCCESSFUL_KEY));
+        assertTrue(bundle.getBoolean(FollowController.IS_SUCCESSFUL_KEY));
+
+        fc.getFollowData(user2);
+        fc.getFollowData(user4);
+
+        Thread.sleep(LONG_SLEEP_TIME);
+
+        FollowDataStorage data;
+        // user4 should have user2 in following array
+        assertTrue(cc.followDataMap.containsKey(user4));
+        data = cc.followDataMap.get(user4);
+        assertNotNull(data);
+        assertEquals(data.followers.size(), 0);
+        assertEquals(data.following.size(), 1);
+        assertEquals(data.following.get(0), user2);
+        assertEquals(data.followRequestsFrom.size(), 0);
+        assertEquals(data.followRequestsTo.size(), 0);
+
+        // user2 should have user4 in followers array
+        assertTrue(cc.followDataMap.containsKey(user2));
+        data = cc.followDataMap.get(user2);
+        assertNotNull(data);
+        assertEquals(data.followers.size(), 1);
+        assertEquals(data.followers.get(0), user4);
+        assertEquals(data.following.size(), 0);
+        assertEquals(data.followRequestsFrom.size(), 0);
+        assertEquals(data.followRequestsTo.size(), 0);
+
+
+        // removes follower for cleanup
+        cc.receivedCallbackIds.clear();
+        cc.receivedBundles.clear();
+        cc.followDataMap.clear();
+
+        fc.removeFollower(user4, user2);
+        Thread.sleep(SLEEP_TIME);
+
+        // callback should be complete
+        assertEquals(cc.receivedCallbackIds.size(), 1);
+        assertTrue(cc.receivedCallbackIds.contains(FollowCallbackId.REMOVE_FOLLOWER_COMPLETE));
+
+        // callback should be successful
+        assertEquals(cc.receivedBundles.size(), 1);
+        i = cc.receivedCallbackIds.indexOf(FollowCallbackId.REMOVE_FOLLOWER_COMPLETE);
+        bundle = cc.receivedBundles.get(i);
+        assertNotNull(bundle);
+        assertTrue(bundle.containsKey(FollowController.IS_SUCCESSFUL_KEY));
+        assertTrue(bundle.getBoolean(FollowController.IS_SUCCESSFUL_KEY));
     }
 
     /**
@@ -336,7 +437,7 @@ public class FollowControllerTest {
         fc.addFollower(user4, user1);
         fc.addFollower(user4, user2);
         fc.addFollower(user4, user3);
-        Thread.sleep(5000);
+        Thread.sleep(LONG_SLEEP_TIME);
 
         // makes sure they all are complete and successful
         assertEquals(cc.receivedCallbackIds.size(), 3);
@@ -350,7 +451,7 @@ public class FollowControllerTest {
         }
 
         fc.getFollowingMoods(user4);
-        Thread.sleep(4000);
+        Thread.sleep(SLEEP_TIME);
 
         assertEquals(cc.user, user4);
         assertEquals(cc.followingMoodList.size(), 2);
@@ -364,7 +465,7 @@ public class FollowControllerTest {
         fc.removeFollower(user4, user1);
         fc.removeFollower(user4, user2);
         fc.removeFollower(user4, user3);
-        Thread.sleep(5000);
+        Thread.sleep(LONG_SLEEP_TIME);
 
         // makes sure they all are complete and successful
         assertEquals(cc.receivedCallbackIds.size(), 3);
@@ -376,6 +477,13 @@ public class FollowControllerTest {
             assertTrue(b.containsKey(FollowController.IS_SUCCESSFUL_KEY));
             assertTrue(b.getBoolean(FollowController.IS_SUCCESSFUL_KEY));
         }
+    }
+
+    @After
+    public void clearDummy() {
+        cc.followDataMap.clear();
+        cc.followingMoodList.clear();
+        cc.user = null;
     }
 
     @AfterClass
@@ -404,7 +512,7 @@ class DummyFollowCallback extends DummyControllerCallback implements FollowContr
 
     HashMap<String, FollowDataStorage> followDataMap = new HashMap<>();
     String user = null;
-    List<MoodOther> followingMoodList = null;
+    List<MoodOther> followingMoodList = new ArrayList<>();
 
     @Override
     public void callbackFollowingMoods(@NonNull String user, @NonNull List<MoodOther> followingMoodsList) {
