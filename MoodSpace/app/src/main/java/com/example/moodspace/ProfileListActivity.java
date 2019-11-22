@@ -303,6 +303,7 @@ public class ProfileListActivity extends AppCompatActivity
                             }
 
                             String id = doc.getId();
+
                             Mood newMood = new Mood(id, ts, emotion, reason, hasPhoto, socialSit, lat, lon);
                             if (filterList.contains(emotion)){
                                 moodDataList.add(newMood);
