@@ -130,10 +130,13 @@ public class AddEditActivity extends AppCompatActivity
         saveBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                // disables so you can't click multiple times
+                saveBtn.setEnabled(false);
 
                 // requires an emotion to be selected
                 if (selectedEmotion == null) {
                     Toast.makeText(AddEditActivity.this, "Select an emotion", Toast.LENGTH_SHORT).show();
+                    saveBtn.setEnabled(true);
                     return;
                 }
 
@@ -149,6 +152,7 @@ public class AddEditActivity extends AppCompatActivity
                     if (!trim.isEmpty() && trim.split("\\s+").length > 3) {
                         Toast.makeText(AddEditActivity.this, "Reason must be less than 4 words",
                                 Toast.LENGTH_SHORT).show();
+                        saveBtn.setEnabled(true);
                         return;
                     }
                 }
