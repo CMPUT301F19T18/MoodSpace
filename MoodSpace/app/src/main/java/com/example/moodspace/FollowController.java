@@ -66,8 +66,11 @@ public class FollowController implements ControllerCallback {
         this.uc = new UserController(this);
     }
 
-    public interface Callback {
+    public interface OtherMoodsCallback {
         void callbackFollowingMoods(@NonNull String user, @NonNull List<MoodOther> followingMoodsList);
+    }
+
+    public interface GetDataCallback {
         void callbackFollowData(@NonNull String user, @NonNull List<String> following,
                                 @NonNull List<String> followers,
                                 @NonNull List<String> followRequestsFrom,
@@ -320,7 +323,7 @@ public class FollowController implements ControllerCallback {
 
                 // calls back an empty list user isn't following anyone
                 if (followingList.size() == 0) {
-                    ((Callback) cc).callbackFollowingMoods(user, followingMoods);
+                    ((OtherMoodsCallback) cc).callbackFollowingMoods(user, followingMoods);
                     return;
                 }
 
@@ -366,7 +369,7 @@ public class FollowController implements ControllerCallback {
                                         // reverses it to newest -> oldest
                                         Collections.reverse(followingMoods);
 
-                                        ((Callback) cc).callbackFollowingMoods(user, followingMoods);
+                                        ((OtherMoodsCallback) cc).callbackFollowingMoods(user, followingMoods);
                                     }
                                 }
                             });
@@ -403,7 +406,7 @@ public class FollowController implements ControllerCallback {
                 List<String> followRequestsFrom = getListFromUser(fetchedUserData, FOLLOW_REQUESTS_FROM_ARRAY);
                 List<String> followRequestsTo = getListFromUser(fetchedUserData, FOLLOW_REQUESTS_TO_ARRAY);
                 Log.d(TAG, "got following data for " + user);
-                ((Callback) cc).callbackFollowData(user, following, followers, followRequestsFrom, followRequestsTo);
+                ((GetDataCallback) cc).callbackFollowData(user, following, followers, followRequestsFrom, followRequestsTo);
             }
         });
     }
