@@ -18,6 +18,7 @@ import android.location.Location;
 import android.location.LocationManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
@@ -57,7 +58,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     private int MY_PERMISSIONS_REQUEST_FINE_LOCATION = 123;
     private final FirebaseFirestore db = FirebaseFirestore.getInstance();
     private int mode = 0; // 0 means own moods and 1 means following moods
-
+    private boolean locationCheckDenied = false;
 
 
     @Override
@@ -144,34 +145,30 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 });
     }
 
-    private Location getDeviceLocation(){
+    private Location getDeviceLocation() throws SecurityException {
         // TODO: fix app crash if user denies location permission
         LocationManager locationManager = (LocationManager)
                 getSystemService(Context.LOCATION_SERVICE);
         Criteria criteria = new Criteria();
 
-        if (checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for Activity#requestPermissions for more details.
 
-            ActivityCompat.requestPermissions(MapsActivity.this,
-                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
-                    MY_PERMISSIONS_REQUEST_FINE_LOCATION);
 
-        }
 
-        while(true) {
+        if (!locationCheckDenied){
 
             try {
                 Location location = locationManager.getLastKnownLocation(locationManager
                         .getBestProvider(criteria, false));
                 return location;
             }
-            catch(Exception ex){ continue;}
+            catch (Exception ex){
+
+            }
         }
+        Location loc = new Location("LocDenied");
+        loc.setLongitude(-1000);
+        loc.setLatitude(-1000);
+        return loc;
 
 
 
@@ -183,13 +180,13 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                                            @NonNull int[] grantResults) {
 
         if (requestCode == MY_PERMISSIONS_REQUEST_FINE_LOCATION) {
-            if (permissions.length == 1 &&
-                    permissions[0] == Manifest.permission.ACCESS_FINE_LOCATION &&
+            if (grantResults.length > 0 &&
                     grantResults[0] == PackageManager.PERMISSION_GRANTED) {
 
 
-            } else {
-
+            }else
+            {
+                locationCheckDenied = true;
             }
         }
 
@@ -321,7 +318,24 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
+        // if you want own current location in maps activity fsr
+        // askForLocationPermission();
         mMap = googleMap;
 
+    }
+
+    private void askForLocationPermission() {
+        if (checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for Activity#requestPermissions for more details.
+
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                    MY_PERMISSIONS_REQUEST_FINE_LOCATION);
+
+        }
     }
 }

@@ -80,6 +80,7 @@ public class AddEditActivity extends AppCompatActivity
     private GoogleMap mMap;
     private FusedLocationProviderClient fusedLocationProviderClient;
     private boolean attachLocation = true;
+    private boolean locationCheckDenied = false;
 
     /**
      * Initializes all input methods for adding a mood.
@@ -308,34 +309,30 @@ public class AddEditActivity extends AppCompatActivity
         setSupportActionBar(toolbar);
     }
 
-    private Location getDeviceLocation(){
+    private Location getDeviceLocation() throws SecurityException {
         // TODO: fix app crash if user denies location permission
         LocationManager locationManager = (LocationManager)
                 getSystemService(Context.LOCATION_SERVICE);
         Criteria criteria = new Criteria();
 
-        if (checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for Activity#requestPermissions for more details.
 
-            ActivityCompat.requestPermissions(AddEditActivity.this,
-                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
-                    MY_PERMISSIONS_REQUEST_FINE_LOCATION);
 
-        }
 
-        while(true) {
-
+        if (!locationCheckDenied){
+            Log.d("MANU","IN THIS STUPID WHILE");
             try {
                 Location location = locationManager.getLastKnownLocation(locationManager
                         .getBestProvider(criteria, false));
                 return location;
             }
-            catch(Exception ex){ continue;}
-        }
+            catch (Exception ex){
+
+            }
+    }
+        Location loc = new Location("LocDenied");
+        loc.setLongitude(-1000);
+        loc.setLatitude(-1000);
+        return loc;
 
 
 
@@ -398,15 +395,16 @@ public class AddEditActivity extends AppCompatActivity
             }
         }
         else if (requestCode == MY_PERMISSIONS_REQUEST_FINE_LOCATION) {
-            if (permissions.length == 1 &&
-                    permissions[0] == Manifest.permission.ACCESS_FINE_LOCATION &&
+            if (grantResults.length > 0 &&
                     grantResults[0] == PackageManager.PERMISSION_GRANTED) {
 
 
-            } else {
+            }else
+             {
+                locationCheckDenied = true;
+            }
+        }
 
-            }
-            }
 
 
     }
@@ -538,14 +536,8 @@ public class AddEditActivity extends AppCompatActivity
         double lat = -1000;
         double lon = -1000;
 
-        Location loc = getDeviceLocation();
 
-        googleMap.setMyLocationEnabled(true);
-
-        if (this.isAddActivity()) {
-            lat = loc.getLatitude();
-            lon = loc.getLongitude();
-        } else {
+        if(!isAddActivity()){
             lat = currentMood.getLat();
             lon = currentMood.getLon();
 
@@ -556,6 +548,24 @@ public class AddEditActivity extends AppCompatActivity
                 googleMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
             }
         }
+        else{
+            askForLocationPermission();
+        }
 
+    }
+
+    private void askForLocationPermission() {
+        if (checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for Activity#requestPermissions for more details.
+
+            ActivityCompat.requestPermissions(AddEditActivity.this,
+                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                    MY_PERMISSIONS_REQUEST_FINE_LOCATION);
+
+        }
     }
 }
