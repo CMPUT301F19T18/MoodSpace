@@ -198,19 +198,29 @@
                     app:layout_constraintStart_toEndOf="@+id/right_square_view"
                     app:layout_constraintTop_toTopOf="parent" />
 
-                <Button
-                    android:id="@+id/map_button"
+                <com.google.android.gms.maps.MapView
+                    xmlns:android="http://schemas.android.com/apk/res/android"
+
+                    android:id="@+id/map_view"
                     android:layout_width="0dp"
                     android:layout_height="0dp"
-                    android:background="@android:color/darker_gray"
-                    android:text="@string/ae_add_location_text"
-                    android:textColor="@color/colorWhite"
-                    android:textSize="18sp"
-                    android:textStyle="bold"
+                    android:background="@color/colorPrimary"
                     app:layout_constraintBottom_toBottomOf="@+id/left_square_view"
                     app:layout_constraintLeft_toLeftOf="@+id/left_square_view"
                     app:layout_constraintRight_toRightOf="@+id/left_square_view"
                     app:layout_constraintTop_toTopOf="@+id/left_square_view" />
+
+                <CheckBox android:id="@+id/checkbox_location"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Add Location"
+                    android:onClick="onCheckboxClicked"
+                    android:textStyle="bold"
+                    android:checked="true"
+                    app:layout_constraintBottom_toBottomOf="@+id/left_square_view"
+                    app:layout_constraintLeft_toLeftOf="@+id/left_square_view"
+                    app:layout_constraintRight_toRightOf="@+id/left_square_view"
+                    app:layout_constraintTop_toTopOf="@+id/left_square_view"/>
             </androidx.constraintlayout.widget.ConstraintLayout>
 
         </LinearLayout>

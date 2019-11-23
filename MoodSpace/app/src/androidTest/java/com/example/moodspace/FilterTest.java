@@ -57,7 +57,7 @@ public class FilterTest {
     private String username = "TEST_FilterTest";
     private String password = "TEST_FilterTest";
     private String angry = new String(Character.toChars(0x1F621));
-    private String happy = new String(Character.toChars(0x1F604));
+    private String enjoyment = new String(Character.toChars(0x1F604));
 
     @Rule
     public ActivityTestRule<LoginActivity> activityRule =
@@ -73,7 +73,7 @@ public class FilterTest {
 
 
         onView(withId(R.id.moodList))
-                .check(matches(hasDescendant(withText(containsString(happy)))));
+                .check(matches(hasDescendant(withText(containsString(enjoyment)))));
 
         onView(withId(R.id.moodList))
                 .check(matches((hasDescendant(withText(containsString(angry))))));
@@ -101,7 +101,7 @@ public class FilterTest {
 
 
         onView(withId(R.id.moodList))
-                .check(matches(hasDescendant(withText(containsString(happy)))));
+                .check(matches(hasDescendant(withText(containsString(enjoyment)))));
 
         onView(withId(R.id.moodList))
                 .check(matches(not(hasDescendant(withText(containsString(angry))))));
@@ -127,7 +127,7 @@ public class FilterTest {
 
 
         onView(withId(R.id.moodList))
-                .check(matches(hasDescendant(withText(containsString(happy)))));
+                .check(matches(hasDescendant(withText(containsString(enjoyment)))));
 
 
         onView(withId(R.id.moodList))

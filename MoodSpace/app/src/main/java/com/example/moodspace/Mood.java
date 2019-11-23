@@ -22,6 +22,9 @@ public class Mood implements Serializable {
     private String reasonText;
     private boolean hasPhoto;
     private SocialSituation socialSituation;
+    private double lat;
+    private double lon;
+
 
     // apparently you need this?
     // https://firebase.google.com/docs/firestore/manage-data/add-data
@@ -29,13 +32,15 @@ public class Mood implements Serializable {
     }
 
     public Mood(String id, Date date, Emotion emotion, String reasonText, boolean hasPhoto,
-                SocialSituation socialSituation) {
+                SocialSituation socialSituation, double lat, double lon) {
         this.id = id;
         this.emotion = emotion;
         this.date = date;
         this.reasonText = reasonText;
         this.hasPhoto = hasPhoto;
         this.socialSituation = socialSituation;
+        this.lat = lat;
+        this.lon = lon;
     }
 
     /**
@@ -65,9 +70,18 @@ public class Mood implements Serializable {
         if (hasPhoto == null) { // backwards compatibility
             hasPhoto = false;
         }
+        double lat;
+        double lon;
+        try {
+            lat = doc.getDouble("lat");
+            lon = doc.getDouble("lon");
+        } catch (Exception ex) {
+            lat = -1000;
+            lon = -1000;
+        }
 
         String id = doc.getId();
-        return new Mood(id, date, emotion, reason, hasPhoto, socialSit);
+        return new Mood(id, date, emotion, reason, hasPhoto, socialSit, lat, lon);
 
     }
 
@@ -95,5 +109,15 @@ public class Mood implements Serializable {
     public SocialSituation getSocialSituation() {
         return socialSituation;
     }
+
+    public double getLat() {
+        return lat;
+    }
+
+    public double getLon() {
+        return lon;
+    }
+
+
 }
 

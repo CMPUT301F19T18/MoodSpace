@@ -25,10 +25,10 @@ import static org.junit.Assert.assertFalse;
 /**
  * Users:
  *  TEST_FollowControllerTest1:
- *      - happy (newest)
+ *      - enjoyment (newest)
  *      - sad (oldest)
  *  TEST_FollowControllerTest2
- *      - angry
+ *      - anger
  *  TEST_FollowControllerTest3
  *  TEST_FollowControllerTest4
  */
@@ -455,8 +455,8 @@ public class FollowControllerTest {
 
         assertEquals(cc.user, user4);
         assertEquals(cc.followingMoodList.size(), 2);
-        assertEquals(cc.followingMoodList.get(0).getEmotion(), Emotion.HAPPY);
-        assertEquals(cc.followingMoodList.get(1).getEmotion(), Emotion.ANGRY);
+        assertEquals(cc.followingMoodList.get(0).getEmotion(), Emotion.ENJOYMENT);
+        assertEquals(cc.followingMoodList.get(1).getEmotion(), Emotion.ANGER);
 
         // clean up
         cc.receivedCallbackIds.clear();

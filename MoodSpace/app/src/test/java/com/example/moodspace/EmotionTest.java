@@ -19,7 +19,7 @@ public class EmotionTest {
     public void CheckGetEmojiList(){
 
         String[] emotionList =  Emotion.getEmojiList();
-        assertEquals("[Happy 😄, Angry 😡, Sad 😭]", Arrays.toString(emotionList));
+        assertEquals("[enjoyment 😄, anger 😡, sadness 😭]", Arrays.toString(emotionList));
 
     }
 }
