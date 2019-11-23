@@ -39,7 +39,6 @@ import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
 
 import io.paperdb.Paper;
@@ -273,40 +272,9 @@ public class ProfileListActivity extends AppCompatActivity
                     ) {
                         moodDataList.clear();
                         for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
-                            Emotion emotion = Emotion.valueOf(doc.getString("emotion"));
-                            Date ts = doc.getTimestamp("date").toDate();
-                            String reason = doc.getString("reasonText");
-                            Boolean hasPhoto = doc.getBoolean("hasPhoto");
-                            double lat;
-                            double lon;
-
-                            try{
-                            lat = doc.getDouble("lat");
-                            lon = doc.getDouble("lon");}
-                            catch (Exception ex) {
-                                lat = -1000;
-                                lon = -1000;
-                            }
-
-
-                            SocialSituation socialSit;
-                            // TODO get rid once database is wiped
-                            try { // backwards compatibility
-                                socialSit = SocialSituation.valueOf(doc.getString("socialSituation"));
-                            } catch (Exception ex) {
-                                Log.d(TAG, "set default social situation instead");
-                                Log.d(TAG, Log.getStackTraceString(ex));
-                                socialSit = SocialSituation.NOT_PROVIDED;
-                            }
-                            if (hasPhoto == null) { // backwards compatibility
-                                hasPhoto = false;
-                            }
-
-                            String id = doc.getId();
-
-                            Mood newMood = new Mood(id, ts, emotion, reason, hasPhoto, socialSit, lat, lon);
-                            if (filterList.contains(emotion)){
-                                moodDataList.add(newMood);
+                            Mood mood = Mood.fromDocSnapshot(doc);
+                            if (filterList.contains(mood.getEmotion())){
+                                moodDataList.add(mood);
                             }
                         }
                         moodAdapter.notifyDataSetChanged();

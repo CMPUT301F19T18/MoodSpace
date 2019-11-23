@@ -1,12 +1,14 @@
 package com.example.moodspace;
 
+import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.filters.LargeTest;
 import androidx.test.rule.ActivityTestRule;
 
 import com.google.firebase.firestore.FirebaseFirestore;
 
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 
 import static androidx.test.espresso.Espresso.onData;
 import static androidx.test.espresso.Espresso.onView;
@@ -24,26 +26,36 @@ import static org.hamcrest.core.IsAnything.anything;
 import static org.hamcrest.core.IsNot.not;
 import static org.hamcrest.core.StringContains.containsString;
 
+/**
+ * Users:
+ *  - TEST_EditMoodTest (no moods)
+ *
+ * TODO tests:
+ *  - @BeforeClass: add dummy mood
+ *  - click on mood event
+ *      - check activity
+ *      - check all fields match
+ *  - click on mood event, edit mood
+ *      - check all fields match after editing
+ *  - click on mood event, edit mood, click cancel, click on mood event
+ *      - check all fields remain the same
+ *  - click on mood event, edit mood, click okay, click on mood event
+ *      - check all fields are different
+ *  - @AfterClass: remove dummy mood
+ */
+@RunWith(AndroidJUnit4.class)
+@LargeTest
 public class EditMoodTest {
-    private String username;
-    private String password;
-    private String angry;
-    private String enjoyment;
-    private String sad;
+    private final String username = "TEST_EditMoodTest";
+    private final String password = "TEST_EditMoodTest";
+    private final String angry = new String(Character.toChars(0x1F621));
+    private final String enjoyment = new String(Character.toChars(0x1F604));
+    private final String sad = new String(Character.toChars(0x1F62D));
     private final FirebaseFirestore db = FirebaseFirestore.getInstance();
 
     @Rule
     public ActivityTestRule<LoginActivity> mActivityRule =
             new ActivityTestRule<>(LoginActivity.class);
-    @Before
-    public void initValidString() {
-        // Specify a valid string.
-        username = "EditTest";
-        password = "EditTest";
-        angry = new String(Character.toChars(0x1F621));
-        enjoyment = new String(Character.toChars(0x1F604));
-        sad = new String(Character.toChars(0x1F62D));
-    }
 
     @Test
     public void editMoods() throws InterruptedException {
@@ -61,7 +73,6 @@ public class EditMoodTest {
         onData(anything()).atPosition(1).perform(click());
         onView(withId(R.id.reason_text)).perform(typeText("Quiet"), closeSoftKeyboard());
         onView(withId(R.id.saveBtn)).perform(click());
-
 
         // Verify and set mood to Angry, make social situation "With another person" and reason to "Gaming"
         onData(anything())

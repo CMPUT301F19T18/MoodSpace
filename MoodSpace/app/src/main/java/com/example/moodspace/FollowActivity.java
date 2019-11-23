@@ -60,6 +60,8 @@ public class FollowActivity extends AppCompatActivity
                 case REMOVE_FOLLOW_REQUEST_FROM_FAIL:
                     return;
 
+                case ACCEPT_FOLLOW_REQUEST_COMPLETE:
+                    return;
                 case FOLLOWEE_MOOD_READ_FAIL:
                     return;
                 default:
@@ -82,7 +84,7 @@ public class FollowActivity extends AppCompatActivity
     }
 
     @Override
-    public void callbackFollowingMoods(@NonNull List<MoodOther> followingMoodsList) {
+    public void callbackFollowingMoods(@NonNull String user, @NonNull List<MoodOther> followingMoodsList) {
         // TODO stub
     }
 

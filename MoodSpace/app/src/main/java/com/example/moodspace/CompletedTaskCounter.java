@@ -18,14 +18,14 @@ public class CompletedTaskCounter {
 
     public void incrementComplete() {
         if (complete + 1 > limit) {
-            throw new IllegalArgumentException("Did not expect to increment complete past max");
+            throw new IllegalArgumentException("Did not expect to increment complete past limit=" + limit);
         }
         complete++;
     }
 
     public void incrementSuccess() {
         if (success + 1 > limit) {
-            throw new IllegalArgumentException("Did not expect to increment success past max");
+            throw new IllegalArgumentException("Did not expect to increment success past limit=" + limit);
         }
         success++;
     }
