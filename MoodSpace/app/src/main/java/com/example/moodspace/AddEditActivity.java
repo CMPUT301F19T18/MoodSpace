@@ -101,11 +101,11 @@ public class AddEditActivity extends AppCompatActivity
         currentMood = (Mood) getIntent().getSerializableExtra("MOOD");
 
         if(isAddActivity()){
-            mMapView.setVisibility(mMapView.GONE);
+            mMapView.setVisibility(MapView.GONE);
         }
         else{
             CheckBox locCheck = findViewById(R.id.checkbox_location);
-            locCheck.setVisibility(locCheck.GONE);
+            locCheck.setVisibility(CheckBox.GONE);
         }
 
         // creates emotion spinner
@@ -161,7 +161,7 @@ public class AddEditActivity extends AppCompatActivity
                 double lon = -1000;
 
                 // reuses parameters if editing
-                if (AddEditActivity.this.isAddActivity()) {
+                if (isAddActivity()) {
                     id = UUID.randomUUID().toString();
                     date = new Date();
 
@@ -182,7 +182,7 @@ public class AddEditActivity extends AppCompatActivity
                 }
 
                 Mood mood = new Mood(id, date, selectedEmotion, reasonText, hasPhoto, socialSit, lat, lon);
-                if (AddEditActivity.this.isAddActivity()) {
+                if (isAddActivity()) {
                     aec.addMood(username, mood);
 
                 } else {
@@ -190,7 +190,7 @@ public class AddEditActivity extends AppCompatActivity
                 }
 
                 // only uploads if the photo hasn't changed for optimization purposes
-                if (hasPhoto && AddEditActivity.this.changedPhoto) {
+                if (hasPhoto && changedPhoto) {
                     aec.uploadPhoto(inputPhotoPath, id);
                 }
 
@@ -246,8 +246,8 @@ public class AddEditActivity extends AppCompatActivity
         removeImageButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                AddEditActivity.this.removePreviewImage();
-                AddEditActivity.this.inputPhotoPath = null;
+                removePreviewImage();
+                inputPhotoPath = null;
             }
         });
 
@@ -482,7 +482,7 @@ public class AddEditActivity extends AppCompatActivity
 
 
     @Override
-    public void onSaveInstanceState(Bundle outState) {
+    public void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
 
         Bundle mapViewBundle = outState.getBundle(MAPVIEW_BUNDLE_KEY);
