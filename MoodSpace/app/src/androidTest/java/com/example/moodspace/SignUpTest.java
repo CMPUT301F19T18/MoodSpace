@@ -38,12 +38,10 @@ import static org.hamcrest.core.IsNot.not;
  * Login to verify that the account has been created from before then log out
  * Delete the account from firebase db for future tests.
  */
-public class SignupTests extends TestWatcher {
-    private final String username = "signuptest";
-    private final String password = "signuptest";
+public class SignUpTest extends TestWatcher {
+    private final String username = "TEST_SignUpTest";
+    private final String password = "TEST_SignUpTest";
     private final FirebaseFirestore db = FirebaseFirestore.getInstance();
-
-    //public OnFailed removeUserRule = new OnFailed();
 
     /**
      *  Always removes the user if failed

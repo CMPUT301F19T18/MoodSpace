@@ -27,22 +27,31 @@ import static org.hamcrest.core.AllOf.allOf;
 import static org.hamcrest.core.IsNot.not;
 import static org.hamcrest.core.StringContains.containsString;
 
-
+/**
+ * Users:
+ *  - TEST_ProfileListActivity (no moods)
+ *
+ * TODO tests:
+ *  - @Before: add dummy moods
+ *  - Do nothing
+ *      - check moods exist
+ *  - Delete a mood
+ *      - check deleted mood doesn't exist anymore, but not deleted ones do
+ *  - Log out from sidebar
+ *      - check activity
+ *  - Click on filters
+ *      - check fragment exists
+ *  - Do other tests from sidebar once implemented
+ *      - Check activity
+ */
 @RunWith(AndroidJUnit4.class)
 @LargeTest
 public class ProfileListActivityTest {
-    private String username;
-    private String password;
-    private final FirebaseFirestore db = FirebaseFirestore.getInstance();
+    private String username = "TEST_ProfileListActivityTest";
+    private String password = "TEST_ProfileListActivityTest";
 
     @Rule
     public ActivityTestRule<LoginActivity> activityRule = new ActivityTestRule<>(LoginActivity.class);
-
-    @Before
-    public void setup() {
-        username = "Person";
-        password = "password";
-    }
 
     @Test
     public void testDelete() throws InterruptedException{
