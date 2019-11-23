@@ -1,32 +1,34 @@
 package com.example.moodspace;
 
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.Menu;
-
 import android.view.ContextMenu;
+import android.view.Menu;
 import android.view.MenuInflater;
-
 import android.view.MenuItem;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
 
 import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
-
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -40,11 +42,15 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
-public class ProfileListActivity extends AppCompatActivity implements FilterFragment.OnFragmentInteractionListener {
+import io.paperdb.Paper;
+
+public class ProfileListActivity extends AppCompatActivity
+        implements FilterFragment.OnFragmentInteractionListener,
+        ControllerCallback {
     private static final String TAG = ProfileListActivity.class.getSimpleName();
     private final FirebaseFirestore db = FirebaseFirestore.getInstance();
 
-    ViewController vc = new ViewController();
+    private ViewController vc;
     ArrayAdapter<Mood> moodAdapter;
     ArrayList<Mood> moodDataList;
     final boolean[] checkedItems = new boolean[Emotion.values().length];
@@ -52,14 +58,22 @@ public class ProfileListActivity extends AppCompatActivity implements FilterFrag
     private String moodId;
     private String username;
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        username = getIntent().getExtras().getString("Username");
         super.onCreate(savedInstanceState);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            getWindow().setFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS,
+                    WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+        }
         setContentView(R.layout.activity_profile_list);
+        vc = new ViewController(this);
+
+        username = getIntent().getExtras().getString(LoginActivity.USERNAME_KEY);
 
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
         ListView moodList = findViewById(R.id.moodList);
         FloatingActionButton addBtn = findViewById(R.id.addMoodButton);
         addBtn.setOnClickListener(new View.OnClickListener() {
@@ -73,6 +87,7 @@ public class ProfileListActivity extends AppCompatActivity implements FilterFrag
         moodDataList = new ArrayList<>();
         moodAdapter = new MoodViewList(this, moodDataList);
 
+        // sets up EditMood on tapping any mood
         moodList.setAdapter(moodAdapter);
         moodList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -81,9 +96,56 @@ public class ProfileListActivity extends AppCompatActivity implements FilterFrag
             }
         });
 
+        // sets up the menu button
+        final DrawerLayout drawerLayout = findViewById(R.id.drawer_layout);
+        toolbar.setNavigationIcon(R.drawable.ic_menu_button);
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                drawerLayout.openDrawer(GravityCompat.START);
+            }
+        });
 
+        // sets up navigation viewer (side bar)
+        final NavigationView navigationView = findViewById(R.id.nav_view);
+        final TextView headerTextView
+                = navigationView.getHeaderView(0).findViewById(R.id.header_text_view);
+        headerTextView.setText(username);
+        navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
+            @Override
+            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+                drawerLayout.closeDrawers();
+                switch (item.getItemId()) {
+                    case R.id.nav_item_profile:
+                        Toast.makeText(ProfileListActivity.this,
+                                "Profile", Toast.LENGTH_SHORT).show();
+                        return true;
+                    case R.id.nav_item_following:
+                        Toast.makeText(ProfileListActivity.this,
+                                "Following", Toast.LENGTH_SHORT).show();
+                        return true;
+                    case R.id.nav_item_map:
+                        Intent intent = new Intent(ProfileListActivity.this, MapsActivity.class);
+                        intent.putExtra("username", username);
+                        startActivity(intent);
+                        return true;
+                    case R.id.nav_item_log_out:
+                        Paper.book().delete(UserController.PAPER_USERNAME_KEY);
+                        Paper.book().delete(UserController.PAPER_PASSWORD_KEY);
+                        Intent loginScreen = new Intent(ProfileListActivity.this, LoginActivity.class);
+                        loginScreen.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                        finish();
+                        startActivity(loginScreen);
+                        return true;
+
+                    default:
+                        return false;
+                }
+            }
+        });
+
+        // sets up filters
         final Emotion[] emotionArray = Emotion.values();
-
         Arrays.fill(checkedItems, true);
         final CollectionReference cRef = db.collection("users")
                 .document(username)
@@ -182,8 +244,6 @@ public class ProfileListActivity extends AppCompatActivity implements FilterFrag
 
     /**
      * Defines on click behaviour for the toolbar.
-     * @param item
-     * @return
      */
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -196,11 +256,10 @@ public class ProfileListActivity extends AppCompatActivity implements FilterFrag
                 // If we got here, the user's action was not recognized.
                 // Invoke the superclass to handle it.
                 return super.onOptionsItemSelected(item);
-
         }
     }
 
-    // updates data from
+    // updates data from firestore
     public void update(String username, final List<Emotion> filterList) {
         db.collection("users")
                 .document(username)
@@ -218,6 +277,18 @@ public class ProfileListActivity extends AppCompatActivity implements FilterFrag
                             Date ts = doc.getTimestamp("date").toDate();
                             String reason = doc.getString("reasonText");
                             Boolean hasPhoto = doc.getBoolean("hasPhoto");
+                            double lat;
+                            double lon;
+
+                            try{
+                            lat = doc.getDouble("lat");
+                            lon = doc.getDouble("lon");}
+                            catch (Exception ex) {
+                                lat = -1000;
+                                lon = -1000;
+                            }
+
+
                             SocialSituation socialSit;
                             // TODO get rid once database is wiped
                             try { // backwards compatibility
@@ -232,7 +303,8 @@ public class ProfileListActivity extends AppCompatActivity implements FilterFrag
                             }
 
                             String id = doc.getId();
-                            Mood newMood = new Mood(id, ts, emotion, reason, hasPhoto, socialSit);
+
+                            Mood newMood = new Mood(id, ts, emotion, reason, hasPhoto, socialSit, lat, lon);
                             if (filterList.contains(emotion)){
                                 moodDataList.add(newMood);
                             }
@@ -243,14 +315,23 @@ public class ProfileListActivity extends AppCompatActivity implements FilterFrag
     }
 
     public void onOkPressed(boolean[] checkedItems){
-        final String username = getIntent().getExtras().getString("Username");
         final Emotion[] emotionArray = Emotion.values();
-        List<Emotion> filterList = new ArrayList<Emotion>();
+        List<Emotion> filterList = new ArrayList<>();
         for (int i = 0; i < checkedItems.length; i++){
             if (checkedItems[i] == false) {
                 filterList.add(emotionArray[i]);
             }
         }
         update(username, filterList);
+    }
+
+    @Override
+    public void callback(CallbackId callbackId) {
+        this.callback(callbackId, null);
+    }
+
+    @Override
+    public void callback(CallbackId callbackId, Bundle bundle) {
+        // TODO stub
     }
 }

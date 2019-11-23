@@ -12,11 +12,14 @@ public class Mood implements Serializable {
 
     private String id;
     private Emotion emotion;
-    // both date and time are stored under the date variable (formatted in DateUtils)
+    // both date and time are stored under the date variable (formatted in Utils)
     private Date date;
     private String reasonText;
     private boolean hasPhoto;
     private SocialSituation socialSituation;
+    private double lat;
+    private double lon;
+
 
     // apparently you need this?
     // https://firebase.google.com/docs/firestore/manage-data/add-data
@@ -24,13 +27,31 @@ public class Mood implements Serializable {
     }
 
     public Mood(String id, Date date, Emotion emotion, String reasonText, boolean hasPhoto,
-                SocialSituation socialSituation) {
+                SocialSituation socialSituation, double lat, double lon) {
         this.id = id;
         this.emotion = emotion;
         this.date = date;
         this.reasonText = reasonText;
         this.hasPhoto = hasPhoto;
         this.socialSituation = socialSituation;
+        this.lat = lat;
+        this.lon = lon;
+    }
+
+    public double getLat() {
+        return lat;
+    }
+
+    public void setLat(double lat) {
+        this.lat = lat;
+    }
+
+    public void setLon(double lon) {
+        this.lon = lon;
+    }
+
+    public double getLon() {
+        return lon;
     }
 
     @Exclude

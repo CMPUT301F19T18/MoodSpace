@@ -10,7 +10,7 @@ import java.util.Arrays;
 
 import static org.junit.Assert.*;
 
-public class EmotionTests {
+public class EmotionTest {
 
     /**
      * Checks if the getEmojiList function of Emotion enum works appropriately
@@ -19,7 +19,7 @@ public class EmotionTests {
     public void CheckGetEmojiList(){
 
         String[] emotionList =  Emotion.getEmojiList();
-        assertEquals("[Happy 😄, Angry 😡, Sad 😭]", Arrays.toString(emotionList));
+        assertEquals("[enjoyment 😄, anger 😡, sadness 😭]", Arrays.toString(emotionList));
 
     }
 }
