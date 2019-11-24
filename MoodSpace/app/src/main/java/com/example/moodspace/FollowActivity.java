@@ -1,22 +1,88 @@
 package com.example.moodspace;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.MenuItem;
+import android.view.View;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
+
+import com.google.android.material.navigation.NavigationView;
 
 import java.util.List;
+
+import io.paperdb.Paper;
 
 public class FollowActivity extends AppCompatActivity
         implements ControllerCallback, FollowController.GetDataCallback {
     private static final String TAG = FollowActivity.class.getSimpleName();
     private FollowController fc;
+    private String username;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         fc = new FollowController(this);
+        setContentView(R.layout.activity_follow);
+        username = getIntent().getExtras().getString("username");
+
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+
+        // sets up the menu button
+        final DrawerLayout drawerLayout = findViewById(R.id.drawer_layout);
+        toolbar.setNavigationIcon(R.drawable.ic_menu_button);
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                drawerLayout.openDrawer(GravityCompat.START);
+            }
+        });
+
+        // sets up navigation viewer (side bar)
+        final NavigationView navigationView = findViewById(R.id.nav_view);
+        final TextView headerTextView
+                = navigationView.getHeaderView(0).findViewById(R.id.header_text_view);
+        headerTextView.setText(username);
+        navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
+            @Override
+            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+                drawerLayout.closeDrawers();
+                switch (item.getItemId()) {
+                    case R.id.nav_item_profile:
+                        Intent intent = new Intent(FollowActivity.this, ProfileListActivity.class);
+                        intent.putExtra("username", username);
+                        startActivity(intent);
+                        return true;
+                    case R.id.nav_item_following:
+                        Toast.makeText(FollowActivity.this,
+                                "Following", Toast.LENGTH_SHORT).show();
+                        return true;
+                    case R.id.nav_item_map:
+                        Intent intent1 = new Intent(FollowActivity.this, MapsActivity.class);
+                        intent1.putExtra("username", username);
+                        startActivity(intent1);
+                        return true;
+                    case R.id.nav_item_log_out:
+                        Paper.book().delete(UserController.PAPER_USERNAME_KEY);
+                        Paper.book().delete(UserController.PAPER_PASSWORD_KEY);
+                        Intent loginScreen = new Intent(FollowActivity.this, LoginActivity.class);
+                        loginScreen.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                        finish();
+                        startActivity(loginScreen);
+                        return true;
+                    default:
+                        return false;
+                }
+            }
+        });
 
     }
 

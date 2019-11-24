@@ -26,7 +26,7 @@ public class LoginActivity extends AppCompatActivity
         implements ControllerCallback {
     private static final String TAG = LoginActivity.class.getSimpleName();
 
-    public static final String USERNAME_KEY = "moodspace.LoginActivity.username";
+    public static final String USERNAME_KEY = "username";
     //public static final String SIGN_UP_USER_KEY = "moodspace.LoginActivity.signUpKey";
     public static final String LOGIN_USER_KEY = "moodspace.LoginActivity.login";
 

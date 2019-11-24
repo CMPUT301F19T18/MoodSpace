@@ -68,7 +68,7 @@ public class ProfileListActivity extends AppCompatActivity
         setContentView(R.layout.activity_profile_list);
         vc = new ViewController(this);
 
-        username = getIntent().getExtras().getString(LoginActivity.USERNAME_KEY);
+        username = getIntent().getExtras().getString("username");
 
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -120,13 +120,14 @@ public class ProfileListActivity extends AppCompatActivity
                                 "Profile", Toast.LENGTH_SHORT).show();
                         return true;
                     case R.id.nav_item_following:
-                        Toast.makeText(ProfileListActivity.this,
-                                "Following", Toast.LENGTH_SHORT).show();
-                        return true;
-                    case R.id.nav_item_map:
-                        Intent intent = new Intent(ProfileListActivity.this, MapsActivity.class);
+                        Intent intent = new Intent(ProfileListActivity.this, FollowActivity.class);
                         intent.putExtra("username", username);
                         startActivity(intent);
+                        return true;
+                    case R.id.nav_item_map:
+                        Intent intent1 = new Intent(ProfileListActivity.this, MapsActivity.class);
+                        intent1.putExtra("username", username);
+                        startActivity(intent1);
                         return true;
                     case R.id.nav_item_log_out:
                         Paper.book().delete(UserController.PAPER_USERNAME_KEY);
