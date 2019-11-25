@@ -508,7 +508,8 @@ class FollowDataStorage {
     }
 }
 
-class DummyFollowCallback extends DummyControllerCallback implements FollowController.Callback {
+class DummyFollowCallback extends DummyControllerCallback
+        implements FollowController.GetDataCallback, FollowController.OtherMoodsCallback {
 
     HashMap<String, FollowDataStorage> followDataMap = new HashMap<>();
     String user = null;

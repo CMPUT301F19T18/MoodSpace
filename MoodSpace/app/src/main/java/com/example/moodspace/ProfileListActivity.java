@@ -273,7 +273,7 @@ public class ProfileListActivity extends AppCompatActivity
                         moodDataList.clear();
                         for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
                             Mood mood = Mood.fromDocSnapshot(doc);
-                            if (filterList.contains(mood.getEmotion())){
+                            if (!(filterList.contains(mood.getEmotion()))){
                                 moodDataList.add(mood);
                             }
                         }

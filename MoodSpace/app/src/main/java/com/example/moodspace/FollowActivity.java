@@ -9,7 +9,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import java.util.List;
 
 public class FollowActivity extends AppCompatActivity
-        implements ControllerCallback, FollowController.Callback {
+        implements ControllerCallback, FollowController.GetDataCallback {
     private static final String TAG = FollowActivity.class.getSimpleName();
     private FollowController fc;
 
@@ -81,11 +81,6 @@ public class FollowActivity extends AppCompatActivity
         } else {
             Log.w(TAG, "unrecognized callback ID: " + callbackId);
         }
-    }
-
-    @Override
-    public void callbackFollowingMoods(@NonNull String user, @NonNull List<MoodOther> followingMoodsList) {
-        // TODO stub
     }
 
     @Override
