@@ -7,16 +7,19 @@ import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.AppCompatEditText;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 
 import com.google.android.material.navigation.NavigationView;
+import com.google.android.material.tabs.TabLayout;
 
 import java.util.List;
 
@@ -27,6 +30,11 @@ public class FollowActivity extends AppCompatActivity
     private static final String TAG = FollowActivity.class.getSimpleName();
     private FollowController fc;
     private String username;
+    TabLayout tabs;
+    TextView requestText;
+    TextView followText;
+    AppCompatEditText user_field;
+    ListView requestList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,6 +49,10 @@ public class FollowActivity extends AppCompatActivity
 
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        requestText = findViewById(R.id.request_text);
+        followText = findViewById(R.id.follow_text);
+        user_field = findViewById(R.id.username);
+        requestList = findViewById(R.id.request_listview);
 
         // sets up the menu button
         final DrawerLayout drawerLayout = findViewById(R.id.drawer_layout);
@@ -91,6 +103,34 @@ public class FollowActivity extends AppCompatActivity
             }
         });
 
+        tabs = findViewById(R.id.tab_layout);
+        tabs.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
+            @Override
+            public void onTabSelected(TabLayout.Tab tab) {
+                int pos = tab.getPosition();
+                if (pos == 1){
+                    requestText.setVisibility(View.GONE);
+                    requestList.setVisibility(View.GONE);
+                    followText.setVisibility(View.VISIBLE);
+                    user_field.setVisibility(View.VISIBLE);
+                } else {
+                    requestText.setVisibility(View.VISIBLE);
+                    requestList.setVisibility(View.VISIBLE);
+                    followText.setVisibility(View.GONE);
+                    user_field.setVisibility(View.GONE);
+                }
+            }
+
+            @Override
+            public void onTabUnselected(TabLayout.Tab tab) {
+                // do nothing
+            }
+
+            @Override
+            public void onTabReselected(TabLayout.Tab tab) {
+                // refresh
+            }
+        });
     }
 
     @Override
