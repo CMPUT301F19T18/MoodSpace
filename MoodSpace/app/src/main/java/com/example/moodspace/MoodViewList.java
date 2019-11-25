@@ -53,7 +53,7 @@ public class MoodViewList extends ArrayAdapter<Mood> {
         String background = emotion.getEmojiName().toLowerCase() + "_color";
         int id = context.getResources().getIdentifier(background,"drawable", context.getPackageName());
 
-        view.setBackgroundResource(id);
+//        view.setBackgroundResource(id);
 
         return view;
     }
