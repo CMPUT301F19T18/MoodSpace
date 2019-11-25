@@ -6,10 +6,13 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.content.ContextCompat;
 
 import java.util.ArrayList;
@@ -50,10 +53,14 @@ public class MoodViewList extends ArrayAdapter<Mood> {
         moodInfo.setText(emotion.getEmojiString());
         date.setText(Utils.formatDate(mood.getDate()));
         time.setText(Utils.formatTime(mood.getDate()));
-        String background = emotion.getEmojiName().toLowerCase() + "_color";
+        String background = emotion.getEmojiName().toLowerCase();
+        String backgroundTag = emotion.getEmojiName().toLowerCase() + "_tag";
         int id = context.getResources().getIdentifier(background,"drawable", context.getPackageName());
-
-//        view.setBackgroundResource(id);
+        int moodTagId = context.getResources().getIdentifier(backgroundTag, "drawable", context.getPackageName());
+        ConstraintLayout moodLayout = view.findViewById(R.id.constraintLayout);
+        moodLayout.setBackgroundResource(id);
+        ImageView moodTag = view.findViewById(R.id.imageView);
+        moodTag.setImageResource(moodTagId);
 
         return view;
     }
