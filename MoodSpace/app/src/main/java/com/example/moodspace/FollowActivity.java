@@ -65,6 +65,7 @@ public class FollowActivity extends AppCompatActivity
                     case R.id.nav_item_profile:
                         Intent intent = new Intent(FollowActivity.this, ProfileListActivity.class);
                         intent.putExtra("username", username);
+                        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                         startActivity(intent);
                         return true;
                     case R.id.nav_item_following:
