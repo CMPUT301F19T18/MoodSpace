@@ -319,7 +319,6 @@ public class AddEditActivity extends AppCompatActivity
 
 
         if (!locationCheckDenied){
-            Log.d("MANU","IN THIS STUPID WHILE");
             try {
                 Location location = locationManager.getLastKnownLocation(locationManager
                         .getBestProvider(criteria, false));
