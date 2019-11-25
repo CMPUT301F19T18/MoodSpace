@@ -4,7 +4,7 @@ import android.graphics.Color;
 
 public enum Emotion {
     ENJOYMENT(1, 0x1F604, "#fcb52b", "Enjoyment"),
-    ANGRY(2, 0x1F621, "#a03d3e", "Angry"),
+    ANGER(2, 0x1F621, "#a03d3e", "Anger"),
     SAD(3, 0x1F62D, "#3e6baa", "Sadness"),
     DISGUST(4, 0x1F922,"#4f9429", "Disgust"),
     FEAR(5, 0x1F631, "#5a3b85", "Fear"),
