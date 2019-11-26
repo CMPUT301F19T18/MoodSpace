@@ -10,29 +10,33 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:padding="5dp"
+        android:layout_marginStart="16dp"
         android:text="sample text"
         android:textColor="@color/colorBlack"
         android:textSize="24sp">
 
     </TextView>
 
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
+    <ImageButton
         android:id="@+id/accept_button"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_weight="1"
         android:clickable="true"
-        android:padding="20dp"
+        android:focusable="true"
+        android:layout_marginStart="100dp"
+        android:scaleType="center"
         app:backgroundTint="#4CAF50"
         app:srcCompat="@drawable/check" />
 
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
+    <ImageButton
         android:id="@+id/decline_button"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:padding="20dp"
+        android:layout_marginStart="100dp"
         android:layout_weight="1"
         android:clickable="true"
+        android:focusable="true"
         app:backgroundTint="#B71C1C"
         app:srcCompat="@drawable/x" />
 

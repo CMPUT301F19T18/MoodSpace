@@ -52,6 +52,9 @@ public class FollowActivity extends AppCompatActivity
     List<String> followRequestsFrom;
     List<String> followRequestsTo;
     ArrayAdapter requestAdapter;
+    ArrayAdapter followersAdapter;
+    ArrayAdapter followingAdapter;
+    AnswerRequestAdapter answerAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,7 +66,7 @@ public class FollowActivity extends AppCompatActivity
         fc = new FollowController(this);
         uc = new UserController(this);
         setContentView(R.layout.activity_follow);
-        username = getIntent().getExtras().getString("username");
+        this.username = getIntent().getExtras().getString("username");
 
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -128,6 +131,7 @@ public class FollowActivity extends AppCompatActivity
         tabs.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
+                updateUser();
                 int pos = tab.getPosition();
                 if (pos == 0) {
                     requestText.setVisibility(View.VISIBLE);
@@ -135,6 +139,7 @@ public class FollowActivity extends AppCompatActivity
 
                 }
                 else if (pos == 1){
+                    followsList.setAdapter(followersAdapter);
                     followsList.setVisibility(View.VISIBLE);
                 }
                 else if (pos == 2){
@@ -144,12 +149,14 @@ public class FollowActivity extends AppCompatActivity
                     sentRequestList.setVisibility(View.VISIBLE);
                 }
                 else if (pos == 3){
+                    followsList.setAdapter(followingAdapter);
                     followsList.setVisibility(View.VISIBLE);
                 }
             }
 
             @Override
             public void onTabUnselected(TabLayout.Tab tab) {
+                updateUser();
                 int pos = tab.getPosition();
                 if (pos == 0) {
                     requestText.setVisibility(View.GONE);
@@ -300,9 +307,15 @@ public class FollowActivity extends AppCompatActivity
         this.followRequestsFrom = followRequestsFrom;
         this.followRequestsTo = followRequestsTo;
 
+        this.answerAdapter = new AnswerRequestAdapter(this, followRequestsFrom, this.username, this.fc);
+        this.requestList.setAdapter(answerAdapter);
+
         this.requestAdapter = new ArrayAdapter<>(this, R.layout.request_content, followRequestsTo);
         this.sentRequestList.setAdapter(requestAdapter);
 
+        this.followersAdapter = new ArrayAdapter<>(this, R.layout.request_content, followers);
+
+        this.followingAdapter = new ArrayAdapter<>(this, R.layout.request_content, following);
     }
 }
 
