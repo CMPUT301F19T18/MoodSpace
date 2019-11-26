@@ -258,6 +258,7 @@ public class FollowActivity extends AppCompatActivity
                         case FOLLOW_ACTION_SEND_REQUEST:
                             fc.sendFollowRequest(username, target);
                             userField.getText().clear();
+                            updateUser();
                             return;
                         default:
                             // TODO handle unexpected case if we have time
