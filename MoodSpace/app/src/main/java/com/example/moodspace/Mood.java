@@ -70,14 +70,13 @@ public class Mood implements Serializable {
         if (hasPhoto == null) { // backwards compatibility
             hasPhoto = false;
         }
-        double lat;
-        double lon;
+        Double lat = null;
+        Double lon = null;
         try {
             lat = doc.getDouble("lat");
             lon = doc.getDouble("lon");
         } catch (Exception ex) {
-            lat = -1000;
-            lon = -1000;
+            Log.d(TAG, "cannot get location");
         }
 
         String id = doc.getId();

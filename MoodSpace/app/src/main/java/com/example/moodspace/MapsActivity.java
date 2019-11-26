@@ -12,12 +12,12 @@ import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.graphics.Color;
 import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
@@ -48,6 +48,7 @@ import java.util.Date;
 import io.paperdb.Paper;
 
 public class MapsActivity extends AppCompatActivity implements OnMapReadyCallback {
+    private static final String TAG = MapsActivity.class.getSimpleName();
 
     private GoogleMap mMap;
     MapView mMapView;
@@ -130,8 +131,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                                     color = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_CYAN);
                                     break;
                             }
-                            if(lat != -1000){
-                                LatLng sydney = new LatLng(lat,lon);
+                            if (lat != null && lon != null){
+                                LatLng sydney = new LatLng(lat, lon);
                                 mMap.addMarker(new MarkerOptions().position(sydney)
                                         .title(emotion.getEmojiString())
                                         .snippet(ts.toString())

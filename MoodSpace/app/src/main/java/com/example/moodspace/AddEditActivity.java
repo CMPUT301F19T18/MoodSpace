@@ -30,8 +30,6 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
-import com.google.android.gms.location.FusedLocationProviderClient;
-import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
@@ -77,10 +75,8 @@ public class AddEditActivity extends AppCompatActivity
     private MapView mMapView;
     private static final String MAPVIEW_BUNDLE_KEY = "MapViewBundleKey";
     private static final int MY_PERMISSIONS_REQUEST_FINE_LOCATION = 110;
-    private GoogleMap mMap;
-    private FusedLocationProviderClient fusedLocationProviderClient;
-    private boolean attachLocation = true;
-    private boolean locationCheckDenied = false;
+    private boolean attachLocation = false;
+    private Location currentLocation = null;
 
     /**
      * Initializes all input methods for adding a mood.
@@ -307,20 +303,17 @@ public class AddEditActivity extends AppCompatActivity
     }
 
     private Location getDeviceLocation() throws SecurityException {
-        // TODO: fix app crash if user denies location permission
         LocationManager locationManager = (LocationManager)
                 getSystemService(Context.LOCATION_SERVICE);
         Criteria criteria = new Criteria();
 
-        if (!locationCheckDenied) {
-            try {
-                Location location = locationManager.getLastKnownLocation(locationManager
-                        .getBestProvider(criteria, false));
-                return location;
-            }
-            catch (Exception ex) {
-                Log.d(TAG, Log.getStackTraceString(ex));
-            }
+        try {
+            Location location = locationManager.getLastKnownLocation(locationManager
+                    .getBestProvider(criteria, false));
+            return location;
+        }
+        catch (Exception ex) {
+            Log.d(TAG, Log.getStackTraceString(ex));
         }
         return null;
     }
@@ -329,8 +322,15 @@ public class AddEditActivity extends AppCompatActivity
         // Check which checkbox was clicked
         switch(view.getId()) {
             case R.id.checkbox_location:
-                // Is the view now checked?
                 attachLocation = ((CheckBox) view).isChecked();
+
+                // attempts to grant the permission if not granted yet
+                boolean locationPermission = checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION)
+                        == PackageManager.PERMISSION_GRANTED;
+                if (attachLocation && !locationPermission) {
+
+                }
+
                 break;
         }
     }
@@ -347,8 +347,7 @@ public class AddEditActivity extends AppCompatActivity
         mMapView.onCreate(mapViewBundle);
 
         mMapView.getMapAsync(AddEditActivity.this);
-
-        fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
+        //fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
     }
 
     private boolean isAddActivity() {
@@ -361,24 +360,32 @@ public class AddEditActivity extends AppCompatActivity
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
                                            @NonNull int[] grantResults) {
-        if (requestCode == GALLERY_PERMISSIONS_REQUEST) {
-            if (grantResults.length > 0
-                    && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                createImageIntent();
-            } else {
-                Toast.makeText(this, "Cannot access photos",
-                        Toast.LENGTH_SHORT).show();
-            }
+        switch (requestCode) {
+
+            case GALLERY_PERMISSIONS_REQUEST:
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    createImageIntent();
+                } else {
+                    Toast.makeText(this, "Cannot access photos",
+                            Toast.LENGTH_SHORT).show();
+                }
+                break;
+
+            case MY_PERMISSIONS_REQUEST_FINE_LOCATION:
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    this.currentLocation = getDeviceLocation();
+                } else {
+                    // unchecks location and shows a warning
+                    CheckBox checkbox = findViewById(R.id.checkbox_location);
+                    checkbox.setChecked(false);
+                    Toast.makeText(this, "Cannot access location",
+                            Toast.LENGTH_SHORT).show();
+                }
+            default:
+                Log.w(TAG, "unknown permission");
         }
-        else if (requestCode == MY_PERMISSIONS_REQUEST_FINE_LOCATION) {
-            if (!(grantResults.length > 0 &&
-                    grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
-                locationCheckDenied = true;
-            }
-        }
-
-
-
     }
 
     private void createImageIntent() {
