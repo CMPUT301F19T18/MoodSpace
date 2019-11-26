@@ -77,7 +77,6 @@ public class AddEditActivity extends AppCompatActivity
     private MapView mMapView;
     private static final String MAPVIEW_BUNDLE_KEY = "MapViewBundleKey";
     private static final int MY_PERMISSIONS_REQUEST_FINE_LOCATION = 110;
-    private GoogleMap mMap;
     private FusedLocationProviderClient fusedLocationProviderClient;
     private boolean attachLocation = true;
     private boolean locationCheckDenied = false;
@@ -396,12 +395,8 @@ public class AddEditActivity extends AppCompatActivity
         else if (requestCode == MY_PERMISSIONS_REQUEST_FINE_LOCATION) {
             if (grantResults.length > 0 &&
                     grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    if(isAddActivity()){
-                        mMap.setMyLocationEnabled(true);
-                    }
-
-            }else
-             {
+                // TODO stub?
+            } else {
                 locationCheckDenied = true;
             }
         }
