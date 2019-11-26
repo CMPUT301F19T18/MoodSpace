@@ -29,8 +29,14 @@ import io.paperdb.Paper;
 
 public class FollowActivity extends AppCompatActivity
         implements ControllerCallback, FollowController.GetDataCallback {
+    public static final String FOLLOW_ACTION_KEY = "moodspace.FollowActivity.followActionKey";
+    public static final String FOLLOW_ACTION_SEND_REQUEST = "moodspace.FollowActivity.followActionSendRequest";
+    public static final String TARGET_KEY = "moodspace.FollowActivity.targetKey";
+
     private static final String TAG = FollowActivity.class.getSimpleName();
     private FollowController fc;
+    private UserController uc;
+
     private String username;
     TabLayout tabs;
     TextView requestText;
@@ -67,7 +73,7 @@ public class FollowActivity extends AppCompatActivity
         sentRequestList = findViewById(R.id.sent_requests_listview);
 
         // sets up the menu button
-        final DrawerLayout drawerLayout = findViewById(R.id.drawer_layout);
+        final DrawerLayout drawerLayout = findViewById(R.id.follow_layout);
         toolbar.setNavigationIcon(R.drawable.ic_menu_button);
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
@@ -157,9 +163,11 @@ public class FollowActivity extends AppCompatActivity
             public void onClick(View v) {
                 String addedUser = userField.getText().toString();
                 if (!(addedUser.length() == 0)){
-                    fc.sendFollowRequest(username, addedUser);
-                    userField.getText().clear();
-                    updateUser();
+                    // first checks if the user exists (see case USERNAME_EXISTS)
+                    Bundle bundle = new Bundle();
+                    bundle.putString(FOLLOW_ACTION_KEY, FOLLOW_ACTION_SEND_REQUEST);
+                    bundle.putString(TARGET_KEY, addedUser);
+                    uc.checkUsernameExists(addedUser, bundle);
                 }
             }
         });
@@ -180,10 +188,8 @@ public class FollowActivity extends AppCompatActivity
     @Override
     public void callback(CallbackId callbackId, Bundle bundle) {
         // TODO stub
-        //View snackBarView = findViewById(R.id.whatever);
         if (callbackId instanceof FollowCallbackId) {
             switch ((FollowCallbackId) callbackId) {
-
                 case ADD_FOLLOWER_COMPLETE:
                     return;
                 case ADD_USER_TO_FOLLOWING_FAIL:
@@ -199,6 +205,7 @@ public class FollowActivity extends AppCompatActivity
                     return;
 
                 case ADD_FOLLOW_REQUEST_COMPLETE:
+                    updateUser();
                     return;
                 case ADD_FOLLOW_REQUEST_TO_FAIL:
                     return;
@@ -222,9 +229,33 @@ public class FollowActivity extends AppCompatActivity
         } else if (callbackId instanceof UserCallbackId) {
             switch ((UserCallbackId) callbackId) {
                 case USERNAME_EXISTS:
-                    return;
+                    String target;
+
+                    // TODO add tedious null checks if we have time
+                    //  (offset them to utils function?)
+                    target = bundle.getString(TARGET_KEY);
+
+                    // switch for future-proofing: in case this must be checked for other actions
+                    switch (bundle.getString(FOLLOW_ACTION_KEY)) {
+                        case FOLLOW_ACTION_SEND_REQUEST:
+                            fc.sendFollowRequest(username, target);
+                            userField.getText().clear();
+                            return;
+                        default:
+                            // TODO handle unexpected case if we have time
+                            return;
+                    }
+
                 case USERNAME_DOESNT_EXIST:
-                    return;
+                    // TODO handle these here too
+                    target = bundle.getString(TARGET_KEY);
+                    switch (bundle.getString(FOLLOW_ACTION_KEY)) {
+                        case FOLLOW_ACTION_SEND_REQUEST:
+                            Toast.makeText(this,
+                                    "User '" + target + "' does not exist", Toast.LENGTH_SHORT).show();
+                        default:
+                            return;
+                    }
 
                 case USER_READ_DATA_FAIL:
                     return;

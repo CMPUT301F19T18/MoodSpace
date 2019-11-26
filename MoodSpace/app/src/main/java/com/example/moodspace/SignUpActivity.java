@@ -15,6 +15,8 @@ import androidx.appcompat.widget.AppCompatTextView;
 
 import com.google.android.material.snackbar.Snackbar;
 
+import static com.example.moodspace.Utils.newUserBundle;
+
 /**
  * Activity for signing up as a new user
  */
@@ -63,7 +65,7 @@ public class SignUpActivity extends AppCompatActivity
                 }
 
                 final User inputtedUser = new User(usernameText, passwordText);
-                uc.checkUserExists(inputtedUser);
+                uc.checkUsernameExists(usernameText, newUserBundle(SIGN_UP_USER_KEY, inputtedUser));
                 signUpButton.setEnabled(false);
             }
         });
@@ -93,7 +95,7 @@ public class SignUpActivity extends AppCompatActivity
 
         if (callbackId instanceof UserCallbackId) {
             switch ((UserCallbackId) callbackId) {
-                case USERNAME_NOT_TAKEN:
+                case USERNAME_DOESNT_EXIST:
                     if (bundle == null) {
                         Snackbar.make(snackBarView,
                                 "Unexpected error: sign up user key bundle should not be null",
@@ -112,7 +114,7 @@ public class SignUpActivity extends AppCompatActivity
                     uc.signUpUser(user);
                     return;
 
-                case USERNAME_TAKEN:
+                case USERNAME_EXISTS:
                     Toast.makeText(this, "This username is taken", Toast.LENGTH_SHORT).show();
                     signUpButton.setEnabled(true);
                     return;

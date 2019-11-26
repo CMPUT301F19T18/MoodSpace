@@ -73,7 +73,7 @@ public class SignUpTest extends TestWatcher {
         onView(withId(R.id.signup_btn)).perform(click());
         Thread.sleep(3000);
 
-        onView(withId(R.id.drawer_layout)).perform(DrawerActions.open());
+        onView(withId(R.id.profile_layout)).perform(DrawerActions.open());
         Thread.sleep(1500);
         onView(withId(R.id.nav_view)).perform(NavigationViewActions.navigateTo(R.id.nav_item_log_out));
         Thread.sleep(1500);
@@ -112,7 +112,7 @@ public class SignUpTest extends TestWatcher {
         onView(withId(R.id.login_btn)).perform(click());
         Thread.sleep(1500);
 
-        onView(withId(R.id.drawer_layout)).perform(DrawerActions.open());
+        onView(withId(R.id.profile_layout)).perform(DrawerActions.open());
         onView(withId(R.id.nav_view)).perform(NavigationViewActions.navigateTo(R.id.nav_item_log_out));
         Thread.sleep(1500);
     }
