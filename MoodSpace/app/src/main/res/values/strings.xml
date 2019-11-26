@@ -3,9 +3,9 @@
 
     <!-- ae = add edit -->
     <string name="ae_reason_text">Reason</string>
-    <string name="ae_add_photo_text">Add photo</string>
+    <string name="ae_add_photo_text">Tap To Add Photo</string>
     <string name="ae_add_location_text">Placeholder Location</string>
-    <string name="ae_initial_emotion_text">Please select an emotion</string>
+    <string name="ae_initial_emotion_text">Please Select An Emotion</string>
 
     <!-- am = add mood, em = edit mood -->
     <string name="am_ok_text">Post</string>

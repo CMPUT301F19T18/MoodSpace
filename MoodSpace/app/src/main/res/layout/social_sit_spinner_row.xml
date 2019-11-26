@@ -4,11 +4,11 @@
     tools:text="Alone"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:padding="12dp"
+    android:padding="15dp"
     android:shadowColor="#00000000"
-    android:background="@color/colorPrimary"
-    android:textColor="@color/colorAccent"
-    android:textSize="20sp"
+    android:background="@drawable/dropdownbox"
+    android:textColor="@android:color/background_light"
+    android:textSize="18sp"
     android:textStyle="bold"
     xmlns:android="http://schemas.android.com/apk/res/android" />
 

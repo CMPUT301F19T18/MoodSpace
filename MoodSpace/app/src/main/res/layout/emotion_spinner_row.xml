@@ -2,13 +2,16 @@
 <TextView android:id="@+id/emotion_spinner_row"
     xmlns:tools="http://schemas.android.com/tools"
     tools:text="Emoji"
-    android:layout_width="match_parent"
+    android:layout_width="305dp"
     android:layout_height="wrap_content"
-    android:padding="20dp"
-    android:shadowColor="#00000000"
-    android:background="@color/colorBlack"
+    android:padding="15dp"
+
+    android:background="@drawable/dropdownbox"
     android:textColor="@android:color/background_light"
-    android:textSize="24sp"
+    android:textSize="18sp"
     android:textStyle="bold"
+
+
     xmlns:android="http://schemas.android.com/apk/res/android" />
+
 

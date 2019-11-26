@@ -3,11 +3,12 @@
     <color name="colorPrimary">#309FFF</color>
     <color name="colorPrimaryDark">#FFF9F9</color>
     <color name="colorAccent">#500897</color>
-    <color name="colorWhite">#FFF7F7</color>
+    <color name="colorWhite">#E4E4E4</color>
     <color name="colorBlack">#000000</color>
     <color name="colorHint">#E5E5E5</color>
     <color name="colorTitle">#FFD492</color>
     <color name="themeColor">#11CFC5</color>
+    <color name="colorGrey">#8A8A8A</color>
 
     <!--normal colors-->
     <color name="darkTextColor">#020000</color>

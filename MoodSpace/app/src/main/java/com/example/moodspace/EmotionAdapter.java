@@ -23,7 +23,6 @@ import java.util.List;
 public class EmotionAdapter extends ArrayAdapter<Emotion> {
     private final String TAG = EmotionAdapter.class.getSimpleName();
     private final String INITIAL_TEXT = getContext().getString(R.string.ae_initial_emotion_text);
-    private final int INITIAL_COLOR = Color.parseColor("#7f8c8d");
     private static final int RESOURCE = R.layout.emotion_spinner_row;
 
     private Context context;
@@ -61,7 +60,6 @@ public class EmotionAdapter extends ArrayAdapter<Emotion> {
         LayoutInflater inflater = LayoutInflater.from(context);
         final TextView view = (TextView) inflater.inflate(RESOURCE, parent, false);
         view.setText(INITIAL_TEXT);
-        view.setBackgroundColor(INITIAL_COLOR);
 
         if (dropdown) { // Hidden when the dropdown is opened
             view.setHeight(0);
