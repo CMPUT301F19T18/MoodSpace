@@ -2,7 +2,7 @@
 <TextView android:id="@+id/emotion_spinner_row"
     xmlns:tools="http://schemas.android.com/tools"
     tools:text="Emoji"
-    android:layout_width="305dp"
+    android:layout_width="300dp"
     android:layout_height="wrap_content"
     android:padding="15dp"
 

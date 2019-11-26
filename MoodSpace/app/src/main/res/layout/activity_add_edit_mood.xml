@@ -62,33 +62,43 @@
                     android:textStyle="bold" />
             </LinearLayout>
 
-            <LinearLayout
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/linearLayout"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent">
 
                 <EditText
                     android:id="@+id/editText"
-                    android:layout_width="80dp"
-                    android:layout_height="match_parent"
+                    android:layout_width="90dp"
+                    android:layout_height="75dp"
                     android:background="@null"
                     android:clickable="false"
                     android:ems="8"
                     android:fontFamily="cursive"
                     android:inputType="textPersonName"
-                    android:paddingLeft="10dp"
+                    android:paddingLeft="20dp"
                     android:text="Mood"
                     android:textColor="#000000"
-                    android:textSize="24dp" />
+                    android:textSize="24dp"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toStartOf="@+id/emotionSelector"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintVertical_bias="0.0" />
 
                 <Spinner
                     android:id="@+id/emotionSelector"
                     style="@android:style/Widget.Holo.Spinner"
                     android:layout_width="321dp"
                     android:layout_height="75dp"
-                    android:popupBackground="@color/colorTitle"
 
-                    />
-            </LinearLayout>
+                    android:popupBackground="@color/colorTitle"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toEndOf="@+id/editText"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintVertical_bias="0.0" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
@@ -105,7 +115,7 @@
                     android:ems="10"
                     android:fontFamily="cursive"
                     android:inputType="textPersonName"
-                    android:paddingLeft="13dp"
+                    android:paddingLeft="15dp"
                     android:paddingTop="10dp"
                     android:text="Social"
                     android:textSize="20dp"
@@ -120,7 +130,7 @@
                     android:layout_width="321dp"
                     android:layout_height="75dp"
 
-                    android:popupBackground="@color/colorTitle"
+                    android:popupBackground="@android:color/transparent"
 
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
@@ -133,13 +143,13 @@
                     android:layout_height="37.5dp"
                     android:layout_marginBottom="1dp"
                     android:layout_weight="1"
-                    android:ems="10"
-                    android:paddingLeft="15dp"
-                    android:paddingBottom="10dp"
                     android:background="@null"
                     android:clickable="false"
+                    android:ems="10"
                     android:fontFamily="cursive"
                     android:inputType="textPersonName"
+                    android:paddingLeft="18dp"
+                    android:paddingBottom="10dp"
                     android:text="Situation"
                     android:textSize="20dp"
                     app:layout_constraintBottom_toBottomOf="parent"
@@ -148,7 +158,8 @@
                     app:layout_constraintTop_toBottomOf="@+id/editText2" />
             </androidx.constraintlayout.widget.ConstraintLayout>
 
-            <LinearLayout
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/linearLayout2"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:focusableInTouchMode="true"
@@ -163,32 +174,45 @@
                     android:ems="10"
                     android:fontFamily="cursive"
                     android:inputType="textPersonName"
-                    android:paddingLeft="10dp"
+                    android:paddingLeft="20dp"
                     android:text="Reason"
-                    android:textSize="24dp" />
+                    android:textSize="24dp"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toStartOf="@+id/reason_text"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
 
                 <com.google.android.material.textfield.TextInputLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="75dp"
-                    android:layout_marginStart="0dp"
-                    android:layout_marginEnd="0dp"
+                    android:id="@+id/textInputLayout"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="40dp"
+                    android:layout_marginEnd="16dp"
                     app:counterEnabled="true"
-                    app:counterMaxLength="20">
+                    app:counterMaxLength="20"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent">
 
-                    <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/reason_text"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:hint="@string/ae_reason_text"
-                        android:inputType="text"
-                        android:maxLength="20"
-                        android:textColor="@color/colorBlack"
-                        android:textSize="16sp" />
                 </com.google.android.material.textfield.TextInputLayout>
 
-            </LinearLayout>
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/reason_text"
+                    android:layout_width="321dp"
+                    android:layout_height="75dp"
+                    android:hint="@string/ae_reason_text"
+                    android:inputType="text"
+                    android:maxLength="20"
+                    android:textColor="@color/colorBlack"
+                    android:textSize="16sp"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toEndOf="@+id/editText3"
+                    app:layout_constraintTop_toTopOf="parent" />
 
-            <LinearLayout
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/linearLayout3"
                 android:layout_width="411dp"
                 android:layout_height="100dp"
                 android:layout_marginLeft="2dp">
@@ -196,29 +220,41 @@
                 <EditText
                     android:id="@+id/editText4"
                     android:layout_width="90dp"
-                    android:layout_height="40dp"
+                    android:layout_height="75dp"
+                    android:layout_marginBottom="25dp"
                     android:background="@null"
                     android:clickable="false"
                     android:ems="10"
                     android:fontFamily="cursive"
                     android:inputType="textPersonName"
-                    android:paddingLeft="10dp"
+                    android:paddingLeft="15dp"
                     android:text="Location"
-                    android:textSize="24dp" />
+                    android:textSize="24dp"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toStartOf="@+id/checkbox_location"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
 
                 <CheckBox
                     android:id="@+id/checkbox_location"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:layout_width="129dp"
+                    android:layout_height="41dp"
 
 
+                    android:layout_marginTop="20dp"
+                    android:layout_marginEnd="192dp"
+                    android:layout_marginBottom="59dp"
                     android:checked="true"
-                    android:onClick="onCheckboxClicked"
                     android:text="Add Location"
-                    android:textStyle="bold" />
+                    android:textStyle="bold"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toEndOf="@+id/editText4"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintVertical_bias="0.0" />
 
 
-            </LinearLayout>
+            </androidx.constraintlayout.widget.ConstraintLayout>
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
