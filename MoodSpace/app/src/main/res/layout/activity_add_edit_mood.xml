@@ -210,17 +210,18 @@
                     app:layout_constraintRight_toRightOf="@+id/left_square_view"
                     app:layout_constraintTop_toTopOf="@+id/left_square_view" />
 
-                <CheckBox android:id="@+id/checkbox_location"
+                <CheckBox
+                    android:id="@+id/checkbox_location"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Add Location"
+                    android:checked="false"
                     android:onClick="onCheckboxClicked"
+                    android:text="Add Location"
                     android:textStyle="bold"
-                    android:checked="true"
                     app:layout_constraintBottom_toBottomOf="@+id/left_square_view"
                     app:layout_constraintLeft_toLeftOf="@+id/left_square_view"
                     app:layout_constraintRight_toRightOf="@+id/left_square_view"
-                    app:layout_constraintTop_toTopOf="@+id/left_square_view"/>
+                    app:layout_constraintTop_toTopOf="@+id/left_square_view" />
             </androidx.constraintlayout.widget.ConstraintLayout>
 
         </LinearLayout>
