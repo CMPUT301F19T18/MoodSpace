@@ -75,6 +75,7 @@ public class AddEditActivity extends AppCompatActivity
     private MapView mMapView;
     private static final String MAPVIEW_BUNDLE_KEY = "MapViewBundleKey";
     private static final int MY_PERMISSIONS_REQUEST_FINE_LOCATION = 110;
+    private GoogleMap mMap;
     private boolean attachLocation = false;
     private Location currentLocation = null;
 
@@ -158,15 +159,9 @@ public class AddEditActivity extends AppCompatActivity
                 Double lon = null;
 
                 // reuses parameters if editing
-                if (AddEditActivity.this.isAddActivity()) {
+                if (isAddActivity()) {
                     id = UUID.randomUUID().toString();
                     date = new Date();
-
-                    if (attachLocation) {
-                        Location loc = getDeviceLocation();
-                        lat = loc.getLatitude();
-                        lon = loc.getLongitude();
-                    }
                 } else {
                     //TODO Display message location not provided instead of empty map (Maybe)
                     id = currentMood.getId();
@@ -303,6 +298,7 @@ public class AddEditActivity extends AppCompatActivity
     }
 
     private Location getDeviceLocation() throws SecurityException {
+        // TODO: fix app crash if user denies location permission
         LocationManager locationManager = (LocationManager)
                 getSystemService(Context.LOCATION_SERVICE);
         Criteria criteria = new Criteria();
@@ -311,8 +307,7 @@ public class AddEditActivity extends AppCompatActivity
             Location location = locationManager.getLastKnownLocation(locationManager
                     .getBestProvider(criteria, false));
             return location;
-        }
-        catch (Exception ex) {
+        } catch (Exception ex) {
             Log.d(TAG, Log.getStackTraceString(ex));
         }
         return null;
@@ -320,7 +315,7 @@ public class AddEditActivity extends AppCompatActivity
 
     public void onCheckboxClicked(View view) {
         // Check which checkbox was clicked
-        switch(view.getId()) {
+        switch (view.getId()) {
             case R.id.checkbox_location:
                 attachLocation = ((CheckBox) view).isChecked();
 
@@ -329,6 +324,18 @@ public class AddEditActivity extends AppCompatActivity
                         == PackageManager.PERMISSION_GRANTED;
                 if (attachLocation && !locationPermission) {
 
+                    return;
+                }
+
+                // gets location here
+                if (attachLocation) {
+                    Location loc = getDeviceLocation();
+                    if (loc == null) {
+                        lat = loc.getLatitude();
+                        lon = loc.getLongitude();
+                    } else {
+
+                    }
                 }
 
                 break;
@@ -376,6 +383,9 @@ public class AddEditActivity extends AppCompatActivity
                 if (grantResults.length > 0
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     this.currentLocation = getDeviceLocation();
+                    if (isAddActivity()) {
+                        mMap.setMyLocationEnabled(true);
+                    }
                 } else {
                     // unchecks location and shows a warning
                     CheckBox checkbox = findViewById(R.id.checkbox_location);
@@ -518,15 +528,29 @@ public class AddEditActivity extends AppCompatActivity
         if (!isAddActivity()) {
             lat = currentMood.getLat();
             lon = currentMood.getLon();
+
             if (lat != null && lon != null) {
-                LatLng sydney = new LatLng(lat, lon);
+                LatLng sydney = new LatLng(lat,lon);
                 googleMap.addMarker(new MarkerOptions().position(sydney));
                 googleMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
             }
         } else {
             askForLocationPermission();
         }
+    }
 
+    private void askForLocationPermission() {
+        if (checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for Activity#requestPermissions for more details.
+
+            ActivityCompat.requestPermissions(AddEditActivity.this,
+                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                    MY_PERMISSIONS_REQUEST_FINE_LOCATION);
+        }
     }
 
     private void askForLocationPermission() {
