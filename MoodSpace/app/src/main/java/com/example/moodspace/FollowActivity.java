@@ -191,7 +191,13 @@ public class FollowActivity extends AppCompatActivity
             @Override
             public void onClick(View v) {
                 String addedUser = userField.getText().toString();
-                if (!(addedUser.length() == 0)){
+                if (following.contains(addedUser)){
+                    Toast.makeText(FollowActivity.this, "You Already Follow Them!", Toast.LENGTH_LONG).show();
+                }
+                else if (addedUser.equals(username)){
+                    Toast.makeText(FollowActivity.this, "You Can't Follow Yourself!", Toast.LENGTH_LONG).show();
+                }
+                else if (!(addedUser.length() == 0)){
                     // first checks if the user exists (see case USERNAME_EXISTS)
                     Bundle bundle = new Bundle();
                     bundle.putString(FOLLOW_ACTION_KEY, FOLLOW_ACTION_SEND_REQUEST);
