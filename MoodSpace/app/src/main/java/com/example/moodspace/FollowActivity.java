@@ -4,9 +4,12 @@ import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.ContextMenu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -20,6 +23,8 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.tabs.TabLayout;
 
@@ -38,6 +43,7 @@ public class FollowActivity extends AppCompatActivity
     private UserController uc;
 
     private String username;
+    private String unfollowId;
     TabLayout tabs;
     TextView followText;
     AppCompatEditText userField;
@@ -63,7 +69,7 @@ public class FollowActivity extends AppCompatActivity
             getWindow().setFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS,
                     WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
         }
-        fc = new FollowController(this);
+        this.fc = new FollowController(this);
         uc = new UserController(this);
         setContentView(R.layout.activity_follow);
         this.username = getIntent().getExtras().getString("username");
@@ -196,11 +202,37 @@ public class FollowActivity extends AppCompatActivity
         });
 
         updateUser();
-
     }
 
     public void updateUser(){
         fc.getFollowData(username);
+    }
+
+    @Override
+    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+        super.onCreateContextMenu(menu, v, menuInfo);
+        AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo)menuInfo;
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.unfollow_menu, menu);
+        int index = info.position;
+        Log.d(TAG, this.following.get(index));
+        unfollowId = this.following.get(index);
+    }
+
+    @Override
+    public boolean onContextItemSelected(@NonNull MenuItem item) {
+        AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
+        switch (item.getItemId()) {
+            case R.id.unfollow:
+                Toast.makeText(this, "Unfollowed", Toast.LENGTH_LONG).show();
+                this.following.remove(info.position);
+                this.fc.removeFollower(username, unfollowId);
+                followingAdapter.notifyDataSetChanged();
+                return true;
+
+            default:
+                return super.onContextItemSelected(item);
+        }
     }
 
     @Override
@@ -316,6 +348,8 @@ public class FollowActivity extends AppCompatActivity
 
         this.followersList.setAdapter(followersAdapter);
         this.followingList.setAdapter(followingAdapter);
+
+        registerForContextMenu(followingList);
     }
 }
 
