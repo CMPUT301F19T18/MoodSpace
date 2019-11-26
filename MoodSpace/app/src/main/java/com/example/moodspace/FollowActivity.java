@@ -9,7 +9,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import java.util.List;
 
 public class FollowActivity extends AppCompatActivity
-        implements ControllerCallback, FollowController.Callback {
+        implements ControllerCallback, FollowController.GetDataCallback {
     private static final String TAG = FollowActivity.class.getSimpleName();
     private FollowController fc;
 
@@ -60,6 +60,8 @@ public class FollowActivity extends AppCompatActivity
                 case REMOVE_FOLLOW_REQUEST_FROM_FAIL:
                     return;
 
+                case ACCEPT_FOLLOW_REQUEST_COMPLETE:
+                    return;
                 case FOLLOWEE_MOOD_READ_FAIL:
                     return;
                 default:
@@ -67,6 +69,11 @@ public class FollowActivity extends AppCompatActivity
             }
         } else if (callbackId instanceof UserCallbackId) {
             switch ((UserCallbackId) callbackId) {
+                case USERNAME_EXISTS:
+                    return;
+                case USERNAME_DOESNT_EXIST:
+                    return;
+
                 case USER_READ_DATA_FAIL:
                     return;
                 case USER_TASK_NULL:
@@ -79,11 +86,6 @@ public class FollowActivity extends AppCompatActivity
         } else {
             Log.w(TAG, "unrecognized callback ID: " + callbackId);
         }
-    }
-
-    @Override
-    public void callbackFollowingMoods(@NonNull List<MoodOther> followingMoodsList) {
-        // TODO stub
     }
 
     @Override
