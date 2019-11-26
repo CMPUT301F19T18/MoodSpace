@@ -60,6 +60,7 @@ public class FollowActivity extends AppCompatActivity
                     WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
         }
         fc = new FollowController(this);
+        uc = new UserController(this);
         setContentView(R.layout.activity_follow);
         username = getIntent().getExtras().getString("username");
 
