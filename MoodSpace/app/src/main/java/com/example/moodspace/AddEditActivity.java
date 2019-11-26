@@ -80,6 +80,7 @@ public class AddEditActivity extends AppCompatActivity
     private GoogleMap mMap;
     private FusedLocationProviderClient fusedLocationProviderClient;
     private boolean attachLocation = true;
+    private boolean locationCheckDenied = false;
 
     /**
      * Initializes all input methods for adding a mood.
@@ -101,11 +102,11 @@ public class AddEditActivity extends AppCompatActivity
         currentMood = (Mood) getIntent().getSerializableExtra("MOOD");
 
         if(isAddActivity()){
-            mMapView.setVisibility(MapView.GONE);
+            mMapView.setVisibility(mMapView.GONE);
         }
         else{
             CheckBox locCheck = findViewById(R.id.checkbox_location);
-            locCheck.setVisibility(CheckBox.GONE);
+            locCheck.setVisibility(locCheck.GONE);
         }
 
         // creates emotion spinner
@@ -130,13 +131,10 @@ public class AddEditActivity extends AppCompatActivity
         saveBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // disables so you can't click multiple times
-                saveBtn.setEnabled(false);
 
                 // requires an emotion to be selected
                 if (selectedEmotion == null) {
                     Toast.makeText(AddEditActivity.this, "Select an emotion", Toast.LENGTH_SHORT).show();
-                    saveBtn.setEnabled(true);
                     return;
                 }
 
@@ -152,7 +150,6 @@ public class AddEditActivity extends AppCompatActivity
                     if (!trim.isEmpty() && trim.split("\\s+").length > 3) {
                         Toast.makeText(AddEditActivity.this, "Reason must be less than 4 words",
                                 Toast.LENGTH_SHORT).show();
-                        saveBtn.setEnabled(true);
                         return;
                     }
                 }
@@ -161,22 +158,19 @@ public class AddEditActivity extends AppCompatActivity
                 Date date;
                 boolean hasPhoto = AddEditActivity.this.hasPhoto;
                 SocialSituation socialSit = (SocialSituation) socialSitSpinner.getSelectedItem();
-                double lat = -1000;
-                double lon = -1000;
+                Double lat = null;
+                Double lon = null;
 
                 // reuses parameters if editing
-                if (isAddActivity()) {
+                if (AddEditActivity.this.isAddActivity()) {
                     id = UUID.randomUUID().toString();
                     date = new Date();
 
-                    if(attachLocation) {
+                    if (attachLocation) {
                         Location loc = getDeviceLocation();
                         lat = loc.getLatitude();
                         lon = loc.getLongitude();
                     }
-
-
-
                 } else {
                     //TODO Display message location not provided instead of empty map (Maybe)
                     id = currentMood.getId();
@@ -186,7 +180,7 @@ public class AddEditActivity extends AppCompatActivity
                 }
 
                 Mood mood = new Mood(id, date, selectedEmotion, reasonText, hasPhoto, socialSit, lat, lon);
-                if (isAddActivity()) {
+                if (AddEditActivity.this.isAddActivity()) {
                     aec.addMood(username, mood);
 
                 } else {
@@ -194,7 +188,7 @@ public class AddEditActivity extends AppCompatActivity
                 }
 
                 // only uploads if the photo hasn't changed for optimization purposes
-                if (hasPhoto && changedPhoto) {
+                if (hasPhoto && AddEditActivity.this.changedPhoto) {
                     aec.uploadPhoto(inputPhotoPath, id);
                 }
 
@@ -250,8 +244,8 @@ public class AddEditActivity extends AppCompatActivity
         removeImageButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                removePreviewImage();
-                inputPhotoPath = null;
+                AddEditActivity.this.removePreviewImage();
+                AddEditActivity.this.inputPhotoPath = null;
             }
         });
 
@@ -312,57 +306,32 @@ public class AddEditActivity extends AppCompatActivity
         setSupportActionBar(toolbar);
     }
 
-    private Location getDeviceLocation(){
+    private Location getDeviceLocation() throws SecurityException {
         // TODO: fix app crash if user denies location permission
         LocationManager locationManager = (LocationManager)
                 getSystemService(Context.LOCATION_SERVICE);
         Criteria criteria = new Criteria();
 
-        if (checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for Activity#requestPermissions for more details.
-
-            ActivityCompat.requestPermissions(AddEditActivity.this,
-                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
-                    MY_PERMISSIONS_REQUEST_FINE_LOCATION);
-
-        }
-
-        while(true) {
-
+        if (!locationCheckDenied) {
             try {
                 Location location = locationManager.getLastKnownLocation(locationManager
                         .getBestProvider(criteria, false));
                 return location;
             }
-            catch(Exception ex){ continue;}
+            catch (Exception ex) {
+                Log.d(TAG, Log.getStackTraceString(ex));
+            }
         }
-
-
-
-
+        return null;
     }
 
     public void onCheckboxClicked(View view) {
-        // Is the view now checked?
-        boolean checked = ((CheckBox) view).isChecked();
-
         // Check which checkbox was clicked
         switch(view.getId()) {
             case R.id.checkbox_location:
-                if (checked){
-                    attachLocation = true;
-                }
-
-            else{
-                    attachLocation = false;
-                }
-
+                // Is the view now checked?
+                attachLocation = ((CheckBox) view).isChecked();
                 break;
-
         }
     }
 
@@ -374,7 +343,7 @@ public class AddEditActivity extends AppCompatActivity
         if (savedInstanceState != null) {
             mapViewBundle = savedInstanceState.getBundle(MAPVIEW_BUNDLE_KEY);
         }
-        mMapView = (MapView) findViewById(R.id.map_view);
+        mMapView = findViewById(R.id.map_view);
         mMapView.onCreate(mapViewBundle);
 
         mMapView.getMapAsync(AddEditActivity.this);
@@ -402,15 +371,12 @@ public class AddEditActivity extends AppCompatActivity
             }
         }
         else if (requestCode == MY_PERMISSIONS_REQUEST_FINE_LOCATION) {
-            if (permissions.length == 1 &&
-                    permissions[0] == Manifest.permission.ACCESS_FINE_LOCATION &&
-                    grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-
-
-            } else {
-
+            if (!(grantResults.length > 0 &&
+                    grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
+                locationCheckDenied = true;
             }
-            }
+        }
+
 
 
     }
@@ -486,7 +452,7 @@ public class AddEditActivity extends AppCompatActivity
 
 
     @Override
-    public void onSaveInstanceState(@NonNull Bundle outState) {
+    public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
 
         Bundle mapViewBundle = outState.getBundle(MAPVIEW_BUNDLE_KEY);
@@ -539,27 +505,35 @@ public class AddEditActivity extends AppCompatActivity
     @Override
     public void onMapReady(GoogleMap googleMap) {
         //TODO: right zoom level or the target button to do that
-        double lat = -1000;
-        double lon = -1000;
+        Double lat = null;
+        Double lon = null;
 
-        Location loc = getDeviceLocation();
-
-        googleMap.setMyLocationEnabled(true);
-
-        if (this.isAddActivity()) {
-            lat = loc.getLatitude();
-            lon = loc.getLongitude();
-        } else {
+        if (!isAddActivity()) {
             lat = currentMood.getLat();
             lon = currentMood.getLon();
-
-            if(lat != -1000){
-
-                LatLng sydney = new LatLng(lat,lon);
+            if (lat != null && lon != null) {
+                LatLng sydney = new LatLng(lat, lon);
                 googleMap.addMarker(new MarkerOptions().position(sydney));
                 googleMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
             }
+        } else {
+            askForLocationPermission();
         }
 
+    }
+
+    private void askForLocationPermission() {
+        if (checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for Activity#requestPermissions for more details.
+
+            ActivityCompat.requestPermissions(AddEditActivity.this,
+                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                    MY_PERMISSIONS_REQUEST_FINE_LOCATION);
+
+        }
     }
 }

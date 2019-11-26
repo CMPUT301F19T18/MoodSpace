@@ -94,15 +94,14 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                     @Override
                     public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException e) {
                         for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
-                            double lat;
-                            double lon;
+                            Double lat = null;
+                            Double lon = null;
 
-                            try{
+                            try {
                                 lat = doc.getDouble("lat");
-                                lon = doc.getDouble("lon");}
-                            catch (Exception ex) {
-                                lat = -1000;
-                                lon = -1000;
+                                lon = doc.getDouble("lon");
+                            } catch (Exception ex) {
+                                Log.d(TAG, "cannot get location");
                             }
 
                             Date ts = doc.getTimestamp("date").toDate();
