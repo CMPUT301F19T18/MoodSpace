@@ -217,18 +217,35 @@ public class FollowActivity extends AppCompatActivity
     @Override
     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
         super.onCreateContextMenu(menu, v, menuInfo);
-        AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo)menuInfo;
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.unfollow_menu, menu);
-        int index = info.position;
-        Log.d(TAG, this.following.get(index));
-        unfollowId = this.following.get(index);
+        if (v.getId() == R.id.following_listview){
+            AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo)menuInfo;
+            MenuInflater inflater = getMenuInflater();
+            inflater.inflate(R.menu.unfollow_menu, menu);
+            int index = info.position;
+            Log.d(TAG, this.following.get(index));
+            unfollowId = this.following.get(index);
+        }
+        else if (v.getId() == R.id.sent_requests_listview){
+            AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo)menuInfo;
+            MenuInflater inflater = getMenuInflater();
+            inflater.inflate(R.menu.cancel_request, menu);
+            int index = info.position;
+            Log.d(TAG, this.followRequestsTo.get(index));
+            unfollowId = this.followRequestsTo.get(index);
+        }
     }
 
     @Override
     public boolean onContextItemSelected(@NonNull MenuItem item) {
         AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
         switch (item.getItemId()) {
+            case R.id.cancel:
+                Toast.makeText(this, "Cancelled", Toast.LENGTH_LONG).show();
+                this.followRequestsTo.remove(info.position);
+                this.fc.removeFollowRequest(username, unfollowId);
+                requestAdapter.notifyDataSetChanged();
+                return true;
+
             case R.id.unfollow:
                 Toast.makeText(this, "Unfollowed", Toast.LENGTH_LONG).show();
                 this.following.remove(info.position);
@@ -356,6 +373,7 @@ public class FollowActivity extends AppCompatActivity
         this.followingList.setAdapter(followingAdapter);
 
         registerForContextMenu(followingList);
+        registerForContextMenu(sentRequestList);
     }
 }
 
