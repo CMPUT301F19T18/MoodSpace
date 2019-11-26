@@ -8,6 +8,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.location.Criteria;
 import android.location.Location;
+import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Build;
 import android.os.Bundle;
@@ -54,8 +55,11 @@ import java.util.UUID;
  */
 public class AddEditActivity extends AppCompatActivity
         implements AdapterView.OnItemSelectedListener, OnMapReadyCallback {
+    private static final String MAPVIEW_BUNDLE_KEY = "moodspace.AddEditActivity.mapViewBundleKey";
+
     private static final int PICK_IMAGE = 1;
     private static final int GALLERY_PERMISSIONS_REQUEST = 1;
+    private static final int FINE_LOCATION_PERMISSIONS_REQUEST = 2;
     // TODO: change back down to 8 when jpgs can be uploaded properly
     private static final long MAX_DOWNLOAD_LIMIT = 30 * 1024 * 1024;
     private static final String TAG = AddEditActivity.class.getSimpleName();
@@ -71,13 +75,23 @@ public class AddEditActivity extends AppCompatActivity
 
     private FirebaseStorage fbStorage = FirebaseStorage.getInstance();
 
-    //Location variables
+    // location variables
     private MapView mMapView;
-    private static final String MAPVIEW_BUNDLE_KEY = "MapViewBundleKey";
-    private static final int MY_PERMISSIONS_REQUEST_FINE_LOCATION = 110;
-    private GoogleMap mMap;
-    private boolean attachLocation = false;
+    private LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
     private Location currentLocation = null;
+    private LocationListener locationListener = new LocationListener() {
+        @Override
+        public void onLocationChanged(Location location) {
+            currentLocation = location;
+        }
+
+        @Override
+        public void onStatusChanged(String s, int i, Bundle bundle) { }
+        @Override
+        public void onProviderEnabled(String s) { }
+        @Override
+        public void onProviderDisabled(String s) { }
+    };
 
     /**
      * Initializes all input methods for adding a mood.
@@ -293,6 +307,8 @@ public class AddEditActivity extends AppCompatActivity
             timeInfo.setText(parsedTime);
         }
 
+
+
         setSupportActionBar(toolbar);
     }
 
@@ -316,19 +332,27 @@ public class AddEditActivity extends AppCompatActivity
         // Check which checkbox was clicked
         switch (view.getId()) {
             case R.id.checkbox_location:
-                attachLocation = ((CheckBox) view).isChecked();
+                boolean attachLocation = ((CheckBox) view).isChecked();
 
                 // attempts to grant the permission if not granted yet
                 boolean locationPermission = checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION)
                         == PackageManager.PERMISSION_GRANTED;
                 if (attachLocation && !locationPermission) {
-
+                    // requests permission
+                    ActivityCompat.requestPermissions(AddEditActivity.this,
+                            new String[] {Manifest.permission.ACCESS_FINE_LOCATION},
+                            FINE_LOCATION_PERMISSIONS_REQUEST);
                     return;
                 }
 
-                // gets location here
+                // gets location here since location permission is granted
+                // https://stackoverflow.com/a/10917500
                 if (attachLocation) {
-                    currentLocation = getDeviceLocation();
+                    locationManager.requestLocationUpdates(
+                            LocationManager.GPS_PROVIDER, 5000, 10,
+                    //currentLocation = getDeviceLocation();
+                } else {
+                    locationManager.removeUpdates();
                 }
         }
     }
@@ -370,12 +394,12 @@ public class AddEditActivity extends AppCompatActivity
                 }
                 break;
 
-            case MY_PERMISSIONS_REQUEST_FINE_LOCATION:
+            case FINE_LOCATION_PERMISSIONS_REQUEST:
                 if (grantResults.length > 0
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     this.currentLocation = getDeviceLocation();
                     if (isAddActivity()) {
-                        mMap.setMyLocationEnabled(true);
+                        // idk
                     }
                 } else {
                     // unchecks location and shows a warning
@@ -527,18 +551,14 @@ public class AddEditActivity extends AppCompatActivity
         }
     }
 
+    /*
     private void askForLocationPermission() {
-        if (checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for Activity#requestPermissions for more details.
+        // here to request the missing permissions, and then overriding
+        //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+        //                                          int[] grantResults)
+        // to handle the case where the user grants the permission. See the documentation
+        // for Activity#requestPermissions for more details.
 
-            ActivityCompat.requestPermissions(AddEditActivity.this,
-                    new String[] {Manifest.permission.ACCESS_FINE_LOCATION},
-                    MY_PERMISSIONS_REQUEST_FINE_LOCATION);
-
-        }
     }
+     */
 }

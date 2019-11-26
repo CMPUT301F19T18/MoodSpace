@@ -50,9 +50,10 @@ import io.paperdb.Paper;
 public class MapsActivity extends AppCompatActivity implements OnMapReadyCallback {
     private static final String TAG = MapsActivity.class.getSimpleName();
 
+    private static final String MAPVIEW_BUNDLE_KEY = "moodspace.MapsActivity.mapViewBundleKey";
+
     private GoogleMap mMap;
     MapView mMapView;
-    private static final String MAPVIEW_BUNDLE_KEY = "MapViewBundleKey2";
     private FusedLocationProviderClient fusedLocationProviderClient;
     private String username;
     private int MY_PERMISSIONS_REQUEST_FINE_LOCATION = 123;
