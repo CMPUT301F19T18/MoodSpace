@@ -60,39 +60,28 @@
         </com.google.android.material.tabs.TabLayout>
 
         <TextView
-            android:id="@+id/request_text"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:text="Requests:"
-            android:textAppearance="@style/TextAppearance.AppCompat.Large"
-            app:layout_constraintBottom_toTopOf="@+id/request_listview"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/tab_layout">
-        </TextView>
-
-        <TextView
             android:id="@+id/follow_text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
-            android:text="Send Someone a Follow Request:"
+            android:layout_marginTop="16dp"
+            android:text="Your Open Requests:"
             android:textAppearance="@style/TextAppearance.AppCompat.Large"
             android:visibility="gone"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/tab_layout">
+            app:layout_constraintTop_toBottomOf="@+id/request_btn">
         </TextView>
 
         <ListView
             android:id="@+id/request_listview"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-
+            android:layout_marginTop="16dp"
             android:divider="@android:color/transparent"
             android:dividerHeight="2sp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/request_text"
+            app:layout_constraintTop_toBottomOf="@+id/tab_layout"
             app:layout_constraintBottom_toBottomOf="parent">
         </ListView>
 
@@ -103,7 +92,7 @@
             android:background="@android:color/transparent"
             android:drawableStart="@drawable/ic_person_blue_18dp"
             android:drawablePadding="8dp"
-            android:hint="Username"
+            android:hint="Enter Someone's Username"
             android:inputType="textEmailAddress"
             android:maxLines="1"
             android:layout_marginStart="16dp"
@@ -115,7 +104,7 @@
             android:visibility="gone"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/follow_text" />
+            app:layout_constraintTop_toBottomOf="@+id/tab_layout" />
 
         <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/request_btn"
@@ -146,17 +135,35 @@
             android:layout_marginStart="16dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/request_btn"
+            app:layout_constraintTop_toBottomOf="@+id/follow_text"
             app:layout_constraintBottom_toBottomOf="parent"
             android:visibility="gone">
         </ListView>
 
         <ListView
-            android:id="@+id/follows_listview"
+            android:id="@+id/followers_listview"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:divider="@android:color/transparent"
             android:dividerHeight="2sp"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="16dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/tab_layout"
+            app:layout_constraintBottom_toBottomOf="parent"
+            android:visibility="gone"
+            android:background="@android:color/background_light">
+        </ListView>
+
+        <ListView
+            android:id="@+id/following_listview"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:divider="@android:color/transparent"
+            android:dividerHeight="2sp"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="16dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/tab_layout"

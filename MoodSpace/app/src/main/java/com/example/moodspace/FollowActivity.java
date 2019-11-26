@@ -39,13 +39,13 @@ public class FollowActivity extends AppCompatActivity
 
     private String username;
     TabLayout tabs;
-    TextView requestText;
     TextView followText;
     AppCompatEditText userField;
     ListView requestList;
     AppCompatButton sendRequestBtn;
     ListView sentRequestList;
-    ListView followsList;
+    ListView followersList;
+    ListView followingList;
 
     List<String> following;
     List<String> followers;
@@ -70,13 +70,13 @@ public class FollowActivity extends AppCompatActivity
 
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        requestText = findViewById(R.id.request_text);
         followText = findViewById(R.id.follow_text);
         userField = findViewById(R.id.username);
         requestList = findViewById(R.id.request_listview);
         sendRequestBtn = findViewById(R.id.request_btn);
         sentRequestList = findViewById(R.id.sent_requests_listview);
-        followsList = findViewById(R.id.follows_listview);
+        followersList = findViewById(R.id.followers_listview);
+        followingList = findViewById(R.id.following_listview);
 
         // sets up the menu button
         final DrawerLayout drawerLayout = findViewById(R.id.follow_layout);
@@ -134,13 +134,12 @@ public class FollowActivity extends AppCompatActivity
                 updateUser();
                 int pos = tab.getPosition();
                 if (pos == 0) {
-                    requestText.setVisibility(View.VISIBLE);
                     requestList.setVisibility(View.VISIBLE);
 
                 }
                 else if (pos == 1){
-                    followsList.setAdapter(followersAdapter);
-                    followsList.setVisibility(View.VISIBLE);
+                    followersList.setAdapter(followersAdapter);
+                    followersList.setVisibility(View.VISIBLE);
                 }
                 else if (pos == 2){
                     followText.setVisibility(View.VISIBLE);
@@ -149,8 +148,8 @@ public class FollowActivity extends AppCompatActivity
                     sentRequestList.setVisibility(View.VISIBLE);
                 }
                 else if (pos == 3){
-                    followsList.setAdapter(followingAdapter);
-                    followsList.setVisibility(View.VISIBLE);
+                    followingList.setAdapter(followingAdapter);
+                    followingList.setVisibility(View.VISIBLE);
                 }
             }
 
@@ -159,12 +158,11 @@ public class FollowActivity extends AppCompatActivity
                 updateUser();
                 int pos = tab.getPosition();
                 if (pos == 0) {
-                    requestText.setVisibility(View.GONE);
                     requestList.setVisibility(View.GONE);
 
                 }
                 else if (pos == 1){
-                    followsList.setVisibility(View.GONE);
+                    followersList.setVisibility(View.GONE);
                 }
                 else if (pos == 2){
                     followText.setVisibility(View.GONE);
@@ -173,13 +171,13 @@ public class FollowActivity extends AppCompatActivity
                     sentRequestList.setVisibility(View.GONE);
                 }
                 else if (pos == 3){
-                    followsList.setVisibility(View.GONE);
+                    followingList.setVisibility(View.GONE);
                 }
             }
 
             @Override
             public void onTabReselected(TabLayout.Tab tab) {
-                // refresh
+                updateUser();
             }
         });
 
@@ -314,8 +312,10 @@ public class FollowActivity extends AppCompatActivity
         this.sentRequestList.setAdapter(requestAdapter);
 
         this.followersAdapter = new ArrayAdapter<>(this, R.layout.request_content, followers);
-
         this.followingAdapter = new ArrayAdapter<>(this, R.layout.request_content, following);
+
+        this.followersList.setAdapter(followersAdapter);
+        this.followingList.setAdapter(followingAdapter);
     }
 }
 
