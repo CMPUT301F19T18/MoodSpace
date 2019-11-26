@@ -34,10 +34,22 @@
             app:layout_constraintTop_toBottomOf="@+id/toolbar">
 
             <com.google.android.material.tabs.TabItem
+                android:id="@+id/myrequests_tab"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="My Requests" />
+
+            <com.google.android.material.tabs.TabItem
                 android:id="@+id/followers_tab"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="My Followers" />
+
+            <com.google.android.material.tabs.TabItem
+                android:id="@+id/send_tab"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Send Request" />
 
             <com.google.android.material.tabs.TabItem
                 android:id="@+id/follow_tab"
@@ -64,10 +76,9 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
-            android:text="Follow Someone:"
+            android:text="Send Someone a Follow Request:"
             android:textAppearance="@style/TextAppearance.AppCompat.Large"
             android:visibility="gone"
-            app:layout_constraintBottom_toTopOf="@+id/username"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/tab_layout">
         </TextView>
@@ -99,12 +110,46 @@
             android:paddingTop="15dp"
             android:paddingBottom="15dp"
             android:textCursorDrawable="@drawable/cursor_color"
-            android:textSize="12sp"
+            android:textSize="15sp"
             android:textStyle="bold"
             android:visibility="gone"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/follow_text" />
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/request_btn"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="16dp"
+            android:background="@drawable/blue_fill__rounded_color"
+            android:clickable="true"
+
+            android:focusable="true"
+            android:paddingTop="15dp"
+            android:paddingBottom="15dp"
+            android:text="Send Request"
+            android:textColor="#FFFFFF"
+            android:textSize="12sp"
+            android:textStyle="bold"
+            android:visibility="gone"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/username" />
+
+        <ListView
+            android:id="@+id/sent_requests_listview"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:background="@drawable/listview_background"
+            android:divider="@android:color/transparent"
+            android:dividerHeight="2sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/request_btn"
+            app:layout_constraintBottom_toBottomOf="parent"
+            android:visibility="gone">
+        </ListView>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

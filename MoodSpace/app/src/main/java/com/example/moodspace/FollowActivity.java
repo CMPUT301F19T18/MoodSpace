@@ -7,12 +7,14 @@ import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.AppCompatButton;
 import androidx.appcompat.widget.AppCompatEditText;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.GravityCompat;
@@ -33,8 +35,16 @@ public class FollowActivity extends AppCompatActivity
     TabLayout tabs;
     TextView requestText;
     TextView followText;
-    AppCompatEditText user_field;
+    AppCompatEditText userField;
     ListView requestList;
+    AppCompatButton sendRequestBtn;
+    ListView sentRequestList;
+
+    List<String> following;
+    List<String> followers;
+    List<String> followRequestsFrom;
+    List<String> followRequestsTo;
+    ArrayAdapter requestAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,8 +61,10 @@ public class FollowActivity extends AppCompatActivity
         setSupportActionBar(toolbar);
         requestText = findViewById(R.id.request_text);
         followText = findViewById(R.id.follow_text);
-        user_field = findViewById(R.id.username);
+        userField = findViewById(R.id.username);
         requestList = findViewById(R.id.request_listview);
+        sendRequestBtn = findViewById(R.id.request_btn);
+        sentRequestList = findViewById(R.id.sent_requests_listview);
 
         // sets up the menu button
         final DrawerLayout drawerLayout = findViewById(R.id.drawer_layout);
@@ -108,22 +120,30 @@ public class FollowActivity extends AppCompatActivity
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
                 int pos = tab.getPosition();
-                if (pos == 1){
-                    requestText.setVisibility(View.GONE);
-                    requestList.setVisibility(View.GONE);
+                if (pos == 2){
                     followText.setVisibility(View.VISIBLE);
-                    user_field.setVisibility(View.VISIBLE);
-                } else {
+                    userField.setVisibility(View.VISIBLE);
+                    sendRequestBtn.setVisibility(View.VISIBLE);
+                    sentRequestList.setVisibility(View.VISIBLE);
+                } else if (pos == 0) {
                     requestText.setVisibility(View.VISIBLE);
                     requestList.setVisibility(View.VISIBLE);
-                    followText.setVisibility(View.GONE);
-                    user_field.setVisibility(View.GONE);
+
                 }
             }
 
             @Override
             public void onTabUnselected(TabLayout.Tab tab) {
-                // do nothing
+                int pos = tab.getPosition();
+                if (pos == 2){
+                    followText.setVisibility(View.GONE);
+                    userField.setVisibility(View.GONE);
+                    sendRequestBtn.setVisibility(View.GONE);
+                    sentRequestList.setVisibility(View.GONE);
+                } else if (pos == 0) {
+                    requestText.setVisibility(View.GONE);
+                    requestList.setVisibility(View.GONE);
+                }
             }
 
             @Override
@@ -131,6 +151,25 @@ public class FollowActivity extends AppCompatActivity
                 // refresh
             }
         });
+
+        sendRequestBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String addedUser = userField.getText().toString();
+                if (!(addedUser.length() == 0)){
+                    fc.sendFollowRequest(username, addedUser);
+                    userField.getText().clear();
+                    updateUser();
+                }
+            }
+        });
+
+        updateUser();
+
+    }
+
+    public void updateUser(){
+        fc.getFollowData(username);
     }
 
     @Override
@@ -201,7 +240,14 @@ public class FollowActivity extends AppCompatActivity
                                    @NonNull List<String> followers,
                                    @NonNull List<String> followRequestsFrom,
                                    @NonNull List<String> followRequestsTo) {
-        // TODO stub
+        this.following = following;
+        this.followers = followers;
+        this.followRequestsFrom = followRequestsFrom;
+        this.followRequestsTo = followRequestsTo;
+
+        this.requestAdapter = new ArrayAdapter<>(this, R.layout.request_content, followRequestsTo);
+        this.sentRequestList.setAdapter(requestAdapter);
+
     }
 }
 
