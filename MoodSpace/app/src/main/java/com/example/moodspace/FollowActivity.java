@@ -39,6 +39,7 @@ public class FollowActivity extends AppCompatActivity
     ListView requestList;
     AppCompatButton sendRequestBtn;
     ListView sentRequestList;
+    ListView followsList;
 
     List<String> following;
     List<String> followers;
@@ -65,6 +66,7 @@ public class FollowActivity extends AppCompatActivity
         requestList = findViewById(R.id.request_listview);
         sendRequestBtn = findViewById(R.id.request_btn);
         sentRequestList = findViewById(R.id.sent_requests_listview);
+        followsList = findViewById(R.id.follows_listview);
 
         // sets up the menu button
         final DrawerLayout drawerLayout = findViewById(R.id.drawer_layout);
@@ -120,29 +122,44 @@ public class FollowActivity extends AppCompatActivity
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
                 int pos = tab.getPosition();
-                if (pos == 2){
+                if (pos == 0) {
+                    requestText.setVisibility(View.VISIBLE);
+                    requestList.setVisibility(View.VISIBLE);
+
+                }
+                else if (pos == 1){
+                    followsList.setVisibility(View.VISIBLE);
+                }
+                else if (pos == 2){
                     followText.setVisibility(View.VISIBLE);
                     userField.setVisibility(View.VISIBLE);
                     sendRequestBtn.setVisibility(View.VISIBLE);
                     sentRequestList.setVisibility(View.VISIBLE);
-                } else if (pos == 0) {
-                    requestText.setVisibility(View.VISIBLE);
-                    requestList.setVisibility(View.VISIBLE);
-
+                }
+                else if (pos == 3){
+                    followsList.setVisibility(View.VISIBLE);
                 }
             }
 
             @Override
             public void onTabUnselected(TabLayout.Tab tab) {
                 int pos = tab.getPosition();
-                if (pos == 2){
+                if (pos == 0) {
+                    requestText.setVisibility(View.GONE);
+                    requestList.setVisibility(View.GONE);
+
+                }
+                else if (pos == 1){
+                    followsList.setVisibility(View.GONE);
+                }
+                else if (pos == 2){
                     followText.setVisibility(View.GONE);
                     userField.setVisibility(View.GONE);
                     sendRequestBtn.setVisibility(View.GONE);
                     sentRequestList.setVisibility(View.GONE);
-                } else if (pos == 0) {
-                    requestText.setVisibility(View.GONE);
-                    requestList.setVisibility(View.GONE);
+                }
+                else if (pos == 3){
+                    followsList.setVisibility(View.GONE);
                 }
             }
 

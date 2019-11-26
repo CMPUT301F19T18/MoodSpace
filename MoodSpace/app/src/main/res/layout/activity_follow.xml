@@ -87,7 +87,7 @@
             android:id="@+id/request_listview"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:background="@drawable/listview_background"
+
             android:divider="@android:color/transparent"
             android:dividerHeight="2sp"
             app:layout_constraintEnd_toEndOf="parent"
@@ -141,7 +141,6 @@
             android:id="@+id/sent_requests_listview"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:background="@drawable/listview_background"
             android:divider="@android:color/transparent"
             android:dividerHeight="2sp"
             app:layout_constraintEnd_toEndOf="parent"
@@ -149,6 +148,20 @@
             app:layout_constraintTop_toBottomOf="@+id/request_btn"
             app:layout_constraintBottom_toBottomOf="parent"
             android:visibility="gone">
+        </ListView>
+
+        <ListView
+            android:id="@+id/follows_listview"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:divider="@android:color/transparent"
+            android:dividerHeight="2sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/tab_layout"
+            app:layout_constraintBottom_toBottomOf="parent"
+            android:visibility="gone"
+            android:background="@android:color/background_dark">
         </ListView>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
