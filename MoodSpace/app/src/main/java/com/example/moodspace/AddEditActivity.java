@@ -396,7 +396,9 @@ public class AddEditActivity extends AppCompatActivity
         else if (requestCode == MY_PERMISSIONS_REQUEST_FINE_LOCATION) {
             if (grantResults.length > 0 &&
                     grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-
+                    if(isAddActivity()){
+                        mMap.setMyLocationEnabled(true);
+                    }
 
             }else
              {
