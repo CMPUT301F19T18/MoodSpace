@@ -69,6 +69,11 @@ public class FollowActivity extends AppCompatActivity
             }
         } else if (callbackId instanceof UserCallbackId) {
             switch ((UserCallbackId) callbackId) {
+                case USERNAME_EXISTS:
+                    return;
+                case USERNAME_DOESNT_EXIST:
+                    return;
+
                 case USER_READ_DATA_FAIL:
                     return;
                 case USER_TASK_NULL:
