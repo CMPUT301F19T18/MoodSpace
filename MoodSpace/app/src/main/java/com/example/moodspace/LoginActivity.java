@@ -100,7 +100,8 @@ public class LoginActivity extends AppCompatActivity
                                 "Please enter a matching password", Toast.LENGTH_SHORT).show();
                         return;
                     }
-                    uc.checkUserExists(inputtedUser);
+                    // TODO update when unifying SignUpActivity
+                    //uc.checkUserExists(inputtedUser);
                     loginButton.setEnabled(false);
                 }
             }
@@ -188,7 +189,7 @@ public class LoginActivity extends AppCompatActivity
                     finish();
                     return;
 
-                case USERNAME_TAKEN:
+                case USERNAME_EXISTS:
                     Toast.makeText(this, "This username is taken", Toast.LENGTH_SHORT).show();
                     loginButton.setEnabled(true);
                     return;

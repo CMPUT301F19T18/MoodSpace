@@ -96,7 +96,7 @@ public class ProfileListActivity extends AppCompatActivity
         });
 
         // sets up the menu button
-        final DrawerLayout drawerLayout = findViewById(R.id.drawer_layout);
+        final DrawerLayout drawerLayout = findViewById(R.id.profile_layout);
         toolbar.setNavigationIcon(R.drawable.ic_menu_button);
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
