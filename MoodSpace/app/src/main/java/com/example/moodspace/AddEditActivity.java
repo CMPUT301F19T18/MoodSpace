@@ -98,10 +98,9 @@ public class AddEditActivity extends AppCompatActivity
         aec = new AddEditController(this);
         currentMood = (Mood) getIntent().getSerializableExtra("MOOD");
 
-        if(isAddActivity()){
+        if (isAddActivity()) {
             mMapView.setVisibility(mMapView.GONE);
-        }
-        else{
+        } else {
             CheckBox locCheck = findViewById(R.id.checkbox_location);
             locCheck.setVisibility(locCheck.GONE);
         }
@@ -329,16 +328,8 @@ public class AddEditActivity extends AppCompatActivity
 
                 // gets location here
                 if (attachLocation) {
-                    Location loc = getDeviceLocation();
-                    if (loc == null) {
-                        lat = loc.getLatitude();
-                        lon = loc.getLongitude();
-                    } else {
-
-                    }
+                    currentLocation = getDeviceLocation();
                 }
-
-                break;
         }
     }
 
@@ -518,7 +509,6 @@ public class AddEditActivity extends AppCompatActivity
         mMapView.onLowMemory();
     }
 
-
     @Override
     public void onMapReady(GoogleMap googleMap) {
         //TODO: right zoom level or the target button to do that
@@ -530,12 +520,10 @@ public class AddEditActivity extends AppCompatActivity
             lon = currentMood.getLon();
 
             if (lat != null && lon != null) {
-                LatLng sydney = new LatLng(lat,lon);
+                LatLng sydney = new LatLng(lat, lon);
                 googleMap.addMarker(new MarkerOptions().position(sydney));
                 googleMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
             }
-        } else {
-            askForLocationPermission();
         }
     }
 
@@ -548,21 +536,7 @@ public class AddEditActivity extends AppCompatActivity
             // for Activity#requestPermissions for more details.
 
             ActivityCompat.requestPermissions(AddEditActivity.this,
-                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
-                    MY_PERMISSIONS_REQUEST_FINE_LOCATION);
-        }
-    }
-
-    private void askForLocationPermission() {
-        if (checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for Activity#requestPermissions for more details.
-
-            ActivityCompat.requestPermissions(AddEditActivity.this,
-                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                    new String[] {Manifest.permission.ACCESS_FINE_LOCATION},
                     MY_PERMISSIONS_REQUEST_FINE_LOCATION);
 
         }

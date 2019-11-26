@@ -22,8 +22,8 @@ public class Mood implements Serializable {
     private String reasonText;
     private boolean hasPhoto;
     private SocialSituation socialSituation;
-    private double lat;
-    private double lon;
+    private Double lat;
+    private Double lon;
 
 
     // apparently you need this?
@@ -32,7 +32,7 @@ public class Mood implements Serializable {
     }
 
     public Mood(String id, Date date, Emotion emotion, String reasonText, boolean hasPhoto,
-                SocialSituation socialSituation, double lat, double lon) {
+                SocialSituation socialSituation, Double lat, Double lon) {
         this.id = id;
         this.emotion = emotion;
         this.date = date;
@@ -109,11 +109,11 @@ public class Mood implements Serializable {
         return socialSituation;
     }
 
-    public double getLat() {
+    public Double getLat() {
         return lat;
     }
 
-    public double getLon() {
+    public Double getLon() {
         return lon;
     }
 
