@@ -1,8 +1,8 @@
 package com.example.moodspace;
 
 public enum UserCallbackId implements CallbackId {
-    USERNAME_TAKEN,
-    USERNAME_NOT_TAKEN,
+    //USERNAME_TAKEN,
+    //USERNAME_NOT_TAKEN,
     USER_NONEXISTENT,
     LOGIN,
     INCORRECT_PASSWORD,
