@@ -43,7 +43,7 @@ public class UserController {
     }
 
     /**
-     * Checks if the username exists already in the database
+     * Used to ensure all users have a unique username when signing up
      */
     public void checkUserExists(final User user) {
         Query query = db.collection("users").whereEqualTo("username", user.getUsername());
@@ -62,6 +62,9 @@ public class UserController {
         });
     }
 
+    /**
+     * Checks if the username exists already in the database
+     */
     public void checkUsernameExists(final String username) {
         Query query = db.collection("users").whereEqualTo("username", username);
         query.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
