@@ -542,14 +542,13 @@ public class AddEditActivity extends AppCompatActivity
             lat = currentMood.getLat();
             lon = currentMood.getLon();
 
-            if(lat != -1000){
-
+            if (lat != -1000){
                 LatLng sydney = new LatLng(lat,lon);
                 googleMap.addMarker(new MarkerOptions().position(sydney));
                 googleMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
             }
         }
-        else{
+        else {
             askForLocationPermission();
         }
 
@@ -566,7 +565,6 @@ public class AddEditActivity extends AppCompatActivity
             ActivityCompat.requestPermissions(AddEditActivity.this,
                     new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
                     MY_PERMISSIONS_REQUEST_FINE_LOCATION);
-
         }
     }
 }
