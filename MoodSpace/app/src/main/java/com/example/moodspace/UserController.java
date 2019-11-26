@@ -26,7 +26,7 @@ import static com.example.moodspace.Utils.newUserBundle;
  */
 public class UserController {
     private static final String TAG = UserController.class.getSimpleName();
-    public static final String USERNAME_EXISTS_KEY = "moodspace.UserController.usernameExists";
+    public static final String CHECK_USERNAME_EXISTS_KEY = "moodspace.UserController.checkUsernameExists";
     public static final String PAPER_USERNAME_KEY = "moodspace.Paper.username";
     public static final String PAPER_PASSWORD_KEY = "moodspace.Paper.password";
 
@@ -72,11 +72,12 @@ public class UserController {
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
                 if (task.getResult() != null && task.getResult().size() > 0) {
                     Log.d(TAG, "Username " + username + " exists");
-                    cc.callback(UserCallbackId.USERNAME_EXISTS);
+                    cc.callback(UserCallbackId.USERNAME_EXISTS,
+                            newStringBundle(CHECK_USERNAME_EXISTS_KEY, username));
                 } else {
                     Log.d(TAG, "Username " + username + " does not exist");
                     cc.callback(UserCallbackId.USERNAME_DOESNT_EXIST,
-                            newStringBundle(USERNAME_EXISTS_KEY, username));
+                            newStringBundle(CHECK_USERNAME_EXISTS_KEY, username));
                 }
             }
         });
