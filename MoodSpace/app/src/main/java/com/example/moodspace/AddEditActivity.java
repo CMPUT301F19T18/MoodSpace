@@ -82,9 +82,10 @@ public class AddEditActivity extends AppCompatActivity
     private TextInputEditText reasonEditText;
     private CheckBox locationCheckBox;
     private Spinner socialSitSpinner;
+    private Button saveBtn;
 
     // location variables
-    private MapView mMapView;
+    private MapView mapView;
     private LocationCallback locationCallback;
     private LocationManager locationManager;
     private FusedLocationProviderClient fusedLocationClient;
@@ -130,7 +131,7 @@ public class AddEditActivity extends AppCompatActivity
         // sets up save button
         // upon clicking the okay button, there will be an intent
         // to another activity to fill out the required information.
-        final Button saveBtn = findViewById(R.id.saveBtn);
+        saveBtn = findViewById(R.id.saveBtn);
         saveBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -248,7 +249,7 @@ public class AddEditActivity extends AppCompatActivity
             backBtn.setText(getString(R.string.am_cancel_text));
 
             // no map as there is no location set currently
-            mMapView.setVisibility(View.GONE);
+            mapView.setVisibility(View.GONE);
         } else {
             toolbar.setTitle("Edit Mood");
             saveBtn.setText(getString(R.string.em_ok_text));
@@ -301,31 +302,31 @@ public class AddEditActivity extends AppCompatActivity
     @Override
     public void onResume() {
         super.onResume();
-        mMapView.onResume();
+        mapView.onResume();
     }
 
     @Override
     public void onStart() {
         super.onStart();
-        mMapView.onStart();
+        mapView.onStart();
     }
 
     @Override
     public void onStop() {
         super.onStop();
-        mMapView.onStop();
+        mapView.onStop();
     }
 
     @Override
     public void onPause() {
         super.onPause();
-        mMapView.onPause();
+        mapView.onPause();
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
-        mMapView.onDestroy();
+        mapView.onDestroy();
 
         if (gpsAlert != null) {
             gpsAlert.dismiss();
@@ -335,7 +336,7 @@ public class AddEditActivity extends AppCompatActivity
     @Override
     public void onLowMemory() {
         super.onLowMemory();
-        mMapView.onLowMemory();
+        mapView.onLowMemory();
     }
 
     @Override
@@ -348,13 +349,15 @@ public class AddEditActivity extends AppCompatActivity
             outState.putBundle(MAPVIEW_BUNDLE_KEY, mapViewBundle);
         }
 
-        mMapView.onSaveInstanceState(mapViewBundle);
+        mapView.onSaveInstanceState(mapViewBundle);
     }
 
     private void attemptSaveMood(boolean bypassLocationNull) {
+        saveBtn.setEnabled(false);
         // requires an emotion to be selected
         if (selectedEmotion == null) {
             Toast.makeText(AddEditActivity.this, "Select an emotion", Toast.LENGTH_SHORT).show();
+            saveBtn.setEnabled(true);
             return;
         }
 
@@ -377,6 +380,7 @@ public class AddEditActivity extends AppCompatActivity
             if (!trim.isEmpty() && trim.split("\\s+").length > 3) {
                 Toast.makeText(AddEditActivity.this, "Reason must be less than 4 words",
                         Toast.LENGTH_SHORT).show();
+                saveBtn.setEnabled(true);
                 return;
             }
         }
@@ -497,6 +501,7 @@ public class AddEditActivity extends AppCompatActivity
                 .setNegativeButton("No", new DialogInterface.OnClickListener() {
                     public void onClick(final DialogInterface dialog, final int id) {
                         dialog.cancel();
+                        saveBtn.setEnabled(true);
                     }
                 });
         gpsAlert = builder.create();
@@ -511,10 +516,10 @@ public class AddEditActivity extends AppCompatActivity
         if (savedInstanceState != null) {
             mapViewBundle = savedInstanceState.getBundle(MAPVIEW_BUNDLE_KEY);
         }
-        mMapView = findViewById(R.id.map_view);
-        mMapView.onCreate(mapViewBundle);
+        mapView = findViewById(R.id.map_view);
+        mapView.onCreate(mapViewBundle);
 
-        mMapView.getMapAsync(AddEditActivity.this);
+        mapView.getMapAsync(AddEditActivity.this);
     }
 
     private boolean isAddActivity() {
@@ -634,9 +639,9 @@ public class AddEditActivity extends AppCompatActivity
             Double lon = currentMood.getLon();
 
             if (lat != null && lon != null) {
-                LatLng city = new LatLng(lat, lon);
-                googleMap.addMarker(new MarkerOptions().position(city));
-                googleMap.moveCamera(CameraUpdateFactory.newLatLng(city));
+                LatLng latLng = new LatLng(lat, lon);
+                googleMap.addMarker(new MarkerOptions().position(latLng));
+                googleMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
             }
         }
     }
