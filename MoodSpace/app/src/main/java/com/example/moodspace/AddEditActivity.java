@@ -526,6 +526,8 @@ public class AddEditActivity extends AppCompatActivity
                     Toast.makeText(this, "Cannot access location",
                             Toast.LENGTH_SHORT).show();
                 }
+                break;
+
             default:
                 Log.w(TAG, "unknown permission");
         }
