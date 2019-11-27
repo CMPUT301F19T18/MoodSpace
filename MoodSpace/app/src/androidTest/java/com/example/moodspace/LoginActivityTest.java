@@ -56,7 +56,7 @@ public class LoginActivityTest {
         Espresso.pressBackUnconditionally();
         activityRule.launchActivity(null);
         Thread.sleep(1500);
-        onView(withId(R.id.drawer_layout)).perform(DrawerActions.open());
+        onView(withId(R.id.profile_layout)).perform(DrawerActions.open());
         onView(withId(R.id.nav_view)).perform(NavigationViewActions.navigateTo(R.id.nav_item_log_out));
         Thread.sleep(1500);
     }
