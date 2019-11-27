@@ -45,7 +45,7 @@ import io.paperdb.Paper;
 
 public class ProfileListActivity extends AppCompatActivity
         implements FilterFragment.OnFragmentInteractionListener,
-        ControllerCallback {
+        ControllerCallback, FollowController.OtherMoodsCallback {
     private static final String TAG = ProfileListActivity.class.getSimpleName();
     private final FirebaseFirestore db = FirebaseFirestore.getInstance();
 
@@ -304,5 +304,10 @@ public class ProfileListActivity extends AppCompatActivity
     @Override
     public void callback(CallbackId callbackId, Bundle bundle) {
         // TODO stub
+    }
+
+    @Override
+    public void callbackFollowingMoods(@NonNull String user, @NonNull List<MoodOther> followingMoodsList) {
+        
     }
 }
