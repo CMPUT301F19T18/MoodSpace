@@ -110,10 +110,11 @@ public class AddEditActivity extends AppCompatActivity
         aec = new AddEditController(this);
         currentMood = (Mood) getIntent().getSerializableExtra("MOOD");
 
-        // gets all views
+        // gets all necessary views
         reasonEditText = findViewById(R.id.reason_text);
         locationCheckBox = findViewById(R.id.checkbox_location);
         socialSitSpinner = findViewById(R.id.situationSelector);
+        saveBtn = findViewById(R.id.saveBtn);
 
         // creates emotion spinner
         final Spinner emotionSpinner = findViewById(R.id.emotionSelector);
@@ -131,7 +132,6 @@ public class AddEditActivity extends AppCompatActivity
         // sets up save button
         // upon clicking the okay button, there will be an intent
         // to another activity to fill out the required information.
-        saveBtn = findViewById(R.id.saveBtn);
         saveBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -634,6 +634,7 @@ public class AddEditActivity extends AppCompatActivity
     @Override
     public void onMapReady(GoogleMap googleMap) {
         // TODO: right zoom level or the target button to do that
+        // TODO possibly display in AddActivity
         if (!isAddActivity()) {
             Double lat = currentMood.getLat();
             Double lon = currentMood.getLon();
