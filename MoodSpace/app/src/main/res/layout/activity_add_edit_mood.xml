@@ -35,53 +35,55 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
 
-                android:orientation="horizontal">
+                android:orientation="horizontal"
+                android:id="@+id/linearLayout4">
 
                 <TextView
                     android:id="@+id/date"
-                    android:layout_width="203dp"
-                    android:layout_height="16dp"
-                    android:layout_weight="1"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
 
                     android:paddingLeft="5dp"
                     android:paddingTop="0dp"
                     android:textColor="@color/colorBlack"
                     android:textSize="15sp"
-                    android:textStyle="bold" />
+                    android:textStyle="bold"
+                    tools:layout_conversion_absoluteHeight="16dp"
+                    tools:layout_editor_absoluteY="56dp"
+                    tools:layout_editor_absoluteX="0dp"
+                    tools:layout_conversion_absoluteWidth="206dp" />
 
                 <TextView
                     android:id="@+id/time"
-                    android:layout_width="203dp"
-                    android:layout_height="16dp"
-                    android:layout_weight="1"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
 
                     android:paddingTop="0dp"
                     android:paddingRight="5dp"
                     android:textAlignment="viewEnd"
                     android:textColor="@color/colorBlack"
                     android:textSize="15sp"
-                    android:textStyle="bold" />
+                    android:textStyle="bold"
+                    tools:layout_conversion_absoluteHeight="16dp"
+                    tools:layout_editor_absoluteY="56dp"
+                    tools:layout_editor_absoluteX="206dp"
+                    tools:layout_conversion_absoluteWidth="206dp" />
             </LinearLayout>
 
             <androidx.constraintlayout.widget.ConstraintLayout
-                android:id="@+id/linearLayout"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_marginTop="10dp">
 
-                <EditText
-                    android:id="@+id/editText"
-                    android:layout_width="90dp"
-                    android:layout_height="75dp"
-                    android:background="@null"
-                    android:clickable="false"
-                    android:ems="8"
+                <TextView
+                    android:id="@+id/moodTextView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
                     android:fontFamily="cursive"
-                    android:inputType="textPersonName"
-                    android:paddingLeft="20dp"
+                    android:padding="16dp"
                     android:text="Mood"
                     android:textColor="#000000"
-                    android:textSize="24dp"
+                    android:textSize="24sp"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toStartOf="@+id/emotionSelector"
                     app:layout_constraintStart_toStartOf="parent"
@@ -91,39 +93,34 @@
                 <Spinner
                     android:id="@+id/emotionSelector"
                     style="@android:style/Widget.Holo.Spinner"
-                    android:layout_width="300dp"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginRight="20dp"
+                    android:layout_marginEnd="16dp"
                     android:background="@drawable/original"
-                    android:dropDownWidth="match_parent"
                     android:popupBackground="@android:color/transparent"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toEndOf="@+id/editText"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintVertical_bias="0.0" />
+                    app:layout_constraintStart_toEndOf="@+id/moodTextView"
+                    app:layout_constraintTop_toTopOf="parent" />
             </androidx.constraintlayout.widget.ConstraintLayout>
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_weight="1">
+                android:layout_height="match_parent">
 
-                <EditText
-                    android:id="@+id/editText2"
-                    android:layout_width="90dp"
-                    android:layout_height="37.5dp"
+                <TextView
+                    android:id="@+id/socialTextView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
                     android:layout_marginTop="2dp"
-                    android:background="@null"
                     android:clickable="false"
-                    android:ems="10"
                     android:fontFamily="cursive"
-                    android:inputType="textPersonName"
-                    android:paddingLeft="15dp"
-                    android:paddingTop="10dp"
-                    android:text="Social"
-                    android:textSize="20dp"
-                    app:layout_constraintBottom_toTopOf="@+id/editText5"
+                    android:gravity="center"
+                    android:padding="6dp"
+                    android:text="Social\nSituation"
+                    android:textColor="#000000"
+                    android:textSize="20sp"
+                    app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toStartOf="@+id/situationSelector"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
@@ -131,110 +128,76 @@
                 <Spinner
                     android:id="@+id/situationSelector"
                     style="@android:style/Widget.Holo.Spinner"
-                    android:layout_width="300dp"
-                    android:layout_height="75dp"
-                    android:layout_marginEnd="20dp"
-                    android:background="@android:color/transparent"
-                    android:dropDownWidth="match_parent"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="16dp"
+                    android:background="@drawable/original"
                     android:popupBackground="@android:color/transparent"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toEndOf="@+id/editText2"
+                    app:layout_constraintStart_toEndOf="@+id/socialTextView"
                     app:layout_constraintTop_toTopOf="parent" />
 
-                <EditText
-                    android:id="@+id/editText5"
-                    android:layout_width="90dp"
-                    android:layout_height="37.5dp"
-                    android:layout_marginBottom="1dp"
-                    android:layout_weight="1"
-                    android:background="@null"
-                    android:clickable="false"
-                    android:ems="10"
-                    android:fontFamily="cursive"
-                    android:inputType="textPersonName"
-                    android:paddingLeft="18dp"
-                    android:paddingBottom="10dp"
-                    android:text="Situation"
-                    android:textSize="20dp"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toStartOf="@+id/situationSelector"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/editText2" />
             </androidx.constraintlayout.widget.ConstraintLayout>
 
             <androidx.constraintlayout.widget.ConstraintLayout
-                android:id="@+id/linearLayout2"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:focusableInTouchMode="true"
                 android:orientation="horizontal">
 
-                <EditText
-                    android:id="@+id/editText3"
-                    android:layout_width="90dp"
-                    android:layout_height="75dp"
-                    android:background="@null"
-                    android:clickable="false"
-                    android:ems="10"
+                <TextView
+                    android:id="@+id/reasonTextView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
                     android:fontFamily="cursive"
-                    android:inputType="textPersonName"
-                    android:paddingLeft="15dp"
+                    android:padding="9dp"
                     android:text="Reason"
-                    android:textSize="24dp"
+                    android:textColor="#000000"
+                    android:textSize="24sp"
                     app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toStartOf="@+id/reason_text"
+                    app:layout_constraintEnd_toStartOf="@+id/reason_text_layout"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
 
                 <com.google.android.material.textfield.TextInputLayout
-                    android:id="@+id/textInputLayout"
-                    android:layout_width="wrap_content"
+                    android:id="@+id/reason_text_layout"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="40dp"
-                    android:layout_marginEnd="16dp"
+                    android:layout_marginStart="10dp"
+                    android:layout_marginEnd="26dp"
                     app:counterEnabled="true"
                     app:counterMaxLength="20"
                     app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toEndOf="@+id/reasonTextView"
                     app:layout_constraintTop_toTopOf="parent">
 
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/reason_text"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="@string/ae_reason_text"
+                        android:inputType="text"
+                        android:maxLength="20"
+                        android:textColor="@color/colorBlack"
+                        android:textSize="16sp" />
                 </com.google.android.material.textfield.TextInputLayout>
-
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/reason_text"
-                    android:layout_width="321dp"
-                    android:layout_height="75dp"
-                    android:hint="@string/ae_reason_text"
-                    android:inputType="text"
-                    android:maxLength="20"
-                    android:textColor="@color/colorBlack"
-                    android:textSize="16sp"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toEndOf="@+id/editText3"
-                    app:layout_constraintTop_toTopOf="parent" />
 
             </androidx.constraintlayout.widget.ConstraintLayout>
 
             <androidx.constraintlayout.widget.ConstraintLayout
-                android:id="@+id/linearLayout3"
-                android:layout_width="411dp"
-                android:layout_height="100dp"
-                android:layout_marginLeft="2dp">
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
 
-                <EditText
+                <TextView
                     android:id="@+id/locationText"
-                    android:layout_width="90dp"
-                    android:layout_height="75dp"
-                    android:layout_marginBottom="25dp"
-                    android:background="@null"
-                    android:clickable="false"
-                    android:ems="10"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
                     android:fontFamily="cursive"
-                    android:inputType="textPersonName"
-                    android:paddingLeft="10dp"
+                    android:padding="4dp"
                     android:text="Location"
-                    android:textSize="24dp"
+                    android:textColor="#000000"
+                    android:textSize="23sp"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toStartOf="@+id/locationOn"
                     app:layout_constraintStart_toStartOf="parent"
@@ -242,21 +205,17 @@
 
                 <CheckBox
                     android:id="@+id/locationOn"
-                    android:layout_width="129dp"
-                    android:layout_height="41dp"
-
-
-                    android:layout_marginTop="20dp"
-                    android:layout_marginEnd="192dp"
-                    android:layout_marginBottom="59dp"
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:layout_marginStart="10dp"
+                    android:layout_marginEnd="16dp"
                     android:checked="false"
                     android:text="Add Location"
                     android:textStyle="bold"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toEndOf="@+id/locationText"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintVertical_bias="0.0" />
+                    app:layout_constraintTop_toTopOf="parent" />
 
 
             </androidx.constraintlayout.widget.ConstraintLayout>
@@ -282,15 +241,15 @@
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
 
+
                 <ImageView
                     android:id="@+id/image_view"
                     android:layout_width="0dp"
                     android:layout_height="0dp"
                     android:layout_margin="8dp"
-                    android:layout_marginEnd="247dp"
                     app:layout_constraintBottom_toBottomOf="@+id/right_square_view"
-                    app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintLeft_toLeftOf="@+id/right_square_view"
+                    app:layout_constraintRight_toRightOf="@+id/right_square_view"
                     app:layout_constraintTop_toTopOf="@+id/right_square_view"
                     app:srcCompat="@drawable/ic_image_white_24dp" />
 

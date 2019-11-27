@@ -74,7 +74,8 @@ public class EmotionAdapter extends ArrayAdapter<Emotion> {
         // Distinguish "real" spinner items (that can be reused) from initial selection item
         View row;
         if (convertView == null || (convertView instanceof TextView)) {
-            row = LayoutInflater.from(getContext()).inflate(R.layout.emotion_spinner_row, parent, false);
+            LayoutInflater inflater = LayoutInflater.from(context);
+            row = inflater.inflate(RESOURCE, parent, false);
         } else {
             row = convertView;
         }

@@ -4,12 +4,7 @@
     android:id="@+id/social_sit_spinner_row"
     android:layout_width="300dp"
     android:layout_height="wrap_content"
-    android:background="@drawable/original"
     android:padding="15dp"
-    android:shadowColor="#00000000"
-    android:gravity="center|left"
-
-
     android:textColor="@android:color/background_dark"
     android:textSize="20sp"
     android:textStyle="bold"

@@ -100,7 +100,7 @@ public class AddEditActivity extends AppCompatActivity
         final Button saveBtn = findViewById(R.id.saveBtn);
         final TextInputEditText reasonEditText = findViewById(R.id.reason_text);
         final CheckBox locationBox = findViewById(R.id.locationOn);
-        final EditText locationText = findViewById(R.id.locationText);
+        final TextView locationText = findViewById(R.id.locationText);
         saveBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
