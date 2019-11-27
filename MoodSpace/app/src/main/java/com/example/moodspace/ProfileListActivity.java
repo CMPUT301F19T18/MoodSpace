@@ -84,7 +84,7 @@ public class ProfileListActivity extends AppCompatActivity
         final List<Emotion> filterList = new ArrayList<Emotion>();
 
         moodDataList = new ArrayList<>();
-        moodAdapter = new MoodViewList(this, moodDataList);
+        moodAdapter = new MoodViewList(this, moodDataList, username);
 
         // sets up EditMood on tapping any mood
         moodList.setAdapter(moodAdapter);

@@ -84,6 +84,18 @@
             app:layout_constraintLeft_toRightOf="@id/mood"
             app:layout_constraintTop_toTopOf="@id/mood" />
 
+        <TextView
+            android:id="@+id/username"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:shadowColor="#00000000"
+            android:text="Username"
+            android:textColor="@android:color/black"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:paddingLeft="30dp"
+            app:layout_constraintLeft_toRightOf="@id/mood_time"
+            app:layout_constraintTop_toBottomOf="@id/mood_date" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>
