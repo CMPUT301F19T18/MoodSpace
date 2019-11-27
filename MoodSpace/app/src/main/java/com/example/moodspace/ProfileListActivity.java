@@ -56,6 +56,7 @@ public class ProfileListActivity extends AppCompatActivity
 
     private String moodId;
     private String username;
+    private boolean feed;
 
 
     @Override
@@ -69,6 +70,7 @@ public class ProfileListActivity extends AppCompatActivity
         vc = new ViewController(this);
 
         username = getIntent().getExtras().getString("username");
+        feed = getIntent().getExtras().getBoolean("feed");
 
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);

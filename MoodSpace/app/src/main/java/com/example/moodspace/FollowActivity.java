@@ -110,14 +110,21 @@ public class FollowActivity extends AppCompatActivity
                         intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                         startActivity(intent);
                         return true;
+                    case R.id.nav_item_feed:
+                        Intent intent1 = new Intent(FollowActivity.this, ProfileListActivity.class);
+                        intent1.putExtra("username", username);
+                        intent1.putExtra("feed", true);
+                        intent1.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                        startActivity(intent1);
+                        return true;
                     case R.id.nav_item_following:
                         Toast.makeText(FollowActivity.this,
                                 "Following", Toast.LENGTH_SHORT).show();
                         return true;
                     case R.id.nav_item_map:
-                        Intent intent1 = new Intent(FollowActivity.this, MapsActivity.class);
-                        intent1.putExtra("username", username);
-                        startActivity(intent1);
+                        Intent intent2 = new Intent(FollowActivity.this, MapsActivity.class);
+                        intent2.putExtra("username", username);
+                        startActivity(intent2);
                         return true;
                     case R.id.nav_item_log_out:
                         Paper.book().delete(UserController.PAPER_USERNAME_KEY);
