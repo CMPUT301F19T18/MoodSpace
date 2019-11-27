@@ -10,6 +10,7 @@ import android.location.Location;
 import android.location.LocationManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Looper;
 import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
@@ -203,7 +204,7 @@ public class AddEditActivity extends AppCompatActivity
                     return;
                 }
                 for (Location location : locationResult.getLocations()) {
-                    Log.d(TAG, "location result " + location);
+                    Log.d(TAG, "location result: " + location);
                     if (location != null) {
                         currentLocation = location;
                     }
@@ -382,7 +383,6 @@ public class AddEditActivity extends AppCompatActivity
 
         // reuses parameters if editing
         if (isAddActivity()) {
-            stopGettingLocation();
             id = UUID.randomUUID().toString();
             date = new Date();
             if (locationCheckBox.isChecked()) {
@@ -399,6 +399,7 @@ public class AddEditActivity extends AppCompatActivity
                     lon = currentLocation.getLongitude();
                 }
             }
+            stopGettingLocation();
         } else {
             //TODO Display message location not provided instead of empty map (Maybe)
             id = currentMood.getId();
@@ -439,7 +440,7 @@ public class AddEditActivity extends AppCompatActivity
                     .addOnSuccessListener(AddEditActivity.this, new OnSuccessListener<Location>() {
                         @Override
                         public void onSuccess(Location location) {
-                            Log.d(TAG, "lastlocation " + location);
+                            Log.d(TAG, "last location: " + location);
                             if (location != null) {
                                 currentLocation = location;
                             }
@@ -452,7 +453,7 @@ public class AddEditActivity extends AppCompatActivity
             locationRequest.setFastestInterval(5 * 1000);
             locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
 
-            fusedLocationClient.requestLocationUpdates(locationRequest, locationCallback, null);
+            fusedLocationClient.requestLocationUpdates(locationRequest, locationCallback, Looper.myLooper());
 
         } catch (SecurityException e) {
             Log.w(TAG, Log.getStackTraceString(e));
