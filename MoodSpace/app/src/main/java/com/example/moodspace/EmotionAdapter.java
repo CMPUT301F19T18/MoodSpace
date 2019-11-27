@@ -79,8 +79,8 @@ public class EmotionAdapter extends ArrayAdapter<Emotion> {
             row = convertView;
         }
 
-        Mood mood = emotionList.get(position);
-        TextView moodInfo = convertView.findViewById(R.id.mood);
+//        Mood mood = emotionList.get(position);
+//        TextView moodInfo = convertView.findViewById(R.id.mood);
         position = position - 1; // Adjust for initial selection item
         Emotion currentItem = getItem(position);
         TextView emojiField = row.findViewById(R.id.emotion_spinner_row);
@@ -88,11 +88,14 @@ public class EmotionAdapter extends ArrayAdapter<Emotion> {
         if (currentItem == null) {
             Log.w(TAG, "Current item is null at position " + position);
         } else {
-            Emotion emotion = mood.getEmotion();
-            moodInfo.setText(emotion.getEmojiString());
-            String background = emotion.getEmojiName().toLowerCase();
-            String backgroundTag = emotion.getEmojiName().toLowerCase() + "_tag";
+//            Emotion emotion = mood.getEmotion();
+//            moodInfo.setText(emotion.getEmojiString());
+            String background = currentItem.getEmojiName().toLowerCase();
+//            String backgroundTag = emotion.getEmojiName().toLowerCase() + "_tag";
             int id = context.getResources().getIdentifier(background,"drawable", context.getPackageName());
+            String parsedText = currentItem.getEmojiString() + "      " + currentItem.getEmojiName();
+            emojiField.setText(parsedText);
+            row.setBackgroundResource(id);
 
         }
         return row;
