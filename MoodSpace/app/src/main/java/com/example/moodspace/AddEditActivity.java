@@ -461,6 +461,10 @@ public class AddEditActivity extends AppCompatActivity
 
         } catch (SecurityException e) {
             Log.w(TAG, Log.getStackTraceString(e));
+            Toast.makeText(this, "Unexpected error: cannot access location",
+                    Toast.LENGTH_LONG).show();
+
+            locationCheckBox.setChecked(false);
         }
     }
 
