@@ -45,6 +45,8 @@
             android:divider="@android:color/transparent"
             android:background="@drawable/listview_background"
             android:dividerHeight="2sp"
+            android:paddingLeft="20dp"
+            android:paddingRight="20dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="@+id/toolbar"

@@ -84,7 +84,7 @@ public class ProfileListActivity extends AppCompatActivity
         final List<Emotion> filterList = new ArrayList<Emotion>();
 
         moodDataList = new ArrayList<>();
-        moodAdapter = new MoodViewList(this, moodDataList);
+        moodAdapter = new MoodViewList(this, moodDataList, username);
 
         // sets up EditMood on tapping any mood
         moodList.setAdapter(moodAdapter);
@@ -134,8 +134,8 @@ public class ProfileListActivity extends AppCompatActivity
                         Paper.book().delete(UserController.PAPER_PASSWORD_KEY);
                         Intent loginScreen = new Intent(ProfileListActivity.this, LoginActivity.class);
                         loginScreen.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                        finish();
                         startActivity(loginScreen);
+                        finish();
                         return true;
 
                     default:
