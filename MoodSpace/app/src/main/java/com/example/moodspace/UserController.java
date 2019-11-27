@@ -1,5 +1,6 @@
 package com.example.moodspace;
 
+import android.os.Bundle;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -18,6 +19,7 @@ import java.util.HashMap;
 
 import io.paperdb.Paper;
 
+import static com.example.moodspace.Utils.newStringBundle;
 import static com.example.moodspace.Utils.newUserBundle;
 
 /**
@@ -25,6 +27,7 @@ import static com.example.moodspace.Utils.newUserBundle;
  */
 public class UserController {
     private static final String TAG = UserController.class.getSimpleName();
+    public static final String CHECK_USERNAME_EXISTS_KEY = "moodspace.UserController.checkUsernameExists";
     public static final String PAPER_USERNAME_KEY = "moodspace.Paper.username";
     public static final String PAPER_PASSWORD_KEY = "moodspace.Paper.password";
 
@@ -40,9 +43,7 @@ public class UserController {
         void callbackUserData(DocumentSnapshot fetchedUserData, final String callbackId);
     }
 
-    /**
-     * Used to ensure all users have a unique username
-     */
+    /*
     public void checkUserExists(final User user) {
         Query query = db.collection("users").whereEqualTo("username", user.getUsername());
         query.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
@@ -55,6 +56,26 @@ public class UserController {
                     Log.d(TAG, "Username " + user.getUsername() + " is not taken");
                     cc.callback(UserCallbackId.USERNAME_NOT_TAKEN,
                             newUserBundle(SignUpActivity.SIGN_UP_USER_KEY, user));
+                }
+            }
+        });
+    }
+     */
+
+    /**
+     * Checks if the username exists already in the database
+     */
+    public void checkUsernameExists(final String username, final Bundle bundle) {
+        Query query = db.collection("users").whereEqualTo("username", username);
+        query.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                if (task.getResult() != null && task.getResult().size() > 0) {
+                    Log.d(TAG, "Username " + username + " exists");
+                    cc.callback(UserCallbackId.USERNAME_EXISTS, bundle);
+                } else {
+                    Log.d(TAG, "Username " + username + " does not exist");
+                    cc.callback(UserCallbackId.USERNAME_DOESNT_EXIST, bundle);
                 }
             }
         });

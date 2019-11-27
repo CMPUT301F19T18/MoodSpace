@@ -199,12 +199,12 @@
                     android:textColor="#000000"
                     android:textSize="23sp"
                     app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toStartOf="@+id/locationOn"
+                    app:layout_constraintEnd_toStartOf="@+id/locationCheckbox"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
 
                 <CheckBox
-                    android:id="@+id/locationOn"
+                    android:id="@+id/locationCheckbox"
                     android:layout_width="0dp"
                     android:layout_height="0dp"
                     android:layout_marginStart="10dp"
@@ -237,10 +237,9 @@
                     android:textStyle="bold"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintDimensionRatio="1:1"
-                    app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toStartOf="@+id/left_square_view"
                     app:layout_constraintTop_toTopOf="parent" />
-
 
                 <ImageView
                     android:id="@+id/image_view"
@@ -264,7 +263,6 @@
                     app:layout_constraintTop_toTopOf="@+id/right_square_view"
                     app:srcCompat="@drawable/ic_delete" />
 
-                <!-- primary color left square -->
                 <Button
                     android:id="@+id/image_button"
                     android:layout_width="0dp"
@@ -281,6 +279,58 @@
                     app:layout_constraintTop_toTopOf="@+id/right_square_view" />
 
                 <!-- primary color left square -->
+                <View
+                    android:id="@+id/left_square_view"
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:layout_marginStart="4dp"
+                    android:layout_marginEnd="8dp"
+                    android:background="@color/colorPrimary"
+                    android:textColor="@color/colorWhite"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintDimensionRatio="1:1"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toEndOf="@+id/right_square_view"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+
+                <com.google.android.gms.maps.MapView
+                    android:id="@+id/map_view"
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:background="@color/colorPrimary"
+                    app:layout_constraintBottom_toBottomOf="@+id/left_square_view"
+                    app:layout_constraintLeft_toLeftOf="@+id/left_square_view"
+                    app:layout_constraintRight_toRightOf="@+id/left_square_view"
+                    app:layout_constraintTop_toTopOf="@+id/left_square_view" />
+
+                <!--
+                <com.google.android.gms.maps.MapView
+                    xmlns:android="http://schemas.android.com/apk/res/android"
+
+                    android:id="@+id/map_view"
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:background="@color/colorPrimary"
+                    app:layout_constraintBottom_toBottomOf="@+id/left_square_view"
+                    app:layout_constraintLeft_toLeftOf="@+id/left_square_view"
+                    app:layout_constraintRight_toRightOf="@+id/left_square_view"
+                    app:layout_constraintTop_toTopOf="@+id/left_square_view" />
+
+                <CheckBox
+                    android:id="@+id/checkbox_location"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:checked="false"
+                    android:text="Add Location"
+                    android:textStyle="bold"
+                    app:layout_constraintBottom_toBottomOf="@+id/left_square_view"
+                    app:layout_constraintLeft_toLeftOf="@+id/left_square_view"
+                    app:layout_constraintRight_toRightOf="@+id/left_square_view"
+                    app:layout_constraintTop_toTopOf="@+id/left_square_view" />
+                    -->
 
             </androidx.constraintlayout.widget.ConstraintLayout>
 

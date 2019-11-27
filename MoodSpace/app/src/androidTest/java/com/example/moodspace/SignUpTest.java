@@ -38,12 +38,10 @@ import static org.hamcrest.core.IsNot.not;
  * Login to verify that the account has been created from before then log out
  * Delete the account from firebase db for future tests.
  */
-public class SignupTests extends TestWatcher {
-    private final String username = "signuptest";
-    private final String password = "signuptest";
+public class SignUpTest extends TestWatcher {
+    private final String username = "TEST_SignUpTest";
+    private final String password = "TEST_SignUpTest";
     private final FirebaseFirestore db = FirebaseFirestore.getInstance();
-
-    //public OnFailed removeUserRule = new OnFailed();
 
     /**
      *  Always removes the user if failed
@@ -75,7 +73,7 @@ public class SignupTests extends TestWatcher {
         onView(withId(R.id.signup_btn)).perform(click());
         Thread.sleep(3000);
 
-        onView(withId(R.id.drawer_layout)).perform(DrawerActions.open());
+        onView(withId(R.id.profile_layout)).perform(DrawerActions.open());
         Thread.sleep(1500);
         onView(withId(R.id.nav_view)).perform(NavigationViewActions.navigateTo(R.id.nav_item_log_out));
         Thread.sleep(1500);
@@ -114,7 +112,7 @@ public class SignupTests extends TestWatcher {
         onView(withId(R.id.login_btn)).perform(click());
         Thread.sleep(1500);
 
-        onView(withId(R.id.drawer_layout)).perform(DrawerActions.open());
+        onView(withId(R.id.profile_layout)).perform(DrawerActions.open());
         onView(withId(R.id.nav_view)).perform(NavigationViewActions.navigateTo(R.id.nav_item_log_out));
         Thread.sleep(1500);
     }

@@ -24,11 +24,13 @@ public class MoodViewList extends ArrayAdapter<Mood> {
 
     private ArrayList<Mood> listOfMoods;
     private Context context;
+    private String username;
 
-    public MoodViewList(Context context, ArrayList<Mood> listOfMoods ) {
+    public MoodViewList(Context context, ArrayList<Mood> listOfMoods, String username) {
         super(context,0,listOfMoods);
         this.listOfMoods = listOfMoods;
         this.context = context;
+        this.username = username;
     }
 
     /**
@@ -48,6 +50,7 @@ public class MoodViewList extends ArrayAdapter<Mood> {
         TextView moodInfo = view.findViewById(R.id.mood);
         TextView date = view.findViewById(R.id.mood_date);
         TextView time = view.findViewById(R.id.mood_time);
+        TextView userNameField = view.findViewById(R.id.username);
 
         Emotion emotion = mood.getEmotion();
         moodInfo.setText(emotion.getEmojiString());
@@ -61,6 +64,7 @@ public class MoodViewList extends ArrayAdapter<Mood> {
         moodLayout.setBackgroundResource(id);
         ImageView moodTag = view.findViewById(R.id.imageView);
         moodTag.setImageResource(moodTagId);
+        userNameField.setText(username);
 
         return view;
     }

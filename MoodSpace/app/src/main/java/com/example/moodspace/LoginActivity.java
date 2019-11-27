@@ -26,7 +26,7 @@ public class LoginActivity extends AppCompatActivity
         implements ControllerCallback {
     private static final String TAG = LoginActivity.class.getSimpleName();
 
-    public static final String USERNAME_KEY = "moodspace.LoginActivity.username";
+    public static final String USERNAME_KEY = "username";
     //public static final String SIGN_UP_USER_KEY = "moodspace.LoginActivity.signUpKey";
     public static final String LOGIN_USER_KEY = "moodspace.LoginActivity.login";
 
@@ -100,7 +100,8 @@ public class LoginActivity extends AppCompatActivity
                                 "Please enter a matching password", Toast.LENGTH_SHORT).show();
                         return;
                     }
-                    uc.checkUserExists(inputtedUser);
+                    // TODO update when unifying SignUpActivity
+                    //uc.checkUserExists(inputtedUser);
                     loginButton.setEnabled(false);
                 }
             }
@@ -188,7 +189,7 @@ public class LoginActivity extends AppCompatActivity
                     finish();
                     return;
 
-                case USERNAME_TAKEN:
+                case USERNAME_EXISTS:
                     Toast.makeText(this, "This username is taken", Toast.LENGTH_SHORT).show();
                     loginButton.setEnabled(true);
                     return;

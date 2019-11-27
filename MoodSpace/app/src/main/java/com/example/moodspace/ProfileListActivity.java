@@ -39,7 +39,6 @@ import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
 
 import io.paperdb.Paper;
@@ -58,6 +57,7 @@ public class ProfileListActivity extends AppCompatActivity
     private String moodId;
     private String username;
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -68,7 +68,7 @@ public class ProfileListActivity extends AppCompatActivity
         setContentView(R.layout.activity_profile_list);
         vc = new ViewController(this);
 
-        username = getIntent().getExtras().getString(LoginActivity.USERNAME_KEY);
+        username = getIntent().getExtras().getString("username");
 
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -84,7 +84,7 @@ public class ProfileListActivity extends AppCompatActivity
         final List<Emotion> filterList = new ArrayList<Emotion>();
 
         moodDataList = new ArrayList<>();
-        moodAdapter = new MoodViewList(this, moodDataList);
+        moodAdapter = new MoodViewList(this, moodDataList, username);
 
         // sets up EditMood on tapping any mood
         moodList.setAdapter(moodAdapter);
@@ -96,7 +96,7 @@ public class ProfileListActivity extends AppCompatActivity
         });
 
         // sets up the menu button
-        final DrawerLayout drawerLayout = findViewById(R.id.drawer_layout);
+        final DrawerLayout drawerLayout = findViewById(R.id.profile_layout);
         toolbar.setNavigationIcon(R.drawable.ic_menu_button);
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
@@ -120,20 +120,22 @@ public class ProfileListActivity extends AppCompatActivity
                                 "Profile", Toast.LENGTH_SHORT).show();
                         return true;
                     case R.id.nav_item_following:
-                        Toast.makeText(ProfileListActivity.this,
-                                "Following", Toast.LENGTH_SHORT).show();
+                        Intent intent = new Intent(ProfileListActivity.this, FollowActivity.class);
+                        intent.putExtra("username", username);
+                        startActivity(intent);
                         return true;
                     case R.id.nav_item_map:
-                        Toast.makeText(ProfileListActivity.this,
-                                "Map", Toast.LENGTH_SHORT).show();
+                        Intent intent1 = new Intent(ProfileListActivity.this, MapsActivity.class);
+                        intent1.putExtra("username", username);
+                        startActivity(intent1);
                         return true;
                     case R.id.nav_item_log_out:
                         Paper.book().delete(UserController.PAPER_USERNAME_KEY);
                         Paper.book().delete(UserController.PAPER_PASSWORD_KEY);
                         Intent loginScreen = new Intent(ProfileListActivity.this, LoginActivity.class);
                         loginScreen.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                        finish();
                         startActivity(loginScreen);
+                        finish();
                         return true;
 
                     default:
@@ -214,7 +216,7 @@ public class ProfileListActivity extends AppCompatActivity
      * Opens add Mood intent.
      */
     public void openAddMood(String username) {
-        Intent intent = new Intent(this, com.example.moodspace.AddEditActivity.class);
+        Intent intent = new Intent(this, AddEditActivity.class);
         intent.putExtra("USERNAME", username);
         startActivity(intent);
     }
@@ -271,32 +273,9 @@ public class ProfileListActivity extends AppCompatActivity
                     ) {
                         moodDataList.clear();
                         for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
-                            Emotion emotion = Emotion.valueOf(doc.getString("emotion"));
-                            Date ts = doc.getTimestamp("date").toDate();
-                            String reason = doc.getString("reasonText");
-                            Boolean hasPhoto = doc.getBoolean("hasPhoto");
-                            Boolean locationOn = doc.getBoolean("locationOn");
-                            SocialSituation socialSit;
-                            // TODO get rid once database is wiped
-                            try { // backwards compatibility
-                                socialSit = SocialSituation.valueOf(doc.getString("socialSituation"));
-                            } catch (Exception ex) {
-                                Log.d(TAG, "set default social situation instead");
-                                Log.d(TAG, Log.getStackTraceString(ex));
-                                socialSit = SocialSituation.NOT_PROVIDED;
-                            }
-                            if (hasPhoto == null) { // backwards compatibility
-                                hasPhoto = false;
-                            }
-
-                            if (locationOn == null) {
-                                locationOn = false;
-                            }
-
-                            String id = doc.getId();
-                            Mood newMood = new Mood(id, ts, emotion, reason, hasPhoto, locationOn, socialSit);
-                            if (!(filterList.contains(emotion))){
-                                moodDataList.add(newMood);
+                            Mood mood = Mood.fromDocSnapshot(doc);
+                            if (!(filterList.contains(mood.getEmotion()))){
+                                moodDataList.add(mood);
                             }
                         }
                         moodAdapter.notifyDataSetChanged();

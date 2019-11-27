@@ -7,7 +7,6 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
 import androidx.test.rule.ActivityTestRule;
 
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -27,18 +26,12 @@ import static androidx.test.espresso.matcher.ViewMatchers.withId;
  */
 @LargeTest
 public class LoginActivityTest {
-    private String username;
-    private String password;
+    private String username = "TEST_LoginActivityTest";
+    private String password = "TEST_LoginActivityTest";
 
 
     @Rule
     public ActivityTestRule<LoginActivity> activityRule = new ActivityTestRule<>(LoginActivity.class);
-
-    @Before
-    public void initValidString() {
-        username = "logintest";
-        password = "logintest";
-    }
 
     /**
      * tests that you can sign up
@@ -63,7 +56,7 @@ public class LoginActivityTest {
         Espresso.pressBackUnconditionally();
         activityRule.launchActivity(null);
         Thread.sleep(1500);
-        onView(withId(R.id.drawer_layout)).perform(DrawerActions.open());
+        onView(withId(R.id.profile_layout)).perform(DrawerActions.open());
         onView(withId(R.id.nav_view)).perform(NavigationViewActions.navigateTo(R.id.nav_item_log_out));
         Thread.sleep(1500);
     }
