@@ -13,6 +13,8 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.Spinner;
@@ -57,6 +59,7 @@ public class AddEditActivity extends AppCompatActivity
     private boolean changedPhoto = false;
     private Mood currentMood = null;
     private Emotion selectedEmotion = null;
+    private boolean locationOn = false;
 
     private FirebaseStorage fbStorage = FirebaseStorage.getInstance();
 
@@ -96,6 +99,8 @@ public class AddEditActivity extends AppCompatActivity
         // to another activity to fill out the required information.
         final Button saveBtn = findViewById(R.id.saveBtn);
         final TextInputEditText reasonEditText = findViewById(R.id.reason_text);
+        final CheckBox locationBox = findViewById(R.id.locationOn);
+        final EditText locationText = findViewById(R.id.locationText);
         saveBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -122,9 +127,11 @@ public class AddEditActivity extends AppCompatActivity
                     }
                 }
 
+
                 String id;
                 Date date;
                 boolean hasPhoto = AddEditActivity.this.hasPhoto;
+                boolean locationOn = AddEditActivity.this.locationOn;
                 SocialSituation socialSit = (SocialSituation) socialSitSpinner.getSelectedItem();
 
                 // reuses parameters if editing
@@ -137,7 +144,12 @@ public class AddEditActivity extends AppCompatActivity
                     date = currentMood.getDate();
                 }
 
-                Mood mood = new Mood(id, date, selectedEmotion, reasonText, hasPhoto, socialSit);
+                if (locationBox.isChecked()) {
+                    locationOn = true;
+
+                }
+
+                Mood mood = new Mood(id, date, selectedEmotion, reasonText, hasPhoto, locationOn, socialSit);
                 if (AddEditActivity.this.isAddActivity()) {
                     aec.addMood(username, mood);
                 } else {
@@ -206,15 +218,15 @@ public class AddEditActivity extends AppCompatActivity
             }
         });
 
-        // TODO location
-        Button mapButton = findViewById(R.id.map_button);
-        mapButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Toast.makeText(AddEditActivity.this, "Placeholder map button",
-                        Toast.LENGTH_SHORT).show();
-            }
-        });
+//        // TODO location
+//        Button mapButton = findViewById(R.id.map_button);
+//        mapButton.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                Toast.makeText(AddEditActivity.this, "Placeholder map button",
+//                        Toast.LENGTH_SHORT).show();
+//            }
+//        });
 
         Toolbar toolbar = findViewById(R.id.toolbar);
 
@@ -228,6 +240,7 @@ public class AddEditActivity extends AppCompatActivity
             saveBtn.setText(getString(R.string.em_ok_text));
             backBtn.setText(getString(R.string.em_cancel_text));
 
+
             // fills in fields with previous values
             // adds for it to work with "please select emotion" position
             int emotionIndex = emotionAdapter.getPosition(currentMood.getEmotion()) + 1;
@@ -235,6 +248,14 @@ public class AddEditActivity extends AppCompatActivity
             int socialSitIndex = socialSituationAdapter.getPosition(currentMood.getSocialSituation());
             socialSitSpinner.setSelection(socialSitIndex);
             reasonEditText.setText(currentMood.getReasonText());
+            if (currentMood.getLocationOn()) {
+                locationBox.setVisibility(View.VISIBLE);
+                locationBox.setChecked(true);
+            } else {
+                locationText.setVisibility(View.GONE);
+                locationBox.setVisibility(View.GONE);
+            }
+
 
             // downloads photo: can't figure out how to separate this task into the controller
             // Create a storage reference from our app

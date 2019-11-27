@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/emotion_spinner_row"
-    android:layout_width="321dp"
+    android:layout_width="300dp"
     android:layout_height="wrap_content"
     android:padding="15dp"
     android:textColor="@android:color/background_dark"
