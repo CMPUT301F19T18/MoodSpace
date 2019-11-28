@@ -57,6 +57,7 @@ public class ProfileListActivity extends AppCompatActivity
 
     private String moodId;
     private String username;
+    private boolean feed;
     ListView moodList;
 
 
@@ -72,7 +73,7 @@ public class ProfileListActivity extends AppCompatActivity
         fc = new FollowController(this);
 
         username = getIntent().getExtras().getString("username");
-        boolean feed = getIntent().getExtras().getBoolean("feed");
+        feed = getIntent().getExtras().getBoolean("feed");
 
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -247,7 +248,9 @@ public class ProfileListActivity extends AppCompatActivity
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.toolbar_menu, menu);
+        if (!(feed)){
+                getMenuInflater().inflate(R.menu.toolbar_menu, menu);
+        }
         return true;
     }
 
