@@ -19,7 +19,6 @@ import java.util.HashMap;
 
 import io.paperdb.Paper;
 
-import static com.example.moodspace.Utils.newStringBundle;
 import static com.example.moodspace.Utils.newUserBundle;
 
 /**

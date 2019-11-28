@@ -31,7 +31,6 @@ public class LoginActivity extends AppCompatActivity
         implements ControllerCallback {
     private static final String TAG = LoginActivity.class.getSimpleName();
 
-    public static final String USERNAME_KEY = "username";
     public static final String IS_SIGN_IN_ACTIVITY_KEY = "moodspace.LoginActivity.isSignInActivityKey";
     public static final String SIGN_UP_USER_KEY = "moodspace.LoginActivity.signUpKey";
     public static final String LOGIN_USER_KEY = "moodspace.LoginActivity.login";
@@ -223,7 +222,7 @@ public class LoginActivity extends AppCompatActivity
 
                     // goes to profile list activity
                     Intent i = new Intent(this, ProfileListActivity.class);
-                    i.putExtra(USERNAME_KEY, user.getUsername());
+                    i.putExtra(Utils.USERNAME_KEY, user.getUsername());
                     startActivity(i);
                     finish();
                     break;

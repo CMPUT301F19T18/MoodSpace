@@ -278,7 +278,7 @@ public class FollowActivity extends AppCompatActivity
 
     @Override
     public void callback(CallbackId callbackId, Bundle bundle) {
-        // TODO stub
+        View snackBarView = findViewById(R.id.follow_layout);
         if (callbackId instanceof FollowCallbackId) {
             switch ((FollowCallbackId) callbackId) {
                 case ADD_FOLLOWER_COMPLETE:
@@ -321,13 +321,24 @@ public class FollowActivity extends AppCompatActivity
             switch ((UserCallbackId) callbackId) {
                 case USERNAME_EXISTS:
                     String target;
+                    String followAction;
 
-                    // TODO add tedious null checks if we have time
-                    //  (offset them to utils function?)
-                    target = bundle.getString(TARGET_KEY);
+                    target = Utils.getStringFromBundle(bundle, TARGET_KEY, snackBarView,
+                            "Unexpected error: target key bundle should not be null",
+                            "Unexpected error: target key result should not contain a null string");
+                    if (target == null) {
+                        return;
+                    }
+
+                    followAction = Utils.getStringFromBundle(bundle, FOLLOW_ACTION_KEY, snackBarView,
+                        "Unexpected error: follow action key bundle should not be null",
+                        "Unexpected error: follow action key result should not contain a null string");
+                    if (followAction == null) {
+                        return;
+                    }
 
                     // switch for future-proofing: in case this must be checked for other actions
-                    switch (bundle.getString(FOLLOW_ACTION_KEY)) {
+                    switch (followAction) {
                         case FOLLOW_ACTION_SEND_REQUEST:
                             fc.sendFollowRequest(username, target);
                             userField.getText().clear();
@@ -339,9 +350,21 @@ public class FollowActivity extends AppCompatActivity
                     }
 
                 case USERNAME_DOESNT_EXIST:
-                    // TODO handle these here too
-                    target = bundle.getString(TARGET_KEY);
-                    switch (bundle.getString(FOLLOW_ACTION_KEY)) {
+                    target = Utils.getStringFromBundle(bundle, TARGET_KEY, snackBarView,
+                            "Unexpected error: target key bundle should not be null",
+                            "Unexpected error: target key result should not contain a null string");
+                    if (target == null) {
+                        return;
+                    }
+
+                    followAction = Utils.getStringFromBundle(bundle, FOLLOW_ACTION_KEY, snackBarView,
+                            "Unexpected error: follow action key bundle should not be null",
+                            "Unexpected error: follow action key result should not contain a null string");
+                    if (followAction == null) {
+                        return;
+                    }
+
+                    switch (followAction) {
                         case FOLLOW_ACTION_SEND_REQUEST:
                             makeWarnToast(this, "User '" + target + "' does not exist");
                         default:

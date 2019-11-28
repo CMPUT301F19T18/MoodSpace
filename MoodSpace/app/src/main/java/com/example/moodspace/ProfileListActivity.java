@@ -22,13 +22,10 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 
-import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
-import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
@@ -37,7 +34,6 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import io.paperdb.Paper;
@@ -54,13 +50,14 @@ public class ProfileListActivity extends AppCompatActivity
 
     private ViewController vc;
     private FollowController fc;
+    private FilterController ftc;
     ArrayAdapter<MoodOther> moodAdapter;
     ArrayList<MoodOther> moodDataList;
     final boolean[] checkedItems = new boolean[Emotion.values().length];
 
     private String moodId;
     private String username;
-    private boolean feed;
+    private boolean feed = false;
     ListView moodList;
 
 
@@ -74,9 +71,13 @@ public class ProfileListActivity extends AppCompatActivity
         setContentView(R.layout.activity_profile_list);
         vc = new ViewController(this);
         fc = new FollowController(this);
+        ftc = new FilterController(this);
 
-        username = getIntent().getExtras().getString("username");
-        feed = getIntent().getExtras().getBoolean("feed");
+        Bundle extras = getIntent().getExtras();
+        if (extras != null) {
+            username = extras.getString(Utils.USERNAME_KEY);
+            feed = extras.getBoolean("feed");
+        }
 
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -165,6 +166,7 @@ public class ProfileListActivity extends AppCompatActivity
                 }
             });
 
+            /*
             // sets up filters
             final Emotion[] emotionArray = Emotion.values();
             Arrays.fill(checkedItems, true);
@@ -186,7 +188,10 @@ public class ProfileListActivity extends AppCompatActivity
                     update(username, filterList);
                 }
             });
+             */
 
+
+            // see onCreateContextMenu, onContextItemSelected
             registerForContextMenu(moodList);
         }
 
@@ -195,7 +200,7 @@ public class ProfileListActivity extends AppCompatActivity
     @Override
     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
         super.onCreateContextMenu(menu, v, menuInfo);
-        AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo)menuInfo;
+        AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) menuInfo;
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.menu_list, menu);
         int index = info.position;
@@ -328,6 +333,16 @@ public class ProfileListActivity extends AppCompatActivity
 
     @Override
     public void callback(CallbackId callbackId, Bundle bundle) {
+        if (callbackId instanceof UserCallbackId) {
+            switch ((UserCallbackId) callbackId) {
+                case USER_READ_DATA_FAIL:
+                case USER_TASK_NULL:
+                case USER_NONEXISTENT:
+                    makeWarnToast(this, "Error: unable to read user data");
+                default:
+                    Log.w(TAG, "unrecognized callback ID: " + callbackId);
+            }
+        }
         // TODO stub
     }
 

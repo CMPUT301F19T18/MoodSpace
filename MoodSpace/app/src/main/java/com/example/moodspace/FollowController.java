@@ -21,6 +21,8 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
+import static com.example.moodspace.Utils.getListFromUser;
+
 /**
  * Followers can be thought of as a directed graph between users.
  * Both requests and following are represented in firestore as adjacency lists under:
@@ -376,22 +378,6 @@ public class FollowController implements ControllerCallback {
                 }
             }
         });
-    }
-
-    /**
-     * Converts an array from firestore to a regular String list
-     */
-    @NonNull
-    private List<String> getListFromUser(DocumentSnapshot fetchedUserData, String arrayName) {
-        final List<String> list = new ArrayList<>();
-        final List<?> genericList = (List<?>) fetchedUserData.get(arrayName);
-        if (genericList != null) {
-            for (Object o: genericList) {
-                list.add((String) o);
-            }
-        }
-
-        return list;
     }
 
     /**

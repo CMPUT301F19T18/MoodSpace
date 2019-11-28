@@ -10,11 +10,17 @@ import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+
 import com.google.android.material.snackbar.Snackbar;
+import com.google.firebase.firestore.DocumentSnapshot;
 
 import java.io.Serializable;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Locale;
 
 /**
@@ -22,6 +28,9 @@ import java.util.Locale;
  * in list view or in the add/edit mood form.
  */
 public final class Utils {
+    // specifically used to transfer usernames between activities
+    public static final String USERNAME_KEY = "moodspace.Utils.usernameKey";
+
     private static final SimpleDateFormat DATE_FORMATTER
             = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
     private static final SimpleDateFormat TIME_FORMATTER
@@ -154,5 +163,36 @@ public final class Utils {
         return bundle.getSerializable(key);
     }
 
+    /**
+     * Converts an array from firestore to a regular String list
+     */
+    @NonNull
+    public static List<String> getListFromUser(DocumentSnapshot fetchedUserData, String arrayName) {
+        final List<String> list = new ArrayList<>();
+        final List<?> genericList = (List<?>) fetchedUserData.get(arrayName);
+        if (genericList != null) {
+            for (Object o: genericList) {
+                list.add((String) o);
+            }
+        }
+
+        return list;
+    }
+
+    /**
+     * Converts an array from firestore to a regular String hash set
+     */
+    @NonNull
+    public static HashSet<String> getSetFromUser(DocumentSnapshot fetchedUserData, String arrayName) {
+        final HashSet<String> set = new HashSet<>();
+        final HashSet<?> genericSet = (HashSet<?>) fetchedUserData.get(arrayName);
+        if (genericSet != null) {
+            for (Object o: genericSet) {
+                set.add((String) o);
+            }
+        }
+
+        return set;
+    }
 
 }
