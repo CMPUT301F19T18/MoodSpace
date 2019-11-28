@@ -14,7 +14,6 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -42,6 +41,10 @@ import java.util.Arrays;
 import java.util.List;
 
 import io.paperdb.Paper;
+
+import static com.example.moodspace.Utils.makeInfoToast;
+import static com.example.moodspace.Utils.makeSuccessToast;
+import static com.example.moodspace.Utils.makeWarnToast;
 
 public class ProfileListActivity extends AppCompatActivity
         implements FilterFragment.OnFragmentInteractionListener,
@@ -116,8 +119,7 @@ public class ProfileListActivity extends AppCompatActivity
                 drawerLayout.closeDrawers();
                 switch (item.getItemId()) {
                     case R.id.nav_item_profile:
-                        Toast.makeText(ProfileListActivity.this,
-                                "Profile", Toast.LENGTH_SHORT).show();
+                        makeInfoToast(ProfileListActivity.this, "Profile");
                         return true;
                     case R.id.nav_item_following:
                         Intent intent = new Intent(ProfileListActivity.this, FollowActivity.class);
@@ -185,7 +187,6 @@ public class ProfileListActivity extends AppCompatActivity
         AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
         switch (item.getItemId()) {
             case R.id.delete:
-                Toast.makeText(this, "Deleted mood", Toast.LENGTH_LONG).show();
                 moodDataList.remove(info.position);
                 db.collection("users")
                         .document(username)
@@ -196,12 +197,15 @@ public class ProfileListActivity extends AppCompatActivity
                             @Override
                             public void onSuccess(Void aVoid) {
                                 Log.d(TAG, "Data deletion successful");
+                                makeSuccessToast(ProfileListActivity.this, "Deleted mood");
                             }
                         })
                         .addOnFailureListener(new OnFailureListener() {
                             @Override
                             public void onFailure(@NonNull Exception e) {
-                                Log.d(TAG, "Data deletion failed" + e.toString());
+                                Log.d(TAG, "Data deletion failed:");
+                                Log.d(TAG, Log.getStackTraceString(e));
+                                makeWarnToast(ProfileListActivity.this, "Error: did not delete mood");
                             }
                         });
                 moodAdapter.notifyDataSetChanged();

@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:background="@drawable/gradient_background"
     android:orientation="vertical"
-    tools:context=".SignUpActivity">
+    tools:context=".LoginActivity">
 
     <FrameLayout
         android:id="@+id/logo"
@@ -62,7 +62,6 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:drawableStart="@drawable/ic_person_blue_18dp"
-                        android:drawableLeft="@drawable/ic_person_blue_18dp"
                         android:drawablePadding="4dp"
                         android:hint="Username"
                         android:inputType="textPersonName"
@@ -83,8 +82,7 @@
                         android:id="@+id/password"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:drawableStart="@drawable/ic_remove_red_eye_white_18dp"
-                        android:drawableLeft="@drawable/ic_remove_red_eye_white_18dp"
+                        android:drawableStart="@drawable/ic_eye_blue_18dp"
                         android:drawablePadding="4dp"
                         android:hint="Password"
                         android:inputType="textPassword"
@@ -105,8 +103,7 @@
                         android:id="@+id/password_veri"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:drawableStart="@drawable/ic_remove_red_eye_white_18dp"
-                        android:drawableLeft="@drawable/ic_remove_red_eye_white_18dp"
+                        android:drawableStart="@drawable/ic_eye_blue_18dp"
                         android:drawablePadding="4dp"
                         android:hint="Confirm Password"
                         android:inputType="textPassword"
@@ -143,7 +140,7 @@
         android:layout_width="match_parent"
         android:layout_height="70dp"
         android:background="@drawable/blue_bg"
-        android:scaleY="-1">
+        >
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/login_link"
@@ -152,7 +149,6 @@
             android:layout_gravity="center"
             android:layout_marginBottom="12dp"
             android:padding="4dp"
-            android:scaleY="-1"
             android:text="Already have an account? Log in"
             android:textColor="#fff"
             android:textSize="14sp"
