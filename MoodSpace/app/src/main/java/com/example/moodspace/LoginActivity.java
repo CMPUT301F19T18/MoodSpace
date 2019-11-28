@@ -187,8 +187,13 @@ public class LoginActivity extends AppCompatActivity
 
     @Override
     public void callback(CallbackId callbackId, Bundle bundle) {
-        final CheckBox chkBoxRememberMe = findViewById(R.id.rememberMe);
-        final AppCompatButton loginButton = findViewById(R.id.login_btn);
+
+        final AppCompatButton confirmButton;
+        if (this.inLoginState) {
+            confirmButton = findViewById(R.id.login_btn);
+        } else {
+            confirmButton = findViewById(R.id.signup_btn);
+        }
         View snackBarView = findViewById(R.id.login_view);
 
         User user;
@@ -217,8 +222,11 @@ public class LoginActivity extends AppCompatActivity
                     }
 
                     // stores username and password if checked
-                    if (chkBoxRememberMe.isChecked()) {
-                        uc.rememberUser(user);
+                    if (this.inLoginState) {
+                        final CheckBox chkBoxRememberMe = findViewById(R.id.rememberMe);
+                        if (chkBoxRememberMe.isChecked()) {
+                            uc.rememberUser(user);
+                        }
                     }
 
                     // goes to profile list activity
@@ -230,29 +238,29 @@ public class LoginActivity extends AppCompatActivity
 
                 case USERNAME_EXISTS:
                     makeInfoToast(this, "This username is taken");
-                    loginButton.setEnabled(true);
+                    confirmButton.setEnabled(true);
                     return;
 
                 case INCORRECT_PASSWORD:
                     makeInfoToast(this, "Incorrect password, please try again");
-                    loginButton.setEnabled(true);
+                    confirmButton.setEnabled(true);
                     return;
 
                 case USER_NONEXISTENT:
                     makeWarnToast(this, "This username does not exist");
-                    loginButton.setEnabled(true);
+                    confirmButton.setEnabled(true);
                     return;
 
                 case USER_READ_DATA_FAIL:
                     makeWarnToast(this, "Login failed, please try again");
-                    loginButton.setEnabled(true);
+                    confirmButton.setEnabled(true);
                     return;
 
                 case USER_TASK_NULL:
                     Snackbar.make(snackBarView,
                             "Unexpected error: user task result should not be null",
                             Snackbar.LENGTH_LONG).show();
-                    loginButton.setEnabled(true);
+                    confirmButton.setEnabled(true);
                     return;
 
                 case USER_ADDITION_FAIL:
@@ -260,7 +268,7 @@ public class LoginActivity extends AppCompatActivity
                     Snackbar.make(snackBarView,
                             "Failed to register user, please try again",
                             Snackbar.LENGTH_LONG).show();
-                    loginButton.setEnabled(true);
+                    confirmButton.setEnabled(true);
                     return;
 
                 default:
