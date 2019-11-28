@@ -9,7 +9,7 @@ public class MoodOther extends Mood {
     private String username;
 
     public MoodOther(String id, Date date, Emotion emotion, String reasonText, boolean hasPhoto,
-                     SocialSituation socialSituation, String username, double lat, double lon) {
+                     SocialSituation socialSituation, String username, Double lat, Double lon) {
 
         super(id, date, emotion, reasonText, hasPhoto, socialSituation, lat, lon);
         this.username = username;
