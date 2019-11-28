@@ -99,18 +99,30 @@ public class ProfileListActivity extends AppCompatActivity
                 drawerLayout.closeDrawers();
                 switch (item.getItemId()) {
                     case R.id.nav_item_profile:
+                        Intent intent = new Intent(ProfileListActivity.this, ProfileListActivity.class);
+                        intent.putExtra("username", username);
+                        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                        startActivity(intent);
                         Toast.makeText(ProfileListActivity.this,
                                 "Profile", Toast.LENGTH_SHORT).show();
                         return true;
+                    case R.id.nav_item_feed:
+                        Intent intent1 = new Intent(ProfileListActivity.this, ProfileListActivity.class);
+                        intent1.putExtra("username", username);
+                        intent1.putExtra("feed", true);
+                        intent1.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                        startActivity(intent1);
+                        return true;
                     case R.id.nav_item_following:
-                        Intent intent = new Intent(ProfileListActivity.this, FollowActivity.class);
-                        intent.putExtra("username", username);
-                        startActivity(intent);
+                        Intent intent2 = new Intent(ProfileListActivity.this, FollowActivity.class);
+                        intent2.putExtra("username", username);
+                        intent2.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                        startActivity(intent2);
                         return true;
                     case R.id.nav_item_map:
-                        Intent intent1 = new Intent(ProfileListActivity.this, MapsActivity.class);
-                        intent1.putExtra("username", username);
-                        startActivity(intent1);
+                        Intent intent3 = new Intent(ProfileListActivity.this, MapsActivity.class);
+                        intent3.putExtra("username", username);
+                        startActivity(intent3);
                         return true;
                     case R.id.nav_item_log_out:
                         Paper.book().delete(UserController.PAPER_USERNAME_KEY);
