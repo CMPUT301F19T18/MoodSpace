@@ -240,7 +240,7 @@ public class ProfileListActivity extends AppCompatActivity
      * Opens add Mood intent.
      */
     public void openAddMood(String username) {
-        Intent intent = new Intent(this, com.example.moodspace.AddEditActivity.class);
+        Intent intent = new Intent(this, AddEditActivity.class);
         intent.putExtra("USERNAME", username);
         startActivity(intent);
     }

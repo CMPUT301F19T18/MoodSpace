@@ -12,7 +12,6 @@ import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.graphics.Color;
 import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationManager;
@@ -49,10 +48,12 @@ import java.util.Date;
 import io.paperdb.Paper;
 
 public class MapsActivity extends AppCompatActivity implements OnMapReadyCallback {
+    private static final String TAG = MapsActivity.class.getSimpleName();
+
+    private static final String MAPVIEW_BUNDLE_KEY = "moodspace.MapsActivity.mapViewBundleKey";
 
     private GoogleMap mMap;
     MapView mMapView;
-    private static final String MAPVIEW_BUNDLE_KEY = "MapViewBundleKey2";
     private FusedLocationProviderClient fusedLocationProviderClient;
     private String username;
     private int MY_PERMISSIONS_REQUEST_FINE_LOCATION = 123;
@@ -95,15 +96,14 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                     @Override
                     public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException e) {
                         for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
-                            double lat;
-                            double lon;
+                            Double lat = null;
+                            Double lon = null;
 
-                            try{
+                            try {
                                 lat = doc.getDouble("lat");
-                                lon = doc.getDouble("lon");}
-                            catch (Exception ex) {
-                                lat = -1000;
-                                lon = -1000;
+                                lon = doc.getDouble("lon");
+                            } catch (Exception ex) {
+                                Log.d(TAG, "cannot get location");
                             }
 
                             Date ts = doc.getTimestamp("date").toDate();
@@ -119,10 +119,10 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                                 case "Anger":
                                     color = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED);
                                     break;
-                                case "Fear" :
+                                case "Fear":
                                     color = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_VIOLET);
                                     break;
-                                case "Disgust"  :
+                                case "Disgust":
                                     color = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN);
                                     break;
                                 case "Contempt":
@@ -132,67 +132,18 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                                     color = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_CYAN);
                                     break;
                             }
-                            if(lat != -1000){
-                                LatLng sydney = new LatLng(lat,lon);
-                                mMap.addMarker(new MarkerOptions().position(sydney)
+                            if (lat != null && lon != null){
+                                LatLng latLng = new LatLng(lat, lon);
+                                mMap.addMarker(new MarkerOptions().position(latLng)
                                         .title(emotion.getEmojiString())
                                         .snippet(ts.toString())
                                         .icon(color));
-                                mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
+                                mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
                             }
                         }
                     }
                 });
     }
-
-    private Location getDeviceLocation() throws SecurityException {
-        // TODO: fix app crash if user denies location permission
-        LocationManager locationManager = (LocationManager)
-                getSystemService(Context.LOCATION_SERVICE);
-        Criteria criteria = new Criteria();
-
-
-
-
-        if (!locationCheckDenied){
-
-            try {
-                Location location = locationManager.getLastKnownLocation(locationManager
-                        .getBestProvider(criteria, false));
-                return location;
-            }
-            catch (Exception ex){
-
-            }
-        }
-        Location loc = new Location("LocDenied");
-        loc.setLongitude(-1000);
-        loc.setLatitude(-1000);
-        return loc;
-
-
-
-
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
-                                           @NonNull int[] grantResults) {
-
-        if (requestCode == MY_PERMISSIONS_REQUEST_FINE_LOCATION) {
-            if (grantResults.length > 0 &&
-                    grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-
-
-            }else
-            {
-                locationCheckDenied = true;
-            }
-        }
-
-
-    }
-
 
 
     private void setupNavBar(Toolbar toolbar) {
@@ -277,7 +228,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         if (savedInstanceState != null) {
             mapViewBundle = savedInstanceState.getBundle(MAPVIEW_BUNDLE_KEY);
         }
-        mMapView = (MapView) findViewById(R.id.map);
+        mMapView = findViewById(R.id.map);
         mMapView.onCreate(mapViewBundle);
 
         mMapView.getMapAsync(MapsActivity.this);
@@ -341,20 +292,5 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         // askForLocationPermission();
         mMap = googleMap;
 
-    }
-
-    private void askForLocationPermission() {
-        if (checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for Activity#requestPermissions for more details.
-
-            ActivityCompat.requestPermissions(this,
-                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
-                    MY_PERMISSIONS_REQUEST_FINE_LOCATION);
-
-        }
     }
 }
