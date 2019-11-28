@@ -23,8 +23,6 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.tabs.TabLayout;
 
@@ -109,24 +107,37 @@ public class FollowActivity extends AppCompatActivity
                         intent.putExtra("username", username);
                         intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                         startActivity(intent);
+                        finish();
+                        return true;
+                    case R.id.nav_item_feed:
+                        Intent intent1 = new Intent(FollowActivity.this, ProfileListActivity.class);
+                        intent1.putExtra("username", username);
+                        intent1.putExtra("feed", true);
+                        intent1.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                        startActivity(intent1);
+                        finish();
                         return true;
                     case R.id.nav_item_following:
-                        Toast.makeText(FollowActivity.this,
-                                "Following", Toast.LENGTH_SHORT).show();
+                        Intent intent2 = new Intent(FollowActivity.this, FollowActivity.class);
+                        intent2.putExtra("username", username);
+                        intent2.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                        startActivity(intent2);
+                        finish();
                         return true;
                     case R.id.nav_item_map:
-                        Intent intent1 = new Intent(FollowActivity.this, MapsActivity.class);
-                        intent1.putExtra("username", username);
-                        startActivity(intent1);
+                        Intent intent3 = new Intent(FollowActivity.this, MapsActivity.class);
+                        intent3.putExtra("username", username);
+                        startActivity(intent3);
                         return true;
                     case R.id.nav_item_log_out:
                         Paper.book().delete(UserController.PAPER_USERNAME_KEY);
                         Paper.book().delete(UserController.PAPER_PASSWORD_KEY);
                         Intent loginScreen = new Intent(FollowActivity.this, LoginActivity.class);
                         loginScreen.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                        finish();
                         startActivity(loginScreen);
+                        finish();
                         return true;
+
                     default:
                         return false;
                 }

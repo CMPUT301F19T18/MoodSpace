@@ -45,17 +45,20 @@ import io.paperdb.Paper;
 
 public class ProfileListActivity extends AppCompatActivity
         implements FilterFragment.OnFragmentInteractionListener,
-        ControllerCallback {
+        ControllerCallback, FollowController.OtherMoodsCallback {
     private static final String TAG = ProfileListActivity.class.getSimpleName();
     private final FirebaseFirestore db = FirebaseFirestore.getInstance();
 
     private ViewController vc;
-    ArrayAdapter<Mood> moodAdapter;
-    ArrayList<Mood> moodDataList;
+    private FollowController fc;
+    ArrayAdapter<MoodOther> moodAdapter;
+    ArrayList<MoodOther> moodDataList;
     final boolean[] checkedItems = new boolean[Emotion.values().length];
 
     private String moodId;
     private String username;
+    private boolean feed;
+    ListView moodList;
 
 
     @Override
@@ -67,33 +70,13 @@ public class ProfileListActivity extends AppCompatActivity
         }
         setContentView(R.layout.activity_profile_list);
         vc = new ViewController(this);
+        fc = new FollowController(this);
 
         username = getIntent().getExtras().getString("username");
+        feed = getIntent().getExtras().getBoolean("feed");
 
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
-        ListView moodList = findViewById(R.id.moodList);
-        FloatingActionButton addBtn = findViewById(R.id.addMoodButton);
-        addBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                openAddMood(username);
-            }
-        });
-        final List<Emotion> filterList = new ArrayList<Emotion>();
-
-        moodDataList = new ArrayList<>();
-        moodAdapter = new MoodViewList(this, moodDataList, username);
-
-        // sets up EditMood on tapping any mood
-        moodList.setAdapter(moodAdapter);
-        moodList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                openEditMood(username, position);
-            }
-        });
 
         // sets up the menu button
         final DrawerLayout drawerLayout = findViewById(R.id.profile_layout);
@@ -116,18 +99,32 @@ public class ProfileListActivity extends AppCompatActivity
                 drawerLayout.closeDrawers();
                 switch (item.getItemId()) {
                     case R.id.nav_item_profile:
-                        Toast.makeText(ProfileListActivity.this,
-                                "Profile", Toast.LENGTH_SHORT).show();
+                        Intent intent = new Intent(ProfileListActivity.this, ProfileListActivity.class);
+                        intent.putExtra("username", username);
+                        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                        startActivity(intent);
+                        finish();
+                        return true;
+                    case R.id.nav_item_feed:
+                        Intent intent1 = new Intent(ProfileListActivity.this, ProfileListActivity.class);
+                        intent1.putExtra("username", username);
+                        intent1.putExtra("feed", true);
+                        intent1.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                        startActivity(intent1);
+                        finish();
                         return true;
                     case R.id.nav_item_following:
-                        Intent intent = new Intent(ProfileListActivity.this, FollowActivity.class);
-                        intent.putExtra("username", username);
-                        startActivity(intent);
+                        Intent intent2 = new Intent(ProfileListActivity.this, FollowActivity.class);
+                        intent2.putExtra("username", username);
+                        intent2.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                        startActivity(intent2);
+                        finish();
                         return true;
                     case R.id.nav_item_map:
-                        Intent intent1 = new Intent(ProfileListActivity.this, MapsActivity.class);
-                        intent1.putExtra("username", username);
-                        startActivity(intent1);
+                        Intent intent3 = new Intent(ProfileListActivity.this, MapsActivity.class);
+                        intent3.putExtra("username", username);
+                        startActivity(intent3);
+                        finish();
                         return true;
                     case R.id.nav_item_log_out:
                         Paper.book().delete(UserController.PAPER_USERNAME_KEY);
@@ -144,29 +141,56 @@ public class ProfileListActivity extends AppCompatActivity
             }
         });
 
-        // sets up filters
-        final Emotion[] emotionArray = Emotion.values();
-        Arrays.fill(checkedItems, true);
-        final CollectionReference cRef = db.collection("users")
-                .document(username)
-                .collection("Filter");
-        cRef.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+        moodList = findViewById(R.id.moodList);
+        FloatingActionButton addBtn = findViewById(R.id.addMoodButton);
+        addBtn.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                for (QueryDocumentSnapshot doc : task.getResult()){
-                    Emotion emotion = Emotion.valueOf(doc.getString("emotion"));
-                    for (int i = 0; i < emotionArray.length; i++){
-                        if (emotionArray[i] == emotion){
-                            checkedItems[i] = false;
-                            filterList.add(emotion);
-                        }
-                    }
-                }
-                update(username, filterList);
+            public void onClick(View v) {
+                openAddMood(username);
             }
         });
 
-        registerForContextMenu(moodList);
+        if (feed) {
+            fc.getFollowingMoods(username);
+        } else  {
+            moodDataList = new ArrayList<>();
+            moodAdapter = new MoodViewList(this, moodDataList);
+            final List<Emotion> filterList = new ArrayList<>();
+
+            // sets up EditMood on tapping any mood
+            moodList.setAdapter(moodAdapter);
+            moodList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                @Override
+                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                    openEditMood(username, position);
+                }
+            });
+
+            // sets up filters
+            final Emotion[] emotionArray = Emotion.values();
+            Arrays.fill(checkedItems, true);
+            final CollectionReference cRef = db.collection("users")
+                    .document(username)
+                    .collection("Filter");
+            cRef.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                @Override
+                public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                    for (QueryDocumentSnapshot doc : task.getResult()){
+                        Emotion emotion = Emotion.valueOf(doc.getString("emotion"));
+                        for (int i = 0; i < emotionArray.length; i++){
+                            if (emotionArray[i] == emotion){
+                                checkedItems[i] = false;
+                                filterList.add(emotion);
+                            }
+                        }
+                    }
+                    update(username, filterList);
+                }
+            });
+
+            registerForContextMenu(moodList);
+        }
+
     }
 
     @Override
@@ -238,7 +262,9 @@ public class ProfileListActivity extends AppCompatActivity
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.toolbar_menu, menu);
+        if (!(feed)){
+                getMenuInflater().inflate(R.menu.toolbar_menu, menu);
+        }
         return true;
     }
 
@@ -260,7 +286,7 @@ public class ProfileListActivity extends AppCompatActivity
     }
 
     // updates data from firestore
-    public void update(String username, final List<Emotion> filterList) {
+    public void update(final String username, final List<Emotion> filterList) {
         db.collection("users")
                 .document(username)
                 .collection("Moods")
@@ -275,7 +301,7 @@ public class ProfileListActivity extends AppCompatActivity
                         for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
                             Mood mood = Mood.fromDocSnapshot(doc);
                             if (!(filterList.contains(mood.getEmotion()))){
-                                moodDataList.add(mood);
+                                moodDataList.add(MoodOther.fromMood(mood, username));
                             }
                         }
                         moodAdapter.notifyDataSetChanged();
@@ -302,5 +328,11 @@ public class ProfileListActivity extends AppCompatActivity
     @Override
     public void callback(CallbackId callbackId, Bundle bundle) {
         // TODO stub
+    }
+
+    @Override
+    public void callbackFollowingMoods(@NonNull String user, @NonNull ArrayList<MoodOther> followingMoodsList) {
+        moodAdapter = new MoodViewList(this, followingMoodsList);
+        moodList.setAdapter(moodAdapter);
     }
 }
