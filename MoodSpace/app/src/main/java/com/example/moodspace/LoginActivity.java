@@ -3,11 +3,11 @@ package com.example.moodspace;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
+import android.text.Editable;
 import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.CheckBox;
-import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.AppCompatButton;
@@ -19,15 +19,21 @@ import com.google.firebase.firestore.DocumentSnapshot;
 
 import io.paperdb.Paper;
 
+import static com.example.moodspace.Utils.getSerializableFromBundle;
+import static com.example.moodspace.Utils.makeInfoToast;
+import static com.example.moodspace.Utils.makeWarnToast;
+import static com.example.moodspace.Utils.newUserBundle;
+
 /**
- * Activity for logging in as an existing user
+ * Activity for logging in as an existing user and for signing up an existing user
  */
 public class LoginActivity extends AppCompatActivity
         implements ControllerCallback {
     private static final String TAG = LoginActivity.class.getSimpleName();
 
     public static final String USERNAME_KEY = "username";
-    //public static final String SIGN_UP_USER_KEY = "moodspace.LoginActivity.signUpKey";
+    public static final String IS_SIGN_IN_ACTIVITY_KEY = "moodspace.LoginActivity.isSignInActivityKey";
+    public static final String SIGN_UP_USER_KEY = "moodspace.LoginActivity.signUpKey";
     public static final String LOGIN_USER_KEY = "moodspace.LoginActivity.login";
 
     private UserController uc;
@@ -35,6 +41,7 @@ public class LoginActivity extends AppCompatActivity
     // so you can't press the login button multiple times
     private boolean inLoginState = true;
     private DocumentSnapshot fetchedUserData = null;
+    private AppCompatButton confirmButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,69 +50,115 @@ public class LoginActivity extends AppCompatActivity
             getWindow().setFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS,
                     WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
         }
-        setContentView(R.layout.activity_login);
 
-        final AppCompatButton loginButton = findViewById(R.id.login_btn);
-        final AppCompatTextView signUpLink = findViewById(R.id.signup_link);
-        final AppCompatEditText username = findViewById(R.id.username);
-        final AppCompatEditText password = findViewById(R.id.password);
-        final AppCompatEditText veri_password = findViewById(R.id.password_veri);
-
-        Paper.init(this);
-
-        final String savedUsername = Paper.book().read(UserController.PAPER_USERNAME_KEY);
-        final String savedPassword = Paper.book().read(UserController.PAPER_PASSWORD_KEY);
-
+        Bundle extras = getIntent().getExtras();
+        if (extras != null && extras.containsKey(IS_SIGN_IN_ACTIVITY_KEY)
+                && extras.getBoolean(IS_SIGN_IN_ACTIVITY_KEY)) {
+            this.inLoginState = false;
+        }
         uc = new UserController(this);
 
-        // logs in if there exists a saved username/password
-        // TODO create and move to initial loading activity
-        if (savedUsername != null && savedPassword != null) {
-            attemptLogin(new User(savedUsername, savedPassword));
+        if (inLoginState) {
+            setContentView(R.layout.activity_login);
+
+            // TODO create and move to initial loading activity
+            // logs in if there exists a saved username/password
+            Paper.init(this);
+            final String savedUsername = Paper.book().read(UserController.PAPER_USERNAME_KEY);
+            final String savedPassword = Paper.book().read(UserController.PAPER_PASSWORD_KEY);
+            if (savedUsername != null && savedPassword != null) {
+                attemptLogin(new User(savedUsername, savedPassword));
+            }
+
+            confirmButton = findViewById(R.id.login_btn);
+
+            final AppCompatTextView signUpLink = findViewById(R.id.signup_link);
+            signUpLink.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    Intent signUpScreen = new Intent(LoginActivity.this, LoginActivity.class);
+                    signUpScreen.putExtra(IS_SIGN_IN_ACTIVITY_KEY, true);
+                    startActivity(signUpScreen);
+                }
+            });
+        } else {
+            setContentView(R.layout.activity_signup);
+
+            confirmButton = findViewById(R.id.signup_btn);
+
+            final AppCompatTextView loginLink = findViewById(R.id.login_link);
+            loginLink.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view){
+                    // by default, is the login activity so no extra needs to be put in
+                    Intent loginScreen = new Intent(LoginActivity.this, LoginActivity.class);
+                    startActivity(loginScreen);
+                    finish();
+                }
+            });
+
         }
 
-        signUpLink.setOnClickListener(new View.OnClickListener() {
+        final AppCompatEditText usernameEditText = findViewById(R.id.username);
+        final AppCompatEditText passwordEditText = findViewById(R.id.password);
+        confirmButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent signUpScreen = new Intent(LoginActivity.this, SignUpActivity.class);
-                startActivity(signUpScreen);
-            }
-        });
+                confirmButton.setEnabled(false);
 
-        loginButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                String passwordText = password.getText().toString().trim();
-                String usernameText = username.getText().toString().trim();
-                final User inputtedUser = new User(usernameText, passwordText);
+                Editable usernameText = usernameEditText.getText();
+                Editable passwordText = passwordEditText.getText();
+                if (usernameText == null) {
+                    makeWarnToast(LoginActivity.this, "Cannot read the username, please try again");
+                    confirmButton.setEnabled(true);
+                    return;
+                }
+                if (passwordText == null) {
+                    makeWarnToast(LoginActivity.this, "Cannot read the password, please try again");
+                    confirmButton.setEnabled(true);
+                    return;
+                }
 
-                if (LoginActivity.this.inLoginState) {
+                String username = usernameText.toString().trim();
+                String password = passwordText.toString().trim();
+                final User inputtedUser = new User(username, password);
+
+                if (inLoginState) {
                     if (usernameText.length() == 0 || passwordText.length() == 0) {
-                        Toast.makeText(LoginActivity.this,
-                                "Please enter a username and a password", Toast.LENGTH_SHORT).show();
+                        makeInfoToast(LoginActivity.this, "Please enter a username and a password");
+                        confirmButton.setEnabled(true);
                         return;
                     }
                     attemptLogin(inputtedUser);
-                    loginButton.setEnabled(false);
                 } else {
-                    String veriPasswordText = veri_password.getText().toString().trim();
-                    if (usernameText.length() == 0 || passwordText.length() == 0 || veriPasswordText.length() == 0) {
-                        Toast.makeText(LoginActivity.this,
-                                "Please enter a username, a password, and a password verification.",
-                                Toast.LENGTH_SHORT).show();
+                    final AppCompatEditText veriPasswordEditText = findViewById(R.id.password_veri);
+                    Editable veriPasswordText = veriPasswordEditText.getText();
+                    if (veriPasswordText == null) {
+                        makeWarnToast(LoginActivity.this,
+                                "Cannot read the password verification, please try again");
+                        confirmButton.setEnabled(true);
                         return;
                     }
-                    if (!passwordText.equals(veriPasswordText)) {
-                        Toast.makeText(LoginActivity.this,
-                                "Please enter a matching password", Toast.LENGTH_SHORT).show();
+
+                    String veriPassword = veriPasswordText.toString().trim();
+                    if (username.length() == 0 || password.length() == 0 || veriPassword.length() == 0) {
+                        makeInfoToast(LoginActivity.this,
+                                "Please enter a username, a password, and a password verification.");
+                        confirmButton.setEnabled(true);
                         return;
                     }
-                    // TODO update when unifying SignUpActivity
-                    //uc.checkUserExists(inputtedUser);
-                    loginButton.setEnabled(false);
+                    if (!password.equals(veriPassword)) {
+                        makeWarnToast(LoginActivity.this,
+                                "Please enter a matching password");
+                        confirmButton.setEnabled(true);
+                        return;
+                    }
+                    uc.checkUsernameExists(username, newUserBundle(SIGN_UP_USER_KEY, inputtedUser));
                 }
             }
         });
+
+
     }
 
     /**
@@ -127,7 +180,6 @@ public class LoginActivity extends AppCompatActivity
         }
     }
 
-
     @Override
     public void callback(CallbackId callbackId) {
         this.callback(callbackId, null);
@@ -135,85 +187,80 @@ public class LoginActivity extends AppCompatActivity
 
     @Override
     public void callback(CallbackId callbackId, Bundle bundle) {
-        final CheckBox chkBoxRememberMe = findViewById(R.id.rememberMe);
-        final AppCompatButton loginButton = findViewById(R.id.login_btn);
+
+        final AppCompatButton confirmButton;
+        if (this.inLoginState) {
+            confirmButton = findViewById(R.id.login_btn);
+        } else {
+            confirmButton = findViewById(R.id.signup_btn);
+        }
         View snackBarView = findViewById(R.id.login_view);
+
         User user;
 
         if (callbackId instanceof UserCallbackId) {
             switch ((UserCallbackId) callbackId) {
-                /*
-                case USERNAME_NOT_TAKEN:
-                    if (bundle == null) {
-                        Snackbar.make(snackBarView,
-                                "Unexpected error: sign up user key bundle should not be null",
-                                Snackbar.LENGTH_LONG).show();
-                        loginButton.setEnabled(true);
-                        return;
-                    }
-                    user = (User) bundle.getSerializable(SIGN_UP_USER_KEY);
+                case USERNAME_DOESNT_EXIST:
+                    user = (User) getSerializableFromBundle(bundle, SIGN_UP_USER_KEY, snackBarView,
+                            "Unexpected error: sign up user key bundle should not be null",
+                            "Unexpected error: sign up user key result should not contain a null user");
                     if (user == null) {
-                        Snackbar.make(snackBarView,
-                                "Unexpected error: sign up user key result should not contain a null user",
-                                Snackbar.LENGTH_LONG).show();
-                        loginButton.setEnabled(true);
+                        confirmButton.setEnabled(true);
                         return;
                     }
+
                     uc.signUpUser(user);
-                    return;
-                 */
+                    break;
 
                 case LOGIN:
-                    if (bundle == null) {
-                        Snackbar.make(snackBarView,
-                                "Unexpected error: login user key bundle should not be null",
-                                Snackbar.LENGTH_LONG).show();
-                        loginButton.setEnabled(true);
-                        return;
-                    }
-                    user = (User) bundle.getSerializable(LOGIN_USER_KEY);
+                    user = (User) getSerializableFromBundle(bundle, LOGIN_USER_KEY, snackBarView,
+                            "Unexpected error: login user key bundle should not be null",
+                            "Unexpected error: login user key result should not contain a null user");
                     if (user == null) {
-                        Snackbar.make(snackBarView,
-                                "Unexpected error: login user key result should not contain a null user",
-                                Snackbar.LENGTH_LONG).show();
-                        loginButton.setEnabled(true);
+                        confirmButton.setEnabled(true);
                         return;
                     }
+
                     // stores username and password if checked
-                    if (chkBoxRememberMe.isChecked()) {
-                        uc.rememberUser(user);
+                    if (this.inLoginState) {
+                        final CheckBox chkBoxRememberMe = findViewById(R.id.rememberMe);
+                        if (chkBoxRememberMe.isChecked()) {
+                            uc.rememberUser(user);
+                        }
                     }
+
+                    // goes to profile list activity
                     Intent i = new Intent(this, ProfileListActivity.class);
                     i.putExtra(USERNAME_KEY, user.getUsername());
                     startActivity(i);
                     finish();
-                    return;
+                    break;
 
                 case USERNAME_EXISTS:
-                    Toast.makeText(this, "This username is taken", Toast.LENGTH_SHORT).show();
-                    loginButton.setEnabled(true);
+                    makeInfoToast(this, "This username is taken");
+                    confirmButton.setEnabled(true);
                     return;
 
                 case INCORRECT_PASSWORD:
-                    Toast.makeText(this, "Incorrect password, please try again", Toast.LENGTH_SHORT).show();
-                    loginButton.setEnabled(true);
+                    makeInfoToast(this, "Incorrect password, please try again");
+                    confirmButton.setEnabled(true);
                     return;
 
                 case USER_NONEXISTENT:
-                    Toast.makeText(this, "This username does not exist", Toast.LENGTH_SHORT).show();
-                    loginButton.setEnabled(true);
+                    makeWarnToast(this, "This username does not exist");
+                    confirmButton.setEnabled(true);
                     return;
 
                 case USER_READ_DATA_FAIL:
-                    Toast.makeText(this, "Login failed, please try again", Toast.LENGTH_SHORT).show();
-                    loginButton.setEnabled(true);
+                    makeWarnToast(this, "Login failed, please try again");
+                    confirmButton.setEnabled(true);
                     return;
 
                 case USER_TASK_NULL:
                     Snackbar.make(snackBarView,
                             "Unexpected error: user task result should not be null",
                             Snackbar.LENGTH_LONG).show();
-                    loginButton.setEnabled(true);
+                    confirmButton.setEnabled(true);
                     return;
 
                 case USER_ADDITION_FAIL:
@@ -221,7 +268,7 @@ public class LoginActivity extends AppCompatActivity
                     Snackbar.make(snackBarView,
                             "Failed to register user, please try again",
                             Snackbar.LENGTH_LONG).show();
-                    loginButton.setEnabled(true);
+                    confirmButton.setEnabled(true);
                     return;
 
                 default:
