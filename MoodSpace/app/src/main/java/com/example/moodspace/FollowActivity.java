@@ -118,22 +118,25 @@ public class FollowActivity extends AppCompatActivity
                         startActivity(intent1);
                         return true;
                     case R.id.nav_item_following:
-                        Toast.makeText(FollowActivity.this,
-                                "Following", Toast.LENGTH_SHORT).show();
+                        Intent intent2 = new Intent(FollowActivity.this, FollowActivity.class);
+                        intent2.putExtra("username", username);
+                        intent2.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                        startActivity(intent2);
                         return true;
                     case R.id.nav_item_map:
-                        Intent intent2 = new Intent(FollowActivity.this, MapsActivity.class);
-                        intent2.putExtra("username", username);
-                        startActivity(intent2);
+                        Intent intent3 = new Intent(FollowActivity.this, MapsActivity.class);
+                        intent3.putExtra("username", username);
+                        startActivity(intent3);
                         return true;
                     case R.id.nav_item_log_out:
                         Paper.book().delete(UserController.PAPER_USERNAME_KEY);
                         Paper.book().delete(UserController.PAPER_PASSWORD_KEY);
                         Intent loginScreen = new Intent(FollowActivity.this, LoginActivity.class);
                         loginScreen.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                        finish();
                         startActivity(loginScreen);
+                        finish();
                         return true;
+
                     default:
                         return false;
                 }

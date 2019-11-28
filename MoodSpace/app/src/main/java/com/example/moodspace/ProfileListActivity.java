@@ -103,8 +103,6 @@ public class ProfileListActivity extends AppCompatActivity
                         intent.putExtra("username", username);
                         intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                         startActivity(intent);
-                        Toast.makeText(ProfileListActivity.this,
-                                "Profile", Toast.LENGTH_SHORT).show();
                         return true;
                     case R.id.nav_item_feed:
                         Intent intent1 = new Intent(ProfileListActivity.this, ProfileListActivity.class);
