@@ -216,20 +216,39 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 drawerLayout.closeDrawers();
                 switch (item.getItemId()) {
                     case R.id.nav_item_profile:
-                        Toast.makeText(MapsActivity.this,
-                                "Profile", Toast.LENGTH_SHORT).show();
+                        Intent intent = new Intent(MapsActivity.this, ProfileListActivity.class);
+                        intent.putExtra("username", username);
+                        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                        startActivity(intent);
+                        finish();
+                        return true;
+                    case R.id.nav_item_feed:
+                        Intent intent1 = new Intent(MapsActivity.this, ProfileListActivity.class);
+                        intent1.putExtra("username", username);
+                        intent1.putExtra("feed", true);
+                        intent1.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                        startActivity(intent1);
+                        finish();
                         return true;
                     case R.id.nav_item_following:
-                        Toast.makeText(MapsActivity.this,
-                                "Following", Toast.LENGTH_SHORT).show();
+                        Intent intent2 = new Intent(MapsActivity.this, FollowActivity.class);
+                        intent2.putExtra("username", username);
+                        intent2.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                        startActivity(intent2);
+                        finish();
+                        return true;
+                    case R.id.nav_item_map:
+                        Intent intent3 = new Intent(MapsActivity.this, MapsActivity.class);
+                        intent3.putExtra("username", username);
+                        startActivity(intent3);
                         return true;
                     case R.id.nav_item_log_out:
                         Paper.book().delete(UserController.PAPER_USERNAME_KEY);
                         Paper.book().delete(UserController.PAPER_PASSWORD_KEY);
                         Intent loginScreen = new Intent(MapsActivity.this, LoginActivity.class);
                         loginScreen.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                        finish();
                         startActivity(loginScreen);
+                        finish();
                         return true;
 
                     default:
