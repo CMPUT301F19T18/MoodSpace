@@ -12,7 +12,7 @@
         android:layout_height="100dp"
         tools:text="Username"
         android:gravity="bottom|start"
-        android:background="@color/colorPrimary"
+        android:background="@drawable/listview_background"
         android:textColor="@color/colorAccent"
         android:textSize="18sp"
         android:textStyle="bold"
