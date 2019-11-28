@@ -34,6 +34,7 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 
 import io.paperdb.Paper;
@@ -44,7 +45,8 @@ import static com.example.moodspace.Utils.makeWarnToast;
 
 public class ProfileListActivity extends AppCompatActivity
         implements FilterFragment.OnFragmentInteractionListener,
-        ControllerCallback, FollowController.OtherMoodsCallback {
+        ControllerCallback, FollowController.OtherMoodsCallback,
+        FilterController.GetFiltersCallback {
     private static final String TAG = ProfileListActivity.class.getSimpleName();
     private final FirebaseFirestore db = FirebaseFirestore.getInstance();
 
@@ -72,6 +74,7 @@ public class ProfileListActivity extends AppCompatActivity
         vc = new ViewController(this);
         fc = new FollowController(this);
         ftc = new FilterController(this);
+
 
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
@@ -107,14 +110,14 @@ public class ProfileListActivity extends AppCompatActivity
                         return true;
                     case R.id.nav_item_following:
                         Intent intent = new Intent(ProfileListActivity.this, FollowActivity.class);
-                        intent.putExtra("username", username);
+                        intent.putExtra(Utils.USERNAME_KEY, username);
                         intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                         startActivity(intent);
                         finish();
                         return true;
                     case R.id.nav_item_feed:
                         Intent intent1 = new Intent(ProfileListActivity.this, ProfileListActivity.class);
-                        intent1.putExtra("username", username);
+                        intent1.putExtra(Utils.USERNAME_KEY, username);
                         intent1.putExtra("feed", true);
                         intent1.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                         startActivity(intent1);
@@ -122,7 +125,7 @@ public class ProfileListActivity extends AppCompatActivity
                         return true;
                     case R.id.nav_item_map:
                         Intent intent3 = new Intent(ProfileListActivity.this, MapsActivity.class);
-                        intent3.putExtra("username", username);
+                        intent3.putExtra(Utils.USERNAME_KEY, username);
                         startActivity(intent3);
                         finish();
                         return true;
@@ -165,6 +168,9 @@ public class ProfileListActivity extends AppCompatActivity
                     openEditMood(username, position);
                 }
             });
+
+            // see this.callbackFilters
+            ftc.getFilters(username);
 
             /*
             // sets up filters
@@ -247,7 +253,7 @@ public class ProfileListActivity extends AppCompatActivity
      */
     public void openAddMood(String username) {
         Intent intent = new Intent(this, AddEditActivity.class);
-        intent.putExtra("USERNAME", username);
+        intent.putExtra(Utils.USERNAME_KEY, username);
         startActivity(intent);
     }
 
@@ -258,7 +264,7 @@ public class ProfileListActivity extends AppCompatActivity
         Mood mood = moodDataList.get(position);
         Intent intent = new Intent(getApplicationContext(), AddEditActivity.class);
         intent.putExtra("MOOD", mood);
-        intent.putExtra("USERNAME", username);
+        intent.putExtra(Utils.USERNAME_KEY, username);
         startActivity(intent);
     }
 
@@ -333,7 +339,12 @@ public class ProfileListActivity extends AppCompatActivity
 
     @Override
     public void callback(CallbackId callbackId, Bundle bundle) {
-        if (callbackId instanceof UserCallbackId) {
+        if (callbackId instanceof FilterCallbackId) {
+            switch ((FilterCallbackId) callbackId) {
+
+            }
+
+        } else if (callbackId instanceof UserCallbackId) {
             switch ((UserCallbackId) callbackId) {
                 case USER_READ_DATA_FAIL:
                 case USER_TASK_NULL:
@@ -350,5 +361,10 @@ public class ProfileListActivity extends AppCompatActivity
     public void callbackFollowingMoods(@NonNull String user, @NonNull ArrayList<MoodOther> followingMoodsList) {
         moodAdapter = new MoodViewList(this, followingMoodsList);
         moodList.setAdapter(moodAdapter);
+    }
+
+    @Override
+    public void callbackFilters(@NonNull String user, @NonNull HashSet<String> filters) {
+
     }
 }

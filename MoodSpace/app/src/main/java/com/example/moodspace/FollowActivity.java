@@ -72,7 +72,7 @@ public class FollowActivity extends AppCompatActivity
         this.fc = new FollowController(this);
         uc = new UserController(this);
         setContentView(R.layout.activity_follow);
-        this.username = getIntent().getExtras().getString("username");
+        this.username = getIntent().getExtras().getString(Utils.USERNAME_KEY);
 
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -106,14 +106,14 @@ public class FollowActivity extends AppCompatActivity
                 switch (item.getItemId()) {
                     case R.id.nav_item_profile:
                         Intent intent = new Intent(FollowActivity.this, ProfileListActivity.class);
-                        intent.putExtra("username", username);
+                        intent.putExtra(Utils.USERNAME_KEY, username);
                         intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                         startActivity(intent);
                         finish();
                         return true;
                     case R.id.nav_item_feed:
                         Intent intent1 = new Intent(FollowActivity.this, ProfileListActivity.class);
-                        intent1.putExtra("username", username);
+                        intent1.putExtra(Utils.USERNAME_KEY, username);
                         intent1.putExtra("feed", true);
                         intent1.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                         startActivity(intent1);
@@ -121,14 +121,14 @@ public class FollowActivity extends AppCompatActivity
                         return true;
                     case R.id.nav_item_following:
                         Intent intent2 = new Intent(FollowActivity.this, FollowActivity.class);
-                        intent2.putExtra("username", username);
+                        intent2.putExtra(Utils.USERNAME_KEY, username);
                         intent2.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                         startActivity(intent2);
                         finish();
                         return true;
                     case R.id.nav_item_map:
                         Intent intent3 = new Intent(FollowActivity.this, MapsActivity.class);
-                        intent3.putExtra("username", username);
+                        intent3.putExtra(Utils.USERNAME_KEY, username);
                         startActivity(intent3);
                         return true;
                     case R.id.nav_item_log_out:

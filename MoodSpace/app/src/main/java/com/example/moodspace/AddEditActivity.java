@@ -586,6 +586,8 @@ public class AddEditActivity extends AppCompatActivity
             this.inputPhotoPath = aec.getPhotoPath(data, getContentResolver());
 
             // TODO: preview image in add/edit
+            // TODO: async
+            // TODO: scale for faster load time?
             Log.d(TAG, "start decode");
             Bitmap bm = BitmapFactory.decodeFile(inputPhotoPath);
             Log.d(TAG, "finish decode");

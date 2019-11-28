@@ -72,7 +72,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         setContentView(R.layout.activity_maps);
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
 
-        username = getIntent().getExtras().getString("username");
+        username = getIntent().getExtras().getString(Utils.USERNAME_KEY);
         Toolbar toolbar = findViewById(R.id.toolbar);
         toolbar.setTitle("Map");
         setSupportActionBar(toolbar);
@@ -168,14 +168,14 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 switch (item.getItemId()) {
                     case R.id.nav_item_profile:
                         Intent intent = new Intent(MapsActivity.this, ProfileListActivity.class);
-                        intent.putExtra("username", username);
+                        intent.putExtra(Utils.USERNAME_KEY, username);
                         intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                         startActivity(intent);
                         finish();
                         return true;
                     case R.id.nav_item_feed:
                         Intent intent1 = new Intent(MapsActivity.this, ProfileListActivity.class);
-                        intent1.putExtra("username", username);
+                        intent1.putExtra(Utils.USERNAME_KEY, username);
                         intent1.putExtra("feed", true);
                         intent1.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                         startActivity(intent1);
@@ -183,14 +183,14 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                         return true;
                     case R.id.nav_item_following:
                         Intent intent2 = new Intent(MapsActivity.this, FollowActivity.class);
-                        intent2.putExtra("username", username);
+                        intent2.putExtra(Utils.USERNAME_KEY, username);
                         intent2.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                         startActivity(intent2);
                         finish();
                         return true;
                     case R.id.nav_item_map:
                         Intent intent3 = new Intent(MapsActivity.this, MapsActivity.class);
-                        intent3.putExtra("username", username);
+                        intent3.putExtra(Utils.USERNAME_KEY, username);
                         startActivity(intent3);
                         return true;
                     case R.id.nav_item_log_out:
