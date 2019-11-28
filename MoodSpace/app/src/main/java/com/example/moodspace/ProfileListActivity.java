@@ -103,6 +103,7 @@ public class ProfileListActivity extends AppCompatActivity
                         intent.putExtra("username", username);
                         intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                         startActivity(intent);
+                        finish();
                         return true;
                     case R.id.nav_item_feed:
                         Intent intent1 = new Intent(ProfileListActivity.this, ProfileListActivity.class);
@@ -110,17 +111,20 @@ public class ProfileListActivity extends AppCompatActivity
                         intent1.putExtra("feed", true);
                         intent1.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                         startActivity(intent1);
+                        finish();
                         return true;
                     case R.id.nav_item_following:
                         Intent intent2 = new Intent(ProfileListActivity.this, FollowActivity.class);
                         intent2.putExtra("username", username);
                         intent2.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                         startActivity(intent2);
+                        finish();
                         return true;
                     case R.id.nav_item_map:
                         Intent intent3 = new Intent(ProfileListActivity.this, MapsActivity.class);
                         intent3.putExtra("username", username);
                         startActivity(intent3);
+                        finish();
                         return true;
                     case R.id.nav_item_log_out:
                         Paper.book().delete(UserController.PAPER_USERNAME_KEY);

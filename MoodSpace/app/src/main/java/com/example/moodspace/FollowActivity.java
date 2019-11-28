@@ -109,6 +109,7 @@ public class FollowActivity extends AppCompatActivity
                         intent.putExtra("username", username);
                         intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                         startActivity(intent);
+                        finish();
                         return true;
                     case R.id.nav_item_feed:
                         Intent intent1 = new Intent(FollowActivity.this, ProfileListActivity.class);
@@ -116,12 +117,14 @@ public class FollowActivity extends AppCompatActivity
                         intent1.putExtra("feed", true);
                         intent1.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                         startActivity(intent1);
+                        finish();
                         return true;
                     case R.id.nav_item_following:
                         Intent intent2 = new Intent(FollowActivity.this, FollowActivity.class);
                         intent2.putExtra("username", username);
                         intent2.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                         startActivity(intent2);
+                        finish();
                         return true;
                     case R.id.nav_item_map:
                         Intent intent3 = new Intent(FollowActivity.this, MapsActivity.class);
