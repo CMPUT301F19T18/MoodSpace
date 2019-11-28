@@ -570,10 +570,15 @@ public class AddEditActivity extends AppCompatActivity
         Intent pickIntent = new Intent(Intent.ACTION_PICK,
                 android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
 
+        /*
         Intent chooserIntent = Intent.createChooser(getIntent, "Select Image");
         chooserIntent.putExtra(Intent.EXTRA_INITIAL_INTENTS, new Intent[] {pickIntent});
 
         startActivityForResult(chooserIntent, PICK_IMAGE);
+         */
+        startActivityForResult(Intent.createChooser(pickIntent, "Select Picture"), PICK_IMAGE);
+
+
     }
 
     /**
