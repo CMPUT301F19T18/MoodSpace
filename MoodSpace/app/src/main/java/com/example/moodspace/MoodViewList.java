@@ -20,17 +20,16 @@ import java.util.ArrayList;
 /**
  * This class formats and provides the custom list display for each mood object.
  */
-public class MoodViewList extends ArrayAdapter<Mood> {
+public class MoodViewList extends ArrayAdapter<MoodOther> {
 
-    private ArrayList<Mood> listOfMoods;
+    private ArrayList<MoodOther> listOfMoods;
     private Context context;
     private String username;
 
-    public MoodViewList(Context context, ArrayList<Mood> listOfMoods, String username) {
+    public MoodViewList(Context context, ArrayList<MoodOther> listOfMoods) {
         super(context,0,listOfMoods);
         this.listOfMoods = listOfMoods;
         this.context = context;
-        this.username = username;
     }
 
     /**
@@ -45,7 +44,7 @@ public class MoodViewList extends ArrayAdapter<Mood> {
             view = LayoutInflater.from(context).inflate(R.layout.content, parent, false);
         }
 
-        Mood mood = listOfMoods.get(position);
+        MoodOther mood = listOfMoods.get(position);
 
         TextView moodInfo = view.findViewById(R.id.mood);
         TextView date = view.findViewById(R.id.mood_date);
@@ -64,7 +63,7 @@ public class MoodViewList extends ArrayAdapter<Mood> {
         moodLayout.setBackgroundResource(id);
         ImageView moodTag = view.findViewById(R.id.imageView);
         moodTag.setImageResource(moodTagId);
-        userNameField.setText(username);
+        userNameField.setText(mood.getUsername());
 
         return view;
     }

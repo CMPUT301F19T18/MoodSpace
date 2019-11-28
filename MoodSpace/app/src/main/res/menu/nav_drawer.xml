@@ -5,6 +5,10 @@
             android:icon="@drawable/ic_person_white_24dp"
             android:title="@string/sb_profile" />
 
+        <item android:id="@+id/nav_item_feed"
+            android:icon="@drawable/ic_people_black_24dp"
+            android:title="@string/sb_feed" />
+
         <!-- TODO find an appropriate icon -->
         <item android:id="@+id/nav_item_following"
             android:icon="@drawable/ic_menu_button"
