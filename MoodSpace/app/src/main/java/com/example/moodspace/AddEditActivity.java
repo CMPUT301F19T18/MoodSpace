@@ -91,7 +91,6 @@ public class AddEditActivity extends AppCompatActivity
     private FusedLocationProviderClient fusedLocationClient;
     private Location currentLocation = null;
     private AlertDialog gpsAlert;
-    private AlertDialog locationAlert;
 
     /**
      * Initializes all input methods for adding a mood.
