@@ -39,6 +39,7 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -87,11 +88,13 @@ public class AddEditActivity extends AppCompatActivity
     private Button saveBtn;
 
     // location variables
+    private GoogleMap gMap;
     private MapView mapView;
     private LocationCallback locationCallback;
     private LocationManager locationManager;
     private FusedLocationProviderClient fusedLocationClient;
     private Location currentLocation = null;
+    private Marker currentMarker;
     private AlertDialog gpsAlert;
     private AlertDialog locationAlert;
 
@@ -209,7 +212,7 @@ public class AddEditActivity extends AppCompatActivity
                 for (Location location : locationResult.getLocations()) {
                     Log.d(TAG, "location result: " + location);
                     if (location != null) {
-                        currentLocation = location;
+                        updateCurrentLocation(location);
                     }
                 }
             }
@@ -221,31 +224,35 @@ public class AddEditActivity extends AppCompatActivity
         locationCheckBox.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                boolean attachLocation = locationCheckBox.isChecked();
-                placeholder_location.setVisibility(View.GONE);
+                if (isAddActivity()) {
+                    boolean attachLocation = locationCheckBox.isChecked();
+                    if (attachLocation) {
+                        placeholder_location.setVisibility(View.GONE);
+                        mapView.setVisibility(View.VISIBLE);
 
-                // attempts to grant the permission if not granted yet
-                boolean locationPermission = checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION)
-                        == PackageManager.PERMISSION_GRANTED;
-                if (attachLocation && !locationPermission) {
-                    // requests permission
-                    ActivityCompat.requestPermissions(AddEditActivity.this,
-                            new String[] {Manifest.permission.ACCESS_FINE_LOCATION},
-                            FINE_LOCATION_PERMISSIONS_REQUEST);
-                    return;
-                }
-
-                // gets location here since location permission is granted
-                // https://stackoverflow.com/a/10917500
-                if (attachLocation) {
-                    startGettingLocation();
+                        // attempts to grant the permission if not granted yet
+                        boolean locationPermission = checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION)
+                                == PackageManager.PERMISSION_GRANTED;
+                        if (!locationPermission) {
+                            // requests permission
+                            ActivityCompat.requestPermissions(AddEditActivity.this,
+                                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                                    FINE_LOCATION_PERMISSIONS_REQUEST);
+                            return;
+                        } else {
+                            // gets location here since location permission is granted
+                            // https://stackoverflow.com/a/10917500
+                            startGettingLocation();
+                        }
+                    }
                 } else {
+                    placeholder_location.setVisibility(View.VISIBLE);
                     stopGettingLocation();
                 }
             }
         });
 
-        Toolbar toolbar = findViewById(R.id.toolbar);
+    Toolbar toolbar = findViewById(R.id.toolbar);
 
 
         // sets up add/edit specific attributes
@@ -451,6 +458,20 @@ public class AddEditActivity extends AppCompatActivity
         finish();
     }
 
+    private void updateCurrentLocation(@NonNull Location location) {
+        this.currentLocation = location;
+        double lat = currentLocation.getLatitude();
+        double lng = currentLocation.getLongitude();
+
+        LatLng latLng = new LatLng(lat, lng);
+        if (currentMarker == null) {
+            currentMarker = gMap.addMarker(new MarkerOptions().position(latLng));
+        } else {
+            currentMarker.setPosition(latLng);
+        }
+        gMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
+    }
+
     // TODO move to some controller
     private void startGettingLocation() {
         try {
@@ -470,7 +491,7 @@ public class AddEditActivity extends AppCompatActivity
                         public void onSuccess(Location location) {
                             Log.d(TAG, "last location: " + location);
                             if (location != null) {
-                                currentLocation = location;
+                                updateCurrentLocation(location);
                             }
                         }
                     });
@@ -659,6 +680,7 @@ public class AddEditActivity extends AppCompatActivity
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
+        this.gMap = googleMap;
         // TODO: right zoom level or the target button to do that
         // TODO possibly display in AddActivity
         if (!isAddActivity()) {
