@@ -271,7 +271,9 @@ public class ProfileListActivity extends AppCompatActivity
         MoodOther moodOther = moodDataList.get(position);
         Intent intent = new Intent(getApplicationContext(), ViewMoodActivity.class);
         intent.putExtra("MOOD", moodOther);
-        intent.putExtra("USERNAME", username);
+        intent.putExtra("USERNAME", moodOther.getUsername());
+        intent.putExtra("username", username);
+        Log.d(TAG, moodOther.getUsername());
         Log.d(TAG, username);
         startActivity(intent);
     }

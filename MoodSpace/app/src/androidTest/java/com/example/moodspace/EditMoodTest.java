@@ -69,7 +69,7 @@ public class EditMoodTest {
         onView(withId(R.id.addMoodButton)).perform(click());
         onView(withId(R.id.emotionSelector)).perform(click());
         onData(anything()).atPosition(1).perform(click());
-        onView(withId(R.id.situationImage)).perform(click());
+        onView(withId(R.id.situationText)).perform(click());
         onData(anything()).atPosition(1).perform(click());
         onView(withId(R.id.reason_text)).perform(typeText("Quiet"), closeSoftKeyboard());
         onView(withId(R.id.saveBtn)).perform(click());
@@ -78,14 +78,14 @@ public class EditMoodTest {
         onData(anything())
                 .inAdapterView(allOf(withId(R.id.moodList), isCompletelyDisplayed()))
                 .atPosition(0).perform(click());
-        onView(withId(R.id.situationImage)).check(matches(withSpinnerText(containsString("Alone"))));
+        onView(withId(R.id.situationText)).check(matches(withSpinnerText(containsString("Alone"))));
         onView(withId(R.id.reason_text)).check(matches(withText(containsString("Quiet"))));
         onView(withId(R.id.emotionSelector)).check(matches(not(withSpinnerText(containsString(sad)))));
         onView(withId(R.id.emotionSelector)).check(matches(not(withSpinnerText(containsString(angry)))));
 
         onView(withId(R.id.emotionSelector)).perform(click());
         onData(anything()).atPosition(1).perform(click());
-        onView(withId(R.id.situationImage)).perform(click());
+        onView(withId(R.id.situationText)).perform(click());
         onData(anything()).atPosition(2).perform(click());
         onView(withId(R.id.reason_text)).perform(replaceText("Gaming"), closeSoftKeyboard());
         onView(withId(R.id.saveBtn)).perform(click());
@@ -94,14 +94,14 @@ public class EditMoodTest {
         onData(anything())
                 .inAdapterView(allOf(withId(R.id.moodList), isCompletelyDisplayed()))
                 .atPosition(0).perform(click());
-        onView(withId(R.id.situationImage)).check(matches(withSpinnerText(containsString("With another person"))));
+        onView(withId(R.id.situationText)).check(matches(withSpinnerText(containsString("With another person"))));
         onView(withId(R.id.reason_text)).check(matches(withText(containsString("Gaming"))));
         onView(withId(R.id.emotionSelector)).check(matches(not(withSpinnerText(containsString(sad)))));
         onView(withId(R.id.emotionSelector)).check(matches(not(withSpinnerText(containsString(enjoyment)))));
 
         onView(withId(R.id.emotionSelector)).perform(click());
         onData(anything()).atPosition(2).perform(click());
-        onView(withId(R.id.situationImage)).perform(click());
+        onView(withId(R.id.situationText)).perform(click());
         onData(anything()).atPosition(3).perform(click());
         onView(withId(R.id.reason_text)).perform(replaceText("Movie night"), closeSoftKeyboard());
         onView(withId(R.id.saveBtn)).perform(click());
@@ -110,7 +110,7 @@ public class EditMoodTest {
         onData(anything())
                 .inAdapterView(allOf(withId(R.id.moodList), isCompletelyDisplayed()))
                 .atPosition(0).perform(click());
-        onView(withId(R.id.situationImage)).check(matches(withSpinnerText(containsString("With two to several people"))));
+        onView(withId(R.id.situationText)).check(matches(withSpinnerText(containsString("With two to several people"))));
         onView(withId(R.id.reason_text)).check(matches(withText(containsString("Movie night"))));
         onView(withId(R.id.emotionSelector)).check(matches(not(withSpinnerText(containsString(angry)))));
         onView(withId(R.id.emotionSelector)).check(matches(not(withSpinnerText(containsString(enjoyment)))));

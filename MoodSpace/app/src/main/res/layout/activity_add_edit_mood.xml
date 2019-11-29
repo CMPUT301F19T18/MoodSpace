@@ -121,12 +121,12 @@
                     android:textColor="#000000"
                     android:textSize="20sp"
                     app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toStartOf="@+id/situationImage"
+                    app:layout_constraintEnd_toStartOf="@+id/situationText"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
 
                 <Spinner
-                    android:id="@+id/situationImage"
+                    android:id="@+id/situationText"
                     style="@android:style/Widget.Holo.Spinner"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"

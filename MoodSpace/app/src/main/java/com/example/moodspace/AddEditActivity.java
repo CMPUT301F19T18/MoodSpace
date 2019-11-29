@@ -116,7 +116,7 @@ public class AddEditActivity extends AppCompatActivity
         // gets all necessary views
         reasonEditText = findViewById(R.id.reason_text);
         locationCheckBox = findViewById(R.id.locationCheckbox);
-        socialSitSpinner = findViewById(R.id.situationImage);
+        socialSitSpinner = findViewById(R.id.situationText);
         saveBtn = findViewById(R.id.saveBtn);
 
         // creates emotion spinner
