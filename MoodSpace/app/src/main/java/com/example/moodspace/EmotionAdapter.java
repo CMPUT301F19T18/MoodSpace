@@ -51,12 +51,6 @@ public class EmotionAdapter extends ArrayAdapter<EmotionWithNull> {
     }
 
 
-    @Override
-    public int getCount() {
-        // Adjust for initial selection item
-        return super.getCount();
-    }
-
     private View initialSelection(@NonNull ViewGroup parent, boolean dropdown) {
         LayoutInflater inflater = LayoutInflater.from(context);
         final TextView view = (TextView) inflater.inflate(RESOURCE, parent, false);
