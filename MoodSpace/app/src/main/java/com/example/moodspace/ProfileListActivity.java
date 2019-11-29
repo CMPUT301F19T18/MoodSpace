@@ -23,7 +23,6 @@ import androidx.drawerlayout.widget.DrawerLayout;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
-import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -32,7 +31,6 @@ import java.util.List;
 
 import io.paperdb.Paper;
 
-import static com.example.moodspace.Utils.makeInfoToast;
 import static com.example.moodspace.Utils.makeSuccessToast;
 import static com.example.moodspace.Utils.makeWarnToast;
 
