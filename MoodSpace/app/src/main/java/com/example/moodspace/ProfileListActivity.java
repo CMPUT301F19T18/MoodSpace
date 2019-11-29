@@ -21,8 +21,6 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -42,7 +40,6 @@ public class ProfileListActivity extends AppCompatActivity
         implements FilterFragment.OnFragmentInteractionListener,
         ControllerCallback, FollowController.OtherMoodsCallback {
     private static final String TAG = ProfileListActivity.class.getSimpleName();
-    private final FirebaseFirestore db = FirebaseFirestore.getInstance();
     private final CacheListener cacheListener = CacheListener.getInstance();
 
     private static final String MOOD_LIST_LISTENER_KEY = "moodspace.ProfileListActivity.moodListListenerKey";
@@ -262,26 +259,7 @@ public class ProfileListActivity extends AppCompatActivity
         switch (item.getItemId()) {
             case R.id.delete:
                 moodDataList.remove(info.position);
-                db.collection("users")
-                        .document(username)
-                        .collection("Moods")
-                        .document(moodId)
-                        .delete()
-                        .addOnSuccessListener(new OnSuccessListener<Void>() {
-                            @Override
-                            public void onSuccess(Void aVoid) {
-                                Log.d(TAG, "Data deletion successful");
-                                makeSuccessToast(ProfileListActivity.this, "Deleted mood");
-                            }
-                        })
-                        .addOnFailureListener(new OnFailureListener() {
-                            @Override
-                            public void onFailure(@NonNull Exception e) {
-                                Log.d(TAG, "Data deletion failed:");
-                                Log.d(TAG, Log.getStackTraceString(e));
-                                makeWarnToast(ProfileListActivity.this, "Error: did not delete mood");
-                            }
-                        });
+                mc.deleteMood(username, moodId);
                 moodAdapter.notifyDataSetChanged();
                 return true;
 
@@ -366,6 +344,17 @@ public class ProfileListActivity extends AppCompatActivity
                     break;
                 case UPDATE_FILTERS_COMPLETE:
                     Log.d(TAG, "filters updated successfully");
+                    break;
+                default:
+                    Log.w(TAG, "unrecognized callback ID: " + callbackId);
+            }
+        } else if (callbackId instanceof MoodCallbackId) {
+            switch ((MoodCallbackId) callbackId) {
+                case MOOD_DELETE_SUCCESS:
+                    makeSuccessToast(ProfileListActivity.this, "Deleted mood");
+                    break;
+                case MOOD_DELETE_FAIL:
+                    makeWarnToast(ProfileListActivity.this, "Error: could not delete mood");
                     break;
                 default:
                     Log.w(TAG, "unrecognized callback ID: " + callbackId);

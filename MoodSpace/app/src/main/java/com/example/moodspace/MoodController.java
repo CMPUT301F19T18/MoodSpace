@@ -32,6 +32,9 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.example.moodspace.Utils.makeSuccessToast;
+import static com.example.moodspace.Utils.makeWarnToast;
+
 /**
  * Controller class for modifying the mood event database
  */
@@ -94,6 +97,31 @@ public class MoodController {
                     }
             });
     }
+
+
+    public void deleteMood(String username, String moodId) {
+        db.collection("users")
+                .document(username)
+                .collection("Moods")
+                .document(moodId)
+                .delete()
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        Log.d(TAG, "Data deletion successful");
+                        cc.callback(MoodCallbackId.MOOD_DELETE_SUCCESS);
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.d(TAG, "Data deletion failed:");
+                        Log.d(TAG, Log.getStackTraceString(e));
+                        cc.callback(MoodCallbackId.MOOD_DELETE_FAIL);
+                    }
+                });
+    }
+
 
     /**
      * gets a sorted (most to least recent) list of moods for any given user
