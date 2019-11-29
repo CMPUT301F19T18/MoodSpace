@@ -124,7 +124,7 @@ public class AddEditActivity extends AppCompatActivity
 
         // creates emotion spinner
         final Spinner emotionSpinner = findViewById(R.id.emotionSelector);
-        List<Emotion> emotionList = Arrays.asList(Emotion.values());
+        List<moodSpinner> emotionList = Arrays.asList(moodSpinner.values());
         // last argument is initialTextWasShown (true if EditActivity, false if AddActivity)
         final EmotionAdapter emotionAdapter = new EmotionAdapter(this, emotionList);
         emotionSpinner.setAdapter(emotionAdapter);
