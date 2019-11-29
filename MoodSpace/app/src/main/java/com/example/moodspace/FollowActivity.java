@@ -13,7 +13,6 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -30,9 +29,9 @@ import java.util.List;
 
 import io.paperdb.Paper;
 
-/**
- *
- */
+import static com.example.moodspace.Utils.makeInfoToast;
+import static com.example.moodspace.Utils.makeWarnToast;
+
 public class FollowActivity extends AppCompatActivity
         implements ControllerCallback, FollowController.GetDataCallback {
     public static final String FOLLOW_ACTION_KEY = "moodspace.FollowActivity.followActionKey";
@@ -215,10 +214,10 @@ public class FollowActivity extends AppCompatActivity
             public void onClick(View v) {
                 String addedUser = userField.getText().toString();
                 if (following.contains(addedUser)){
-                    Toast.makeText(FollowActivity.this, "You Already Follow Them!", Toast.LENGTH_LONG).show();
+                    makeInfoToast(FollowActivity.this, "You Already Follow Them!");
                 }
                 else if (addedUser.equals(username)){
-                    Toast.makeText(FollowActivity.this, "You Can't Follow Yourself!", Toast.LENGTH_LONG).show();
+                    makeInfoToast(FollowActivity.this, "You Can't Follow Yourself!");
                 }
                 else if (!(addedUser.length() == 0)){
                     // first checks if the user exists (see case USERNAME_EXISTS)
@@ -277,14 +276,14 @@ public class FollowActivity extends AppCompatActivity
         AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
         switch (item.getItemId()) {
             case R.id.cancel:
-                Toast.makeText(this, "Cancelled", Toast.LENGTH_LONG).show();
+                makeInfoToast(this, "Cancelled");
                 this.followRequestsTo.remove(info.position);
                 this.fc.removeFollowRequest(username, unfollowId);
                 requestAdapter.notifyDataSetChanged();
                 return true;
 
             case R.id.unfollow:
-                Toast.makeText(this, "Unfollowed", Toast.LENGTH_LONG).show();
+                makeInfoToast(this, "Unfollowed");
                 this.following.remove(info.position);
                 this.fc.removeFollower(username, unfollowId);
                 followingAdapter.notifyDataSetChanged();
@@ -376,8 +375,7 @@ public class FollowActivity extends AppCompatActivity
                     target = bundle.getString(TARGET_KEY);
                     switch (bundle.getString(FOLLOW_ACTION_KEY)) {
                         case FOLLOW_ACTION_SEND_REQUEST:
-                            Toast.makeText(this,
-                                    "User '" + target + "' does not exist", Toast.LENGTH_SHORT).show();
+                            makeWarnToast(this, "User '" + target + "' does not exist");
                         default:
                             return;
                     }

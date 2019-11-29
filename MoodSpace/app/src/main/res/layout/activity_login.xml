@@ -30,112 +30,54 @@
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:layout_marginStart="15dp"
-            android:layout_marginLeft="15dp"
             android:layout_marginBottom="100dp"
             android:gravity="center"
             android:orientation="vertical"
             android:paddingTop="150dp">
 
-
-            <LinearLayout
+            <TextView
                 android:layout_width="match_parent"
                 android:layout_height="100dp"
-                android:layout_weight="-2"
                 android:gravity="center"
-                android:orientation="vertical">
+                android:fontFamily="cursive"
+                android:text="@string/app_name"
+                android:textColor="#FFFFFF"
+                android:textSize="60sp" />
 
-                <androidx.appcompat.widget.AppCompatEditText
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="0dp"
-                    android:background="@null"
-                    android:clickable="false"
-                    android:focusable="false"
-                    android:fontFamily="cursive"
-                    android:text="@string/app_name"
-                    android:textColor="#FFFFFF"
-                    android:textSize="60sp" />
-
-            </LinearLayout>
-
-            <LinearLayout
+            <androidx.appcompat.widget.AppCompatEditText
+                android:id="@+id/username"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="@drawable/blue_border_rounded_corner"
-                android:orientation="horizontal">
+                android:drawableStart="@drawable/ic_person_blue_18dp"
+                android:drawablePadding="8dp"
+                android:hint="Username"
+                android:inputType="textEmailAddress"
+                android:maxLines="1"
+                android:padding="16dp"
+                android:textCursorDrawable="@drawable/cursor_color"
+                android:textSize="12sp"
+                android:textStyle="bold" />
 
-                <!-- INPUT -->
-                <androidx.appcompat.widget.AppCompatEditText
-                    android:id="@+id/username"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:background="@android:color/transparent"
-                    android:drawableStart="@drawable/ic_person_blue_18dp"
-                    android:drawableLeft="@drawable/ic_person_blue_18dp"
-                    android:drawablePadding="8dp"
-                    android:hint="Username"
-                    android:inputType="textEmailAddress"
-                    android:maxLines="1"
-                    android:paddingLeft="16dp"
-                    android:paddingTop="15dp"
-                    android:paddingBottom="15dp"
-                    android:textCursorDrawable="@drawable/cursor_color"
-                    android:textSize="12sp"
-                    android:textStyle="bold" />
-
-                <!-- ICON -->
-
-            </LinearLayout>
-
-            <RelativeLayout
+            <androidx.appcompat.widget.AppCompatEditText
+                android:id="@+id/password"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-
                 android:layout_marginTop="12.7dp"
                 android:background="@drawable/blue_border_rounded_corner"
-                android:orientation="horizontal">
-
-                <!-- INPUT -->
-                <androidx.appcompat.widget.AppCompatEditText
-                    android:id="@+id/password"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_toEndOf="@+id/icon"
-                    android:layout_toRightOf="@+id/icon"
-                    android:background="@android:color/transparent"
-                    android:hint="Password"
-                    android:inputType="textPassword"
-                    android:maxLines="1"
-                    android:paddingStart="10dp"
-                    android:paddingLeft="10dp"
-                    android:paddingTop="15dp"
-                    android:paddingBottom="15dp"
-                    android:textCursorDrawable="@drawable/cursor_color"
-                    android:textSize="12sp"
-                    android:textStyle="bold" />
-
-                <!-- ICON -->
-                <ImageView
-                    android:id="@+id/icon"
-                    android:layout_width="14.7dp"
-                    android:layout_height="10.3dp"
-                    android:layout_centerVertical="true"
-                    android:layout_marginStart="17dp"
-                    android:layout_marginLeft="17dp"
-                    android:src="@drawable/password" />
-
-            </RelativeLayout>
-
-            <RelativeLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-
-                android:layout_marginTop="12.7dp"
-                android:background="@drawable/blue_border_rounded_corner"
-                android:orientation="horizontal" />
+                android:drawableStart="@drawable/ic_eye_blue_18dp"
+                android:drawablePadding="8dp"
+                android:hint="Password"
+                android:inputType="textPassword"
+                android:maxLines="1"
+                android:padding="16dp"
+                android:textCursorDrawable="@drawable/cursor_color"
+                android:textSize="12sp"
+                android:textStyle="bold" />
 
             <CheckBox
                 android:id="@+id/rememberMe"
+                android:layout_marginTop="12.7dp"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_weight="0"
@@ -147,13 +89,8 @@
                 android:textCursorDrawable="@color/colorPrimary"
                 android:textStyle="bold" />
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="18dp"
-                android:orientation="horizontal" />
-
             <androidx.appcompat.widget.AppCompatButton
+                android:layout_marginTop="18dp"
                 android:id="@+id/login_btn"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
