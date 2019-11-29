@@ -383,16 +383,19 @@ public class FollowController implements ControllerCallback {
     /**
      * Gets all following data (following, followers, follow requests to/from) for the given user
      */
-    public void getFollowData(final String user) {
-        uc.getUserData(user, new UserController.CallbackUser() {
+    public void getFollowData(String user, String key) {
+        getFollowData(user, key, (GetDataCallback) cc);
+    }
+    public void getFollowData(final String user, final String key, final GetDataCallback getDataCallback) {
+        uc.getUserSnapshot(user, key, new UserController.CallbackUserSnapshot() {
             @Override
-            public void callbackUserData(DocumentSnapshot fetchedUserData, String callbackId) {
+            public void callbackUserSnapshot(@NonNull DocumentSnapshot fetchedUserData) {
                 List<String> following = getListFromUser(fetchedUserData, FOLLOWING_ARRAY);
                 List<String> followers = getListFromUser(fetchedUserData, FOLLOWERS_ARRAY);
                 List<String> followRequestsFrom = getListFromUser(fetchedUserData, FOLLOW_REQUESTS_FROM_ARRAY);
                 List<String> followRequestsTo = getListFromUser(fetchedUserData, FOLLOW_REQUESTS_TO_ARRAY);
                 Log.d(TAG, "got following data for " + user);
-                ((GetDataCallback) cc).callbackFollowData(user, following, followers, followRequestsFrom, followRequestsTo);
+                getDataCallback.callbackFollowData(user, following, followers, followRequestsFrom, followRequestsTo);
             }
         });
     }

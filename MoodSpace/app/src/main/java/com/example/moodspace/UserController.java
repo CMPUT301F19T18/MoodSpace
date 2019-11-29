@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -11,7 +12,10 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 
@@ -26,11 +30,11 @@ import static com.example.moodspace.Utils.newUserBundle;
  */
 public class UserController {
     private static final String TAG = UserController.class.getSimpleName();
-    public static final String CHECK_USERNAME_EXISTS_KEY = "moodspace.UserController.checkUsernameExists";
     public static final String PAPER_USERNAME_KEY = "moodspace.Paper.username";
     public static final String PAPER_PASSWORD_KEY = "moodspace.Paper.password";
 
     private final FirebaseFirestore db = FirebaseFirestore.getInstance();
+    private CacheListener cacheListener = CacheListener.getInstance();
 
     private ControllerCallback cc;
 
@@ -40,6 +44,9 @@ public class UserController {
 
     public interface CallbackUser {
         void callbackUserData(DocumentSnapshot fetchedUserData, final String callbackId);
+    }
+    public interface CallbackUserSnapshot {
+        void callbackUserSnapshot(@NonNull DocumentSnapshot fetchedUserData);
     }
 
     /*
@@ -127,11 +134,11 @@ public class UserController {
     /**
      * Fetches the user data from firestore given the username
      */
-    public void getUserData(String username, UserController.CallbackUser ccu) {
-        getUserData(username, ccu, null);
+    public void getUserData(String username, CallbackUser callbackUser) {
+        getUserData(username, callbackUser, null);
     }
 
-    private void getUserData(final String username, final UserController.CallbackUser ccu, final String callbackId) {
+    private void getUserData(final String username, final CallbackUser callbackUser, final String callbackId) {
         db.collection("users")
                 .document(username)
                 .get()
@@ -153,11 +160,29 @@ public class UserController {
                             return;
                         }
 
-                        ccu.callbackUserData(task.getResult(), callbackId);
+                        callbackUser.callbackUserData(task.getResult(), callbackId);
 
                     }
                 });
     }
+
+    public void getUserSnapshot(final String username, final String key,
+                                 final CallbackUserSnapshot callbackUserSnapshot) {
+        ListenerRegistration registration
+                = db.collection("users")
+                .document(username)
+                .addSnapshotListener(new EventListener<DocumentSnapshot>() {
+                    @Override
+                    public void onEvent(@Nullable DocumentSnapshot documentSnapshot,
+                                        @Nullable FirebaseFirestoreException e) {
+                        if (documentSnapshot != null) {
+                            callbackUserSnapshot.callbackUserSnapshot(documentSnapshot);
+                        }
+                    }
+                });
+        cacheListener.setListener(key, registration);
+    }
+
 
     /**
      * Logs in a user if the inputted password matches the fetched password

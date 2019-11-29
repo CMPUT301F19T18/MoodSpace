@@ -37,6 +37,7 @@ public class FollowActivity extends AppCompatActivity
         implements ControllerCallback, FollowController.GetDataCallback {
     public static final String FOLLOW_ACTION_KEY = "moodspace.FollowActivity.followActionKey";
     public static final String FOLLOW_ACTION_SEND_REQUEST = "moodspace.FollowActivity.followActionSendRequest";
+    public static final
     public static final String TARGET_KEY = "moodspace.FollowActivity.targetKey";
 
     private static final String TAG = FollowActivity.class.getSimpleName();

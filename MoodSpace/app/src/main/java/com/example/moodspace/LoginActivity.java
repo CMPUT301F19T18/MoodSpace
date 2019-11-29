@@ -166,6 +166,7 @@ public class LoginActivity extends AppCompatActivity
      */
     private void attemptLogin(final User user) {
         final String username = user.getUsername();
+        // caches fetchedUserData for repeated usage
         if (fetchedUserData == null || fetchedUserData.get("username") != username) {
             uc.getUserData(username, new UserController.CallbackUser() {
                 @Override
