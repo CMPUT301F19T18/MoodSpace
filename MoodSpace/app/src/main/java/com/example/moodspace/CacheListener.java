@@ -8,6 +8,10 @@ import java.util.HashMap;
 
 // thread safe singleton
 // https://www.journaldev.com/171/thread-safety-in-java-singleton-classes-with-example-code
+
+/**
+ * ensures that all snapshot listeners are unique
+ */
 public class CacheListener {
 
     private static volatile CacheListener instance;

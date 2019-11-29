@@ -34,11 +34,13 @@ import static com.example.moodspace.Utils.makeSuccessToast;
 import static com.example.moodspace.Utils.makeWarnToast;
 
 public class FollowActivity extends AppCompatActivity
-        implements ControllerCallback, FollowController.GetDataCallback {
+        implements ControllerCallback {
     public static final String FOLLOW_ACTION_KEY = "moodspace.FollowActivity.followActionKey";
     public static final String FOLLOW_ACTION_SEND_REQUEST = "moodspace.FollowActivity.followActionSendRequest";
-    public static final
+    private static final String FOLLOW_LISTS_LISTENER_KEY = "moodspace.FollowActivity.followListsListenerKey";
     public static final String TARGET_KEY = "moodspace.FollowActivity.targetKey";
+
+    private final CacheListener cacheListener = CacheListener.getInstance();
 
     private static final String TAG = FollowActivity.class.getSimpleName();
     private FollowController fc;
@@ -225,8 +227,41 @@ public class FollowActivity extends AppCompatActivity
         updateUser();
     }
 
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        cacheListener.removeListener(FOLLOW_LISTS_LISTENER_KEY);
+    }
+
     public void updateUser(){
-        fc.getFollowData(username);
+        fc.getFollowData(username, FOLLOW_LISTS_LISTENER_KEY, new FollowController.GetDataCallback() {
+            @Override
+            public void callbackFollowData(@NonNull String user, @NonNull List<String> following,
+                                           @NonNull List<String> followers,
+                                           @NonNull List<String> followRequestsFrom,
+                                           @NonNull List<String> followRequestsTo) {
+
+                FollowActivity.this.following = following;
+                FollowActivity.this.followers = followers;
+                FollowActivity.this.followRequestsFrom = followRequestsFrom;
+                FollowActivity.this.followRequestsTo = followRequestsTo;
+
+                answerAdapter = new AnswerRequestAdapter(FollowActivity.this, followRequestsFrom, username, fc);
+                requestList.setAdapter(answerAdapter);
+
+                requestAdapter = new ArrayAdapter<>(FollowActivity.this, R.layout.request_content, followRequestsTo);
+                sentRequestList.setAdapter(requestAdapter);
+
+                followersAdapter = new ArrayAdapter<>(FollowActivity.this, R.layout.request_content, followers);
+                followingAdapter = new ArrayAdapter<>(FollowActivity.this, R.layout.request_content, following);
+
+                followersList.setAdapter(followersAdapter);
+                followingList.setAdapter(followingAdapter);
+
+                registerForContextMenu(followingList);
+                registerForContextMenu(sentRequestList);
+            }
+        });
     }
 
     @Override
@@ -385,32 +420,6 @@ public class FollowActivity extends AppCompatActivity
         } else {
             Log.w(TAG, "unrecognized callback ID: " + callbackId);
         }
-    }
-
-    @Override
-    public void callbackFollowData(@NonNull String user, @NonNull List<String> following,
-                                   @NonNull List<String> followers,
-                                   @NonNull List<String> followRequestsFrom,
-                                   @NonNull List<String> followRequestsTo) {
-        this.following = following;
-        this.followers = followers;
-        this.followRequestsFrom = followRequestsFrom;
-        this.followRequestsTo = followRequestsTo;
-
-        this.answerAdapter = new AnswerRequestAdapter(this, followRequestsFrom, this.username, this.fc);
-        this.requestList.setAdapter(answerAdapter);
-
-        this.requestAdapter = new ArrayAdapter<>(this, R.layout.request_content, followRequestsTo);
-        this.sentRequestList.setAdapter(requestAdapter);
-
-        this.followersAdapter = new ArrayAdapter<>(this, R.layout.request_content, followers);
-        this.followingAdapter = new ArrayAdapter<>(this, R.layout.request_content, following);
-
-        this.followersList.setAdapter(followersAdapter);
-        this.followingList.setAdapter(followingAdapter);
-
-        registerForContextMenu(followingList);
-        registerForContextMenu(sentRequestList);
     }
 }
 
