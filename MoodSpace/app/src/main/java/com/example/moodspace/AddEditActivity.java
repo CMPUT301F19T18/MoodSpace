@@ -202,6 +202,7 @@ public class AddEditActivity extends AppCompatActivity
         // TODO See for map stuff if want the ability to remove attached location in edit mood
         // TODO move to controller?
         // sets up map stuff
+        final TextView placeholderText = findViewById(R.id.placeholder_msg);
         locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
         locationCallback = new LocationCallback() {
             @Override
@@ -219,16 +220,14 @@ public class AddEditActivity extends AppCompatActivity
             }
         };
 
-        final TextView placeholder_location = findViewById(R.id.placeholder_msg);
-        final View right_box = findViewById(R.id.right_square_view);
         // sets up checkbox button
         locationCheckBox.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                boolean attachLocation = locationCheckBox.isChecked();
                 if (isAddActivity()) {
-                    boolean attachLocation = locationCheckBox.isChecked();
                     if (attachLocation) {
-                        placeholder_location.setVisibility(View.GONE);
+                        placeholderText.setVisibility(View.GONE);
                         mapView.setVisibility(View.VISIBLE);
 
                         // attempts to grant the permission if not granted yet
@@ -240,20 +239,30 @@ public class AddEditActivity extends AppCompatActivity
                                     new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
                                     FINE_LOCATION_PERMISSIONS_REQUEST);
                             return;
-                        } else {
-                            // gets location here since location permission is granted
-                            // https://stackoverflow.com/a/10917500
-                            startGettingLocation();
                         }
+                        // gets location here since location permission is granted
+                        // https://stackoverflow.com/a/10917500
+                        startGettingLocation();
+
+                    } else {
+                        placeholderText.setVisibility(View.VISIBLE);
+                        mapView.setVisibility(View.GONE);
+                        stopGettingLocation();
                     }
-                } else {
-                    placeholder_location.setVisibility(View.VISIBLE);
+                } else { // edit activity
+                    if (attachLocation) {
+                        mapView.setVisibility(View.VISIBLE);
+                        placeholderText.setVisibility(View.GONE);
+                    } else {
+                        mapView.setVisibility(View.GONE);
+                        placeholderText.setVisibility(View.VISIBLE);
+                    }
                     stopGettingLocation();
                 }
             }
         });
 
-    Toolbar toolbar = findViewById(R.id.toolbar);
+        Toolbar toolbar = findViewById(R.id.toolbar);
 
 
         // sets up add/edit specific attributes
@@ -277,23 +286,29 @@ public class AddEditActivity extends AppCompatActivity
             int socialSitIndex = socialSituationAdapter.getPosition(currentMood.getSocialSituation());
             socialSitSpinner.setSelection(socialSitIndex);
             reasonEditText.setText(currentMood.getReasonText());
-            TextView placeholderText = findViewById(R.id.placeholder_msg);
-            TextView locationText = findViewById(R.id.locationText);
-            if (currentMood.getHasLocation()) {
-                locationCheckBox.setVisibility(View.VISIBLE);
-                locationCheckBox.setChecked(true);
-                placeholderText.setVisibility(View.GONE);
 
+            final TextView locationText = findViewById(R.id.locationText);
+            final View rightBox = findViewById(R.id.right_square_view);
+
+            // displays the location checkbox if a location was already stored
+            if (currentMood.getLat() != null && currentMood.getLon() != null) {
+                locationCheckBox.setVisibility(View.VISIBLE);
+
+                if (currentMood.getHasLocation()) {
+                    locationCheckBox.setChecked(true);
+                    placeholderText.setVisibility(View.GONE);
+                } else {
+                    mapView.setVisibility(View.GONE);
+                    placeholderText.setVisibility(View.VISIBLE);
+                }
             } else {
-                locationCheckBox.setVisibility(View.GONE);
+                // no location at all: hides all
                 mapView.setVisibility(View.GONE);
                 placeholderText.setVisibility(View.GONE);
                 locationText.setVisibility(View.GONE);
-                right_box.setVisibility(View.GONE);
+                rightBox.setVisibility(View.GONE);
+                locationCheckBox.setVisibility(View.GONE);
             }
-
-            View leftsquareView = findViewById(R.id.left_square_view);
-            ImageView image = findViewById(R.id.image_view);
 
             // downloads photo: can't figure out how to separate this task into the controller
             // Create a storage reference from our app
@@ -301,23 +316,22 @@ public class AddEditActivity extends AppCompatActivity
                 String path = "mood_photos/" + currentMood.getId() + ".png";
                 StorageReference storageRef = fbStorage.getReference().child(path);
 
-                storageRef.getBytes(MAX_DOWNLOAD_LIMIT).addOnSuccessListener(new OnSuccessListener<byte[]>() {
-                    @Override
-                    public void onSuccess(byte[] bytes) {
-                        Bitmap bm = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
-                        AddEditActivity.this.setPreviewImage(bm, false);
-                    }
-                }).addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception exception) {
-                        // TODO: retry
-                        makeWarnToast(AddEditActivity.this, "Failed to load existing photo");
-                    }
-                });
-            } else {
-                leftsquareView.setVisibility(View.GONE);
-                image.setVisibility(View.GONE);
-                imageButton.setVisibility(View.GONE);
+                storageRef
+                        .getBytes(MAX_DOWNLOAD_LIMIT)
+                        .addOnSuccessListener(new OnSuccessListener<byte[]>() {
+                            @Override
+                            public void onSuccess(byte[] bytes) {
+                                Bitmap bm = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
+                                AddEditActivity.this.setPreviewImage(bm, false);
+                            }
+                        })
+                        .addOnFailureListener(new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception exception) {
+                                // TODO: retry
+                                makeWarnToast(AddEditActivity.this, "Failed to load existing photo");
+                            }
+                        });
             }
 
             // displays date and time
@@ -327,9 +341,6 @@ public class AddEditActivity extends AppCompatActivity
             String parsedTime = Utils.formatTime(currentMood.getDate());
             dateInfo.setText(parsedDate);
             timeInfo.setText(parsedTime);
-
-            // removes the checkbox
-            locationCheckBox.setVisibility(View.GONE);
         }
         setSupportActionBar(toolbar);
     }
@@ -485,6 +496,11 @@ public class AddEditActivity extends AppCompatActivity
     // TODO move to some controller
 
     private void startGettingLocation() {
+        // displays your cached current location if it already exists
+        if (currentLocation != null) {
+            updateCurrentLocation(currentLocation);
+        }
+
         try {
             // checks if the gps is enabled
             // https://stackoverflow.com/a/843716
