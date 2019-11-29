@@ -12,7 +12,7 @@ import java.util.ArrayList;
 public class ViewMoodActivity extends AppCompatActivity {
 
     private String username;
-    private String moodId;
+    private String mood;
     ArrayAdapter<MoodOther> moodAdapter;
     ArrayList<MoodOther> moodDataList;
 
@@ -23,6 +23,7 @@ public class ViewMoodActivity extends AppCompatActivity {
         setContentView(R.layout.activity_view_mood);
 
         username = getIntent().getExtras().getString("username");
+        mood = getIntent().getExtras().getString("mood");
 
 
     }

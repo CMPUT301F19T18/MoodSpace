@@ -153,7 +153,6 @@ public class ProfileListActivity extends AppCompatActivity
             fc.getFollowingMoods(username);
             moodDataList = new ArrayList<>();
             moodAdapter = new MoodViewList(this, moodDataList);
-            final List<Emotion> filterList = new ArrayList<>();
 
             // sets up EditMood on tapping any mood
             moodList.setAdapter(moodAdapter);
@@ -357,5 +356,6 @@ public class ProfileListActivity extends AppCompatActivity
     public void callbackFollowingMoods(@NonNull String user, @NonNull ArrayList<MoodOther> followingMoodsList) {
         moodAdapter = new MoodViewList(this, followingMoodsList);
         moodList.setAdapter(moodAdapter);
+        moodAdapter.notifyDataSetChanged();
     }
 }
