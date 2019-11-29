@@ -153,6 +153,7 @@ public class ProfileListActivity extends AppCompatActivity
 
         if (feed) {
             fc.getFollowingMoods(username);
+            addBtn.setVisibility(View.GONE);
 
             // sets up EditMood on tapping any mood
             moodList.setAdapter(moodAdapter);
@@ -273,8 +274,6 @@ public class ProfileListActivity extends AppCompatActivity
         intent.putExtra("MOOD", moodOther);
         intent.putExtra("USERNAME", moodOther.getUsername());
         intent.putExtra("username", username);
-        Log.d(TAG, moodOther.getUsername());
-        Log.d(TAG, username);
         startActivity(intent);
     }
 
