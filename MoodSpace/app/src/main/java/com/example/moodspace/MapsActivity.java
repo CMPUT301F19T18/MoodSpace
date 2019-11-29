@@ -82,8 +82,10 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                     case 0:
                         displayOwnMoods();
                         break;
-                    default:
+                    case 1:
                         displayFollowingMoods();
+                    default:
+                        Log.w(TAG, "unknown tab");
                 }
                 
             }
@@ -120,7 +122,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         BitmapDescriptor color;
         String followingUser;
 
-        for(MoodOther m: followingMoodsList){
+        for (MoodOther m: followingMoodsList) {
             lat = m.getLat();
             lon = m.getLon();
             date = m.getDate();
@@ -151,7 +153,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                     color = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_CYAN);
                     break;
             }
-            if (lat != null && lon != null){
+
+            if (lat != null && lon != null) {
                 LatLng latLng = new LatLng(lat, lon);
                 mMap.addMarker(new MarkerOptions().position(latLng)
                         .title(followingUser + emotion.getEmojiString())
@@ -171,6 +174,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 .addSnapshotListener(new EventListener<QuerySnapshot>() {
                     @Override
                     public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException e) {
+
                         for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
                             Double lat = null;
                             Double lon = null;
@@ -214,6 +218,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                                         .title(emotion.getEmojiString())
                                         .snippet(ts.toString())
                                         .icon(color));
+
                                 if(!centerCamera){
                                     centerCamera = true;
                                     mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));

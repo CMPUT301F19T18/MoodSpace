@@ -91,6 +91,7 @@ public class AddEditActivity extends AppCompatActivity
     private FusedLocationProviderClient fusedLocationClient;
     private Location currentLocation = null;
     private AlertDialog gpsAlert;
+    private AlertDialog locationAlert;
 
     /**
      * Initializes all input methods for adding a mood.
@@ -330,6 +331,9 @@ public class AddEditActivity extends AppCompatActivity
         if (gpsAlert != null) {
             gpsAlert.dismiss();
         }
+        if (locationAlert != null) {
+            locationAlert.dismiss();
+        }
     }
 
     @Override
@@ -507,8 +511,8 @@ public class AddEditActivity extends AppCompatActivity
                         saveBtn.setEnabled(true);
                     }
                 });
-        gpsAlert = builder.create();
-        gpsAlert.show();
+        locationAlert = builder.create();
+        locationAlert.show();
     }
 
     private void setupMapView(Bundle savedInstanceState) {
