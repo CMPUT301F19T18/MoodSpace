@@ -71,12 +71,12 @@ public class ViewMoodActivity extends AppCompatActivity {
         Emotion emotion = currentMood.getEmotion();
         moodInfo.setText(emotion.getEmojiString());
 
-        ConstraintLayout moodLayout = findViewById(R.id.moodLayout);
+        //ConstraintLayout moodLayout = findViewById(R.id.moodLayout);
         String background = emotion.getEmojiName().toLowerCase();
 
         int id = getResources().getIdentifier(background,"drawable", getPackageName());
 //        row.setBackgroundResource(id);
-        moodLayout.setBackgroundResource(id);
+        moodInfo.setBackgroundResource(id);
 
 
     }
