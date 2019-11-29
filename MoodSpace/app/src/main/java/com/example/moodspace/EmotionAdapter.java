@@ -7,11 +7,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
-import android.widget.Spinner;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 
 import java.util.List;
 
@@ -20,7 +18,7 @@ import java.util.List;
  * https://stackoverflow.com/a/48703213
  * https://stackoverflow.com/a/41637506
  */
-public class EmotionAdapter extends ArrayAdapter<moodSpinner> {
+public class EmotionAdapter extends ArrayAdapter<EmotionWithNull> {
     private final String TAG = EmotionAdapter.class.getSimpleName();
     private final String INITIAL_TEXT = getContext().getString(R.string.ae_initial_emotion_text);
     private final int INITIAL_COLOR = Color.parseColor("#7f8c8d");
@@ -28,46 +26,20 @@ public class EmotionAdapter extends ArrayAdapter<moodSpinner> {
 
     private Context context;
 
-    public EmotionAdapter(Context context, List<moodSpinner> emotionList) {
+    public EmotionAdapter(Context context, List<EmotionWithNull> emotionList) {
         super(context, RESOURCE, emotionList);
         this.context = context;
     }
 
     @Override
     public View getDropDownView(int position, View convertView, @NonNull ViewGroup parent) {
-        if (position == 0) {
-            return initialSelection(parent, true);
-        }
         return getCustomView(position, convertView, parent);
     }
 
     @NonNull
     @Override
     public View getView(int position, View convertView, @NonNull ViewGroup parent) {
-        if (position == 0) {
-            return initialSelection(parent, false);
-        }
         return getCustomView(position, convertView, parent);
-    }
-
-
-    @Override
-    public int getCount() {
-        // Adjust for initial selection item
-        return super.getCount();
-    }
-
-    private View initialSelection(@NonNull ViewGroup parent, boolean dropdown) {
-        LayoutInflater inflater = LayoutInflater.from(context);
-        final TextView view = (TextView) inflater.inflate(RESOURCE, parent, false);
-        view.setText(INITIAL_TEXT);
-        view.setBackgroundColor(INITIAL_COLOR);
-
-        if (dropdown) { // Hidden when the dropdown is opened
-            view.setHeight(0);
-        }
-
-        return view;
     }
 
     private View getCustomView(int position, View convertView, ViewGroup parent) {
@@ -79,16 +51,22 @@ public class EmotionAdapter extends ArrayAdapter<moodSpinner> {
             row = convertView;
         }
 
-        position = position - 1; // Adjust for initial selection item
-        moodSpinner currentItem = getItem(position);
+        EmotionWithNull currentItem = getItem(position);
         TextView emojiField = row.findViewById(R.id.emotion_spinner_row);
 
         if (currentItem == null) {
             Log.w(TAG, "Current item is null at position " + position);
         } else {
-            String parsedText = currentItem.getEmojiString() + "      " + currentItem.getEmojiName();
-            emojiField.setText(parsedText);
-            row.setBackgroundColor(currentItem.getColorCode());
+            String parsedText;
+            if (currentItem == EmotionWithNull.NULL) {
+                emojiField.setText(INITIAL_TEXT);
+                row.setBackgroundColor(INITIAL_COLOR);
+            } else {
+                Emotion emotion = currentItem.toEmotion();
+                parsedText = emotion.getEmojiString() + "      " + emotion.getEmojiName();
+                emojiField.setText(parsedText);
+                row.setBackgroundColor(emotion.getColorCode());
+            }
         }
         return row;
     }
