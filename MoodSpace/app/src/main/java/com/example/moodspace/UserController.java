@@ -175,6 +175,11 @@ public class UserController {
                     @Override
                     public void onEvent(@Nullable DocumentSnapshot documentSnapshot,
                                         @Nullable FirebaseFirestoreException e) {
+                        if (e != null) {
+                            Log.w(TAG, "Error: User listen failed");
+                            Log.w(TAG, Log.getStackTraceString(e));
+                            return;
+                        }
                         if (documentSnapshot != null) {
                             callbackUserSnapshot.callbackUserSnapshot(documentSnapshot);
                         }

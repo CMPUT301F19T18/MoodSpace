@@ -343,17 +343,16 @@ public class ProfileListActivity extends AppCompatActivity
                     Log.w(TAG, "filters were not properly updated");
                     break;
                 case UPDATE_FILTERS_COMPLETE:
-                    Log.d(TAG, "filters updated successfully");
                     break;
                 default:
                     Log.w(TAG, "unrecognized callback ID: " + callbackId);
             }
         } else if (callbackId instanceof MoodCallbackId) {
             switch ((MoodCallbackId) callbackId) {
-                case MOOD_DELETE_SUCCESS:
+                case DELETE_SUCCESS:
                     makeSuccessToast(ProfileListActivity.this, "Deleted mood");
                     break;
-                case MOOD_DELETE_FAIL:
+                case DELETE_FAIL:
                     makeWarnToast(ProfileListActivity.this, "Error: could not delete mood");
                     break;
                 default:

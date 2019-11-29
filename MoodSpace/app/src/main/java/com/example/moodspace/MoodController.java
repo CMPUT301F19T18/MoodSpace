@@ -65,12 +65,14 @@ public class MoodController {
                     @Override
                     public void onSuccess(Void aVoid) {
                         Log.d(TAG, "Data addition successful");
+                        cc.callback(MoodCallbackId.ADD_SUCCESS);
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
                         Log.d(TAG, "Data addition failed" + e.toString());
+                        cc.callback(MoodCallbackId.ADD_FAIL);
                     }
                 });
     }
@@ -88,12 +90,15 @@ public class MoodController {
                     @Override
                     public void onSuccess(Void aVoid) {
                         Log.d(TAG, "Data updated successfully");
+                        cc.callback(MoodCallbackId.UPDATE_SUCCESS);
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
-                        Log.d(TAG, "Data modification failed" + e.toString());
+                        Log.d(TAG, "Data modification failed");
+                        Log.d(TAG, Log.getStackTraceString(e));
+                        cc.callback(MoodCallbackId.UPDATE_FAIL);
                     }
             });
     }
@@ -109,7 +114,7 @@ public class MoodController {
                     @Override
                     public void onSuccess(Void aVoid) {
                         Log.d(TAG, "Data deletion successful");
-                        cc.callback(MoodCallbackId.MOOD_DELETE_SUCCESS);
+                        cc.callback(MoodCallbackId.DELETE_SUCCESS);
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
@@ -117,7 +122,7 @@ public class MoodController {
                     public void onFailure(@NonNull Exception e) {
                         Log.d(TAG, "Data deletion failed:");
                         Log.d(TAG, Log.getStackTraceString(e));
-                        cc.callback(MoodCallbackId.MOOD_DELETE_FAIL);
+                        cc.callback(MoodCallbackId.DELETE_FAIL);
                     }
                 });
     }
@@ -141,6 +146,11 @@ public class MoodController {
                             @Nullable QuerySnapshot queryDocumentSnapshots,
                             @Nullable FirebaseFirestoreException e
                     ) {
+                        if (e != null) {
+                            Log.w(TAG, "Error: Mood list listen failed");
+                            Log.w(TAG, Log.getStackTraceString(e));
+                            return;
+                        }
                         List<Mood> moodList = new ArrayList<>();
                         if (queryDocumentSnapshots != null) {
                             for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {

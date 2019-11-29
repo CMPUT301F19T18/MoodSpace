@@ -1,6 +1,12 @@
 package com.example.moodspace;
 
 public enum MoodCallbackId implements CallbackId {
-    MOOD_DELETE_SUCCESS,
-    MOOD_DELETE_FAIL;
+    ADD_SUCCESS,
+    ADD_FAIL,
+
+    UPDATE_SUCCESS,
+    UPDATE_FAIL,
+
+    DELETE_SUCCESS,
+    DELETE_FAIL;
 }

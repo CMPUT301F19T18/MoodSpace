@@ -387,6 +387,7 @@ public class FollowController implements ControllerCallback {
         getFollowData(user, key, (GetDataCallback) cc);
     }
     public void getFollowData(final String user, final String key, final GetDataCallback getDataCallback) {
+        Log.d(TAG, "hello");
         uc.getUserSnapshot(user, key, new UserController.CallbackUserSnapshot() {
             @Override
             public void callbackUserSnapshot(@NonNull DocumentSnapshot fetchedUserData) {
