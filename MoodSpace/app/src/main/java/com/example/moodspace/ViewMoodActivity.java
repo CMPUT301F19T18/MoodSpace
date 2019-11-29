@@ -6,7 +6,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
 import android.view.WindowManager;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -26,8 +25,6 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
-import java.util.ArrayList;
-
 import static com.example.moodspace.Utils.makeWarnToast;
 
 public class ViewMoodActivity extends AppCompatActivity
@@ -35,19 +32,12 @@ public class ViewMoodActivity extends AppCompatActivity
 
     private static final String TAG = ViewMoodActivity.class.getSimpleName();
     private String otherUsername;
-    private String username;
     private MoodView currentMood = null;
     private FirebaseStorage fbStorage = FirebaseStorage.getInstance();
     private static final long MAX_DOWNLOAD_LIMIT = 30 * 1024 * 1024;
-    private boolean hasPhoto = false;
-    private boolean changedPhoto = false;
 
     private static final String MAPVIEW_BUNDLE_KEY = "moodspace.AddEditActivity.mapViewBundleKey";
-    private GoogleMap gMap;
     private MapView mapView;
-
-    ArrayAdapter<MoodView> moodAdapter;
-    ArrayList<MoodView> moodDataList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,7 +52,6 @@ public class ViewMoodActivity extends AppCompatActivity
 
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
-            username = extras.getString(Utils.USERNAME_KEY);
             currentMood = (MoodView) extras.getSerializable("MOOD");
             otherUsername = currentMood.getUsername();
         }
@@ -118,6 +107,7 @@ public class ViewMoodActivity extends AppCompatActivity
         ImageView image = findViewById(R.id.image_view);
         TextView placeholderMsg = findViewById(R.id.placeholder_msg);
         Button imageButton = findViewById(R.id.image_button);
+        imageButton.setVisibility(View.GONE);
 
         if (currentMood.getHasPhoto()) {
             String path = "mood_photos/" + currentMood.getId() + ".png";
@@ -127,7 +117,10 @@ public class ViewMoodActivity extends AppCompatActivity
                 @Override
                 public void onSuccess(byte[] bytes) {
                     Bitmap bm = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
-                    ViewMoodActivity.this.setPreviewImage(bm, false);
+
+                    ImageView imageView = findViewById(R.id.image_view);
+                    imageView.setImageBitmap(bm);
+
                 }
             }).addOnFailureListener(new OnFailureListener() {
                 @Override
@@ -139,7 +132,6 @@ public class ViewMoodActivity extends AppCompatActivity
         } else {
             leftsquareView.setVisibility(View.GONE);
             image.setVisibility(View.GONE);
-            imageButton.setVisibility(View.GONE);
         }
 
         if (currentMood.getHasLocation()) {
@@ -219,21 +211,8 @@ public class ViewMoodActivity extends AppCompatActivity
     }
 
 
-    private void setPreviewImage(Bitmap bm, boolean changedPhoto) {
-        ImageView imageView = findViewById(R.id.image_view);
-        Button imageButton = findViewById(R.id.image_button);
-        imageView.setImageBitmap(bm);
-        imageButton.setVisibility(View.GONE);
-
-        // if ever true, then changedPhoto is true
-        this.changedPhoto |= changedPhoto;
-        this.hasPhoto = true;
-    }
-
-
     @Override
     public void onMapReady(GoogleMap googleMap) {
-        this.gMap = googleMap;
         Double lat = currentMood.getLat();
         Double lon = currentMood.getLon();
 
