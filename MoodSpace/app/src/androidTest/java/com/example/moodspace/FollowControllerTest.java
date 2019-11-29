@@ -516,7 +516,7 @@ class DummyFollowCallback extends DummyControllerCallback
     List<MoodOther> followingMoodList = new ArrayList<>();
 
     @Override
-    public void callbackFollowingMoods(@NonNull String user, @NonNull List<MoodOther> followingMoodsList) {
+    public void callbackFollowingMoods(@NonNull String user, @NonNull ArrayList<MoodOther> followingMoodsList) {
         this.user = user;
         this.followingMoodList = followingMoodsList;
     }

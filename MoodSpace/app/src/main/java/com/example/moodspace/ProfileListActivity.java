@@ -55,7 +55,7 @@ public class ProfileListActivity extends AppCompatActivity
     private ViewController vc;
     private FollowController fc;
     ArrayAdapter<MoodOther> moodAdapter;
-    ArrayList<MoodOther> moodDataList;
+    ArrayList<MoodOther> moodDataList = new ArrayList<>();
     final boolean[] checkedItems = new boolean[Emotion.values().length];
 
     private String moodId;
@@ -149,10 +149,10 @@ public class ProfileListActivity extends AppCompatActivity
             }
         });
 
+        moodAdapter = new MoodViewList(this, moodDataList);
+
         if (feed) {
             fc.getFollowingMoods(username);
-            moodDataList = new ArrayList<>();
-            moodAdapter = new MoodViewList(this, moodDataList);
 
             // sets up EditMood on tapping any mood
             moodList.setAdapter(moodAdapter);
@@ -164,8 +164,6 @@ public class ProfileListActivity extends AppCompatActivity
             });
 
         } else  {
-            moodDataList = new ArrayList<>();
-            moodAdapter = new MoodViewList(this, moodDataList);
             final List<Emotion> filterList = new ArrayList<>();
 
             // sets up EditMood on tapping any mood
@@ -354,7 +352,9 @@ public class ProfileListActivity extends AppCompatActivity
 
     @Override
     public void callbackFollowingMoods(@NonNull String user, @NonNull ArrayList<MoodOther> followingMoodsList) {
-        moodAdapter = new MoodViewList(this, followingMoodsList);
+        moodDataList.clear();
+        moodDataList.addAll(followingMoodsList);
+
         moodList.setAdapter(moodAdapter);
         moodAdapter.notifyDataSetChanged();
     }
