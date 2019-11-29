@@ -1,8 +1,5 @@
 package com.example.moodspace;
 
-import android.widget.TextView;
-
-import androidx.appcompat.widget.AppCompatSpinner;
 import androidx.test.rule.ActivityTestRule;
 
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -22,14 +19,38 @@ import static androidx.test.espresso.matcher.ViewMatchers.isCompletelyDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withChild;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
-import static androidx.test.espresso.matcher.ViewMatchers.withSpinnerText;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
 import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.is;
 import static org.hamcrest.core.AllOf.allOf;
 import static org.hamcrest.core.IsAnything.anything;
 import static org.hamcrest.core.IsNot.not;
 
+/**
+ * Users:
+ *  - TEST_AddMoodTest
+ *
+ * TODO tests:
+ *  - @BeforeClass: Login
+ *  - click on add mood event
+ *      - Set emotion spinner to enjoyment
+ *      - Set social situation to Alone
+ *      - Set Reason to "Alone time"
+ *      - Save new mood
+ *  - click on add mood event
+ *      - Set emotion spinner to anger
+ *      - Set social situation to With another person
+ *      - Set Reason to "fighting"
+ *      - Save new mood
+ *  - click on add mood event
+ *      - Set emotion spinner to sadness
+ *      - Set social situation to With two to several peop
+ *      - Set Reason to "Movie night"
+ *      - Save new mood
+ *  - click on add mood event
+ *      - Don't select an emotion this time.
+ *      - Try to save
+ *  - Click on first mood in the listview and check that it matches the last moods.
+ */
 public class AddMoodTest {
 
     private String username;
@@ -37,7 +58,6 @@ public class AddMoodTest {
     private String anger;
     private String enjoyment;
     private String sadness;
-    private final FirebaseFirestore db = FirebaseFirestore.getInstance();
 
     @Rule
     public ActivityTestRule<LoginActivity> mActivityRule =
@@ -45,8 +65,8 @@ public class AddMoodTest {
     @Before
     public void initValidString() {
         // Specify a valid string.
-        username = "AddTest";
-        password = "AddTest";
+        username = "TEST_AddMoodTest";
+        password = "TEST_AddMoodTest";
         anger = new String(Character.toChars(0x1F621));
         enjoyment = new String(Character.toChars(0x1F604));
         sadness = new String(Character.toChars(0x1F62D));
@@ -64,7 +84,7 @@ public class AddMoodTest {
         onView(withId(R.id.emotionSelector)).perform(click());
         onData(anything()).atPosition(1).perform(click());
         onView(withId(R.id.situationText)).perform(click());
-        onData(anything()).atPosition(0).perform(click());
+        onData(anything()).atPosition(1).perform(click());
         onView(withId(R.id.reason_text)).perform(typeText("alone time"), closeSoftKeyboard());
         onView(withId(R.id.saveBtn)).perform(click());
 
@@ -75,7 +95,7 @@ public class AddMoodTest {
         onView(withId(R.id.emotionSelector)).perform(click());
         onData(anything()).atPosition(2).perform(click());
         onView(withId(R.id.situationText)).perform(click());
-        onData(anything()).atPosition(1).perform(click());
+        onData(anything()).atPosition(2).perform(click());
         onView(withId(R.id.reason_text)).perform(typeText("fighting"), closeSoftKeyboard());
         onView(withId(R.id.saveBtn)).perform(click());
 
@@ -86,7 +106,7 @@ public class AddMoodTest {
         onView(withId(R.id.emotionSelector)).perform(click());
         onData(anything()).atPosition(3).perform(click());
         onView(withId(R.id.situationText)).perform(click());
-        onData(anything()).atPosition(2).perform(click());
+        onData(anything()).atPosition(3).perform(click());
         onView(withId(R.id.reason_text)).perform(typeText("Movie night"), closeSoftKeyboard());
         onView(withId(R.id.saveBtn)).perform(click());
 
@@ -107,8 +127,7 @@ public class AddMoodTest {
                 .atPosition(0).perform(click());
 
         onView(withId(R.id.emotionSelector)).check(matches(withChild(withText(containsString(sadness)))));
-        onView(withId(R.id.situationText)).check(matches(withChild(withText(containsString("With another person")))));
+        onView(withId(R.id.situationText)).check(matches(withChild(withText(containsString("With two to several people")))));
         onView(withId(R.id.reason_text)).check(matches(withText(containsString("Movie night"))));
-
     }
 }
