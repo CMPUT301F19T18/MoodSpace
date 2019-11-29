@@ -38,6 +38,7 @@ import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import io.paperdb.Paper;
 
@@ -45,15 +46,23 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     private static final String TAG = MapsActivity.class.getSimpleName();
 
     private static final String MAPVIEW_BUNDLE_KEY = "moodspace.MapsActivity.mapViewBundleKey";
+    private static final String MOOD_LIST_LISTENER_KEY = "moodspace.ProfileListActivity.moodListListenerKey";
 
+    private final FirebaseFirestore db = FirebaseFirestore.getInstance();
+    private final CacheListener cacheListener = CacheListener.getInstance();
+
+    private FollowController fc;
+    private MoodController mc;
+
+    // location variables
     private GoogleMap mMap;
     MapView mMapView;
     private FusedLocationProviderClient fusedLocationProviderClient;
-    private String username;
-    private final FirebaseFirestore db = FirebaseFirestore.getInstance();
+
     TabLayout myTabs;
-    private FollowController fc;
-    private ArrayList<MoodOther> followingMoodsList;
+
+    private String username;
+    private ArrayList<MoodView> followingMoodsList;
 
 
     @Override
@@ -65,8 +74,11 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
         setContentView(R.layout.activity_maps);
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
+
+        username = getIntent().getExtras().getString(Utils.USERNAME_KEY);
         fc = new FollowController(this);
-        username = getIntent().getExtras().getString("username");
+        mc = new MoodController(this);
+
         Toolbar toolbar = findViewById(R.id.toolbar);
         toolbar.setTitle("Map");
         setSupportActionBar(toolbar);
@@ -83,6 +95,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                         break;
                     case 1:
                         displayFollowingMoods();
+                        break;
                     default:
                         Log.w(TAG, "unknown tab");
                 }
@@ -106,133 +119,64 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         //TODO make tabs and using mode and onclicklisteners refresh map with new markers
         //TODO marker color should be mood specific and should have a popup of username and emoji
         //TODO maybe on click viewactivity will open with that mood
-
-
-
     }
 
 
     private void displayFollowingMoods() {
-        Double lat;
-        Double lon;
-        Date date;
-        Emotion emotion;
-        String ts;
-        BitmapDescriptor color;
-        String followingUser;
-        Boolean centerCamera =  false;
+        boolean centerCamera = false;
 
-        for (MoodOther m: followingMoodsList) {
-            lat = m.getLat();
-            lon = m.getLon();
-            date = m.getDate();
-            ts = date.toString();
-            emotion = m.getEmotion();
-            followingUser = m.getUsername();
-
-            switch (emotion.getEmojiName()){
-                case "Enjoyment":
-                    color = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_YELLOW);
-                    break;
-                case "Sadness":
-                    color = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE);
-                    break;
-                case "Anger":
-                    color = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED);
-                    break;
-                case "Fear":
-                    color = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_VIOLET);
-                    break;
-                case "Disgust":
-                    color = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN);
-                    break;
-                case "Contempt":
-                    color = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE);
-                    break;
-                default:
-                    color = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_CYAN);
-                    break;
-            }
+        for (MoodView m: followingMoodsList) {
+            Double lat = m.getLat();
+            Double lon = m.getLon();
+            String ts = m.getDate().toString();
+            Emotion emotion = m.getEmotion();
+            String followingUser = m.getUsername();
 
             if (lat != null && lon != null) {
                 LatLng latLng = new LatLng(lat, lon);
                 mMap.addMarker(new MarkerOptions().position(latLng)
                         .title(followingUser + emotion.getEmojiString())
                         .snippet(ts)
-                        .icon(color));
-                if(!centerCamera){
-                    // centers camera at the latest mood
+                        .icon(Utils.getColorForMap(emotion)));
+
+                // centers camera at the latest mood
+                if (!centerCamera) {
                     centerCamera = true;
                     mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
                 }
             }
-
         }
     }
 
     private void displayOwnMoods() {
-        db.collection("users")
-                .document(username)
-                .collection("Moods")
-                .orderBy("date", Query.Direction.DESCENDING)
-                .addSnapshotListener(new EventListener<QuerySnapshot>() {
-                    @Override
-                    public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException e) {
-                        Boolean centerCamera = false; // to center the camera at the latest mood in the mood history
+        mc.getMoodList(username, MOOD_LIST_LISTENER_KEY, new MoodController.UserMoodsCallback() {
+            @Override
+            public void callbackMoodList(@NonNull String user, @NonNull List<Mood> userMoodList) {
+                boolean centerCamera = false;
 
-                        for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
-                            Double lat = null;
-                            Double lon = null;
+                for (Mood mood: userMoodList) {
+                    Double lat = mood.getLat();
+                    Double lon = mood.getLon();
+                    Emotion emotion = mood.getEmotion();
+                    String ts = mood.getDate().toString();
 
-                            try {
-                                lat = doc.getDouble("lat");
-                                lon = doc.getDouble("lon");
-                            } catch (Exception ex) {
-                                Log.d(TAG, "cannot get location");
-                            }
+                    if (lat != null && lon != null) {
+                        LatLng latLng = new LatLng(lat, lon);
+                        mMap.addMarker(new MarkerOptions().position(latLng)
+                                .title(emotion.getEmojiString())
+                                .snippet(ts)
+                                .icon(Utils.getColorForMap(emotion)));
 
-                            Date ts = doc.getTimestamp("date").toDate();
-                            Emotion emotion = Emotion.valueOf(doc.getString("emotion"));
-                            BitmapDescriptor color;
-                            switch (emotion.getEmojiName()){
-                                case "Enjoyment":
-                                    color = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_YELLOW);
-                                    break;
-                                case "Sadness":
-                                    color = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE);
-                                    break;
-                                case "Anger":
-                                    color = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED);
-                                    break;
-                                case "Fear":
-                                    color = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_VIOLET);
-                                    break;
-                                case "Disgust":
-                                    color = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN);
-                                    break;
-                                case "Contempt":
-                                    color = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE);
-                                    break;
-                                default:
-                                    color = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_CYAN);
-                                    break;
-                            }
-                            if (lat != null && lon != null){
-                                LatLng latLng = new LatLng(lat, lon);
-                                mMap.addMarker(new MarkerOptions().position(latLng)
-                                        .title(emotion.getEmojiString())
-                                        .snippet(ts.toString())
-                                        .icon(color));
-
-                                if(!centerCamera){
-                                    centerCamera = true;
-                                    mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
-                                }
-
-                            }
+                        // centers camera at the latest mood
+                        if (!centerCamera) {
+                            centerCamera = true;
+                            mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
                         }
+
                     }
-                });
+                }
+            }
+        });
     }
 
 
@@ -258,14 +202,14 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 switch (item.getItemId()) {
                     case R.id.nav_item_profile:
                         Intent intent = new Intent(MapsActivity.this, ProfileListActivity.class);
-                        intent.putExtra("username", username);
+                        intent.putExtra(Utils.USERNAME_KEY, username);
                         intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                         startActivity(intent);
                         finish();
                         return true;
                     case R.id.nav_item_feed:
                         Intent intent1 = new Intent(MapsActivity.this, ProfileListActivity.class);
-                        intent1.putExtra("username", username);
+                        intent1.putExtra(Utils.USERNAME_KEY, username);
                         intent1.putExtra("feed", true);
                         intent1.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                         startActivity(intent1);
@@ -273,14 +217,14 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                         return true;
                     case R.id.nav_item_following:
                         Intent intent2 = new Intent(MapsActivity.this, FollowActivity.class);
-                        intent2.putExtra("username", username);
+                        intent2.putExtra(Utils.USERNAME_KEY, username);
                         intent2.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                         startActivity(intent2);
                         finish();
                         return true;
                     case R.id.nav_item_map:
                         Intent intent3 = new Intent(MapsActivity.this, MapsActivity.class);
-                        intent3.putExtra("username", username);
+                        intent3.putExtra(Utils.USERNAME_KEY, username);
                         startActivity(intent3);
                         return true;
                     case R.id.nav_item_log_out:
@@ -327,7 +271,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
     @Override
-    public void onSaveInstanceState(Bundle outState) {
+    public void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
 
         Bundle mapViewBundle = outState.getBundle(MAPVIEW_BUNDLE_KEY);
@@ -360,14 +304,17 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     @Override
     public void onPause() {
-        mMapView.onPause();
         super.onPause();
+        mMapView.onPause();
     }
 
     @Override
     public void onDestroy() {
-        mMapView.onDestroy();
         super.onDestroy();
+        mMapView.onDestroy();
+
+        cacheListener.removeListener(MOOD_LIST_LISTENER_KEY);
+
     }
 
     @Override
@@ -396,7 +343,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
     @Override
-    public void callbackFollowingMoods(@NonNull String user, @NonNull ArrayList<MoodOther> followingMoodsList) {
+    public void callbackFollowingMoods(@NonNull String user, @NonNull ArrayList<MoodView> followingMoodsList) {
             this.followingMoodsList = followingMoodsList;
     }
 }

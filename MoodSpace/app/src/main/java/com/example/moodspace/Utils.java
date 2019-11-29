@@ -10,11 +10,19 @@ import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+
+import com.google.android.gms.maps.model.BitmapDescriptor;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.material.snackbar.Snackbar;
+import com.google.firebase.firestore.DocumentSnapshot;
 
 import java.io.Serializable;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Locale;
 
 /**
@@ -22,6 +30,9 @@ import java.util.Locale;
  * in list view or in the add/edit mood form.
  */
 public final class Utils {
+    // specifically used to transfer usernames between activities
+    public static final String USERNAME_KEY = "moodspace.Utils.usernameKey";
+
     private static final SimpleDateFormat DATE_FORMATTER
             = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
     private static final SimpleDateFormat TIME_FORMATTER
@@ -60,6 +71,27 @@ public final class Utils {
         AlertDialog alert = builder.create();
         alert.show();
     }
+
+
+    public static BitmapDescriptor getColorForMap(Emotion emotion) {
+        switch (emotion) {
+            case ENJOYMENT:
+                return BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_YELLOW);
+            case SAD:
+                return BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE);
+            case ANGER:
+                return BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED);
+            case FEAR:
+                return BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_VIOLET);
+            case DISGUST:
+                return BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN);
+            case CONTEMPT:
+                return BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE);
+            default:
+                return BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_CYAN);
+        }
+    }
+
 
     /**
      * General toasts for warn, info and success
@@ -154,5 +186,36 @@ public final class Utils {
         return bundle.getSerializable(key);
     }
 
+    /**
+     * Converts an array from firestore to a regular String list
+     */
+    @NonNull
+    public static List<String> getListFromUser(DocumentSnapshot fetchedUserData, String arrayName) {
+        final List<String> list = new ArrayList<>();
+        final List<?> genericList = (List<?>) fetchedUserData.get(arrayName);
+        if (genericList != null) {
+            for (Object o: genericList) {
+                list.add((String) o);
+            }
+        }
+
+        return list;
+    }
+
+    /**
+     * Converts an array from firestore to a regular String hash set
+     */
+    @NonNull
+    public static HashSet<String> getSetFromUser(DocumentSnapshot fetchedUserData, String arrayName) {
+        final HashSet<String> set = new HashSet<>();
+        final List<?> genericList = (List<?>) fetchedUserData.get(arrayName);
+        if (genericList != null) {
+            for (Object o: genericList) {
+                set.add((String) o);
+            }
+        }
+
+        return set;
+    }
 
 }

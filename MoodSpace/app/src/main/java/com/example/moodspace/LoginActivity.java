@@ -31,7 +31,6 @@ public class LoginActivity extends AppCompatActivity
         implements ControllerCallback {
     private static final String TAG = LoginActivity.class.getSimpleName();
 
-    public static final String USERNAME_KEY = "username";
     public static final String IS_SIGN_IN_ACTIVITY_KEY = "moodspace.LoginActivity.isSignInActivityKey";
     public static final String SIGN_UP_USER_KEY = "moodspace.LoginActivity.signUpKey";
     public static final String LOGIN_USER_KEY = "moodspace.LoginActivity.login";
@@ -125,7 +124,7 @@ public class LoginActivity extends AppCompatActivity
 
                 if (inLoginState) {
                     if (usernameText.length() == 0 || passwordText.length() == 0) {
-                        makeInfoToast(LoginActivity.this, "Please enter a username and a password");
+                        makeWarnToast(LoginActivity.this, "Please enter a username and a password");
                         confirmButton.setEnabled(true);
                         return;
                     }
@@ -167,6 +166,7 @@ public class LoginActivity extends AppCompatActivity
      */
     private void attemptLogin(final User user) {
         final String username = user.getUsername();
+        // caches fetchedUserData for repeated usage
         if (fetchedUserData == null || fetchedUserData.get("username") != username) {
             uc.getUserData(username, new UserController.CallbackUser() {
                 @Override
@@ -231,18 +231,18 @@ public class LoginActivity extends AppCompatActivity
 
                     // goes to profile list activity
                     Intent i = new Intent(this, ProfileListActivity.class);
-                    i.putExtra(USERNAME_KEY, user.getUsername());
+                    i.putExtra(Utils.USERNAME_KEY, user.getUsername());
                     startActivity(i);
                     finish();
                     break;
 
                 case USERNAME_EXISTS:
-                    makeInfoToast(this, "This username is taken");
+                    makeWarnToast(this, "This username is taken");
                     confirmButton.setEnabled(true);
                     return;
 
                 case INCORRECT_PASSWORD:
-                    makeInfoToast(this, "Incorrect password, please try again");
+                    makeWarnToast(this, "Incorrect password, please try again");
                     confirmButton.setEnabled(true);
                     return;
 

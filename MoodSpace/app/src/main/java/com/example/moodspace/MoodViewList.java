@@ -1,32 +1,29 @@
 package com.example.moodspace;
 
 import android.content.Context;
-import android.graphics.drawable.Drawable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
-import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.constraintlayout.widget.ConstraintLayout;
-import androidx.core.content.ContextCompat;
 
 import java.util.ArrayList;
 
 /**
  * This class formats and provides the custom list display for each mood object.
  */
-public class MoodViewList extends ArrayAdapter<MoodOther> {
+public class MoodViewList extends ArrayAdapter<MoodView> {
 
-    private ArrayList<MoodOther> listOfMoods;
+    private ArrayList<MoodView> listOfMoods;
     private Context context;
     private String username;
 
-    public MoodViewList(Context context, ArrayList<MoodOther> listOfMoods) {
+    public MoodViewList(Context context, ArrayList<MoodView> listOfMoods) {
         super(context,0,listOfMoods);
         this.listOfMoods = listOfMoods;
         this.context = context;
@@ -44,7 +41,7 @@ public class MoodViewList extends ArrayAdapter<MoodOther> {
             view = LayoutInflater.from(context).inflate(R.layout.content, parent, false);
         }
 
-        MoodOther mood = listOfMoods.get(position);
+        MoodView mood = listOfMoods.get(position);
 
         TextView moodInfo = view.findViewById(R.id.mood);
         TextView date = view.findViewById(R.id.mood_date);
