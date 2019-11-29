@@ -1,14 +1,14 @@
 package com.example.moodspace;
 
 public enum EmotionWithNull {
-    NULL(0),
     ENJOYMENT(1),
     ANGER(2),
     SAD(3),
     DISGUST(4),
     FEAR(5),
     CONTEMPT(6),
-    SURPRISE(7);
+    SURPRISE(7),
+    NULL(0);
 
     private final int id;
 
