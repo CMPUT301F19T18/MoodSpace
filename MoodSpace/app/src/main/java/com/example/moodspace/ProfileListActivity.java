@@ -160,6 +160,7 @@ public class ProfileListActivity extends AppCompatActivity
                 @Override
                 public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                     openViewMood(username, position);
+                    MoodOther mood = MoodOther.getUsername();
                 }
             });
 
@@ -272,6 +273,7 @@ public class ProfileListActivity extends AppCompatActivity
         Intent intent = new Intent(getApplicationContext(), ViewMoodActivity.class);
         intent.putExtra("MOOD", mood);
         intent.putExtra("USERNAME", username);
+        Log.d(TAG, username);
         startActivity(intent);
     }
 

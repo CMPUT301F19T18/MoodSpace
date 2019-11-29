@@ -58,7 +58,7 @@ public class AddMoodTest {
         onView(withId(R.id.emotionSelector)).perform(click());
         onData(anything()).atPosition(0).perform(click());
 //        onData(instanceOf(Emotion.class)).atPosition(1).perform(click());
-        onView(withId(R.id.situationSelector)).perform(click());
+        onView(withId(R.id.situationImage)).perform(click());
         onData(anything()).atPosition(0).perform(click());
         onView(withId(R.id.reason_text)).perform(typeText("alone time"), closeSoftKeyboard());
         onView(withId(R.id.saveBtn)).perform(click());
