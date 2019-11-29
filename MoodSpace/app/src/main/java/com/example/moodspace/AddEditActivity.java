@@ -431,7 +431,6 @@ public class AddEditActivity extends AppCompatActivity
         finish();
     }
 
-    // TODO move to some controller
     private void startGettingLocation() {
         try {
             // checks if the gps is enabled
@@ -470,7 +469,6 @@ public class AddEditActivity extends AppCompatActivity
         }
     }
 
-    // TODO move to some controller
     private void stopGettingLocation() {
         if (fusedLocationClient != null) {
             fusedLocationClient.removeLocationUpdates(locationCallback);

@@ -137,7 +137,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 mMap.addMarker(new MarkerOptions().position(latLng)
                         .title(followingUser + emotion.getEmojiString())
                         .snippet(ts)
-                        .icon(LocationController.getColor(emotion)));
+                        .icon(Utils.getColorForMap(emotion)));
 
                 // centers camera at the latest mood
                 if (!centerCamera) {
@@ -165,7 +165,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                         mMap.addMarker(new MarkerOptions().position(latLng)
                                 .title(emotion.getEmojiString())
                                 .snippet(ts)
-                                .icon(LocationController.getColor(emotion)));
+                                .icon(Utils.getColorForMap(emotion)));
 
                         // centers camera at the latest mood
                         if (!centerCamera) {
@@ -177,75 +177,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 }
             }
         });
-
-
-
-        /*
-        db.collection("users")
-                .document(username)
-                .collection("Moods")
-                .orderBy("date", Query.Direction.DESCENDING)
-                .addSnapshotListener(new EventListener<QuerySnapshot>() {
-                    @Override
-                    public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException e) {
-                        boolean centerCamera = false; // to center the camera at the latest mood in the mood history
-
-                        for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
-                            Double lat = null;
-                            Double lon = null;
-
-                            try {
-                                lat = doc.getDouble("lat");
-                                lon = doc.getDouble("lon");
-                            } catch (Exception ex) {
-                                Log.d(TAG, "cannot get location");
-                            }
-
-                            Date ts = doc.getTimestamp("date").toDate();
-                            Emotion emotion = Emotion.valueOf(doc.getString("emotion"));
-                            BitmapDescriptor color;
-
-                            switch (emotion.getEmojiName()){
-                                case "Enjoyment":
-                                    color = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_YELLOW);
-                                    break;
-                                case "Sadness":
-                                    color = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE);
-                                    break;
-                                case "Anger":
-                                    color = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED);
-                                    break;
-                                case "Fear":
-                                    color = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_VIOLET);
-                                    break;
-                                case "Disgust":
-                                    color = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN);
-                                    break;
-                                case "Contempt":
-                                    color = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE);
-                                    break;
-                                default:
-                                    color = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_CYAN);
-                                    break;
-                            }
-                            if (lat != null && lon != null){
-                                LatLng latLng = new LatLng(lat, lon);
-                                mMap.addMarker(new MarkerOptions().position(latLng)
-                                        .title(emotion.getEmojiString())
-                                        .snippet(ts.toString())
-                                        .icon(color));
-
-                                if(!centerCamera){
-                                    centerCamera = true;
-                                    mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
-                                }
-
-                            }
-                        }
-                    }
-                });
-
-         */
     }
 
 
