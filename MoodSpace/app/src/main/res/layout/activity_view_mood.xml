@@ -60,6 +60,7 @@
             </LinearLayout>
 
             <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/moodLayout"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_marginTop="10dp">
@@ -79,14 +80,17 @@
                     app:layout_constraintTop_toTopOf="parent"
                     app:layout_constraintVertical_bias="0.0" />
 
-                <Spinner
-                    android:id="@+id/emotionSelector"
-                    style="@android:style/Widget.Holo.Spinner"
+                <TextView
+                    android:id="@+id/emotionText"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="16dp"
+                    android:padding="16dp"
                     android:background="@drawable/original"
-                    android:popupBackground="@android:color/transparent"
+                    android:gravity="center_vertical|start"
+                    android:textSize="24sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/colorBlack"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toEndOf="@+id/moodTextView"
@@ -114,14 +118,17 @@
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
 
-                <Spinner
+                <TextView
                     android:id="@+id/situationText"
-                    style="@android:style/Widget.Holo.Spinner"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="16dp"
                     android:background="@drawable/original"
-                    android:popupBackground="@android:color/transparent"
+                    android:textSize="22sp"
+                    android:textAlignment="center"
+                    android:paddingTop="15dp"
+                    android:textStyle="bold"
+                    android:textColor="@color/colorBlack"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toEndOf="@+id/socialTextView"
@@ -161,7 +168,7 @@
                     app:layout_constraintStart_toEndOf="@+id/reasonTextView"
                     app:layout_constraintTop_toTopOf="parent">
 
-                    <com.google.android.material.textfield.TextInputEditText
+                    <TextView
                         android:id="@+id/reason_text"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
@@ -176,43 +183,8 @@
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
-                android:layout_height="match_parent">
-
-                <TextView
-                    android:id="@+id/locationText"
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:fontFamily="cursive"
-                    android:padding="4dp"
-                    android:text="Location"
-                    android:textColor="#000000"
-                    android:textSize="23sp"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toStartOf="@+id/locationCheckbox"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
-
-                <CheckBox
-                    android:id="@+id/locationCheckbox"
-                    android:layout_width="0dp"
-                    android:layout_height="0dp"
-                    android:layout_marginStart="10dp"
-                    android:layout_marginEnd="16dp"
-                    android:checked="false"
-                    android:text="Add Location"
-                    android:textStyle="bold"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toEndOf="@+id/locationText"
-                    app:layout_constraintTop_toTopOf="parent" />
-
-
-            </androidx.constraintlayout.widget.ConstraintLayout>
-
-            <androidx.constraintlayout.widget.ConstraintLayout
-                android:layout_width="match_parent"
                 android:layout_height="156dp"
-                android:layout_marginTop="30dp">
+                android:layout_marginTop="40dp">
 
                 <!-- primary color right square -->
                 <View
@@ -220,14 +192,14 @@
                     android:layout_width="0dp"
                     android:layout_height="0dp"
                     android:layout_marginStart="8dp"
-                    android:background="@color/colorGrey"
+                    android:background="@color/colorPrimary"
                     android:textColor="@color/colorWhite"
                     android:textSize="18sp"
                     android:textStyle="bold"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintDimensionRatio="1:1"
-                    app:layout_constraintEnd_toStartOf="@+id/right_square_view"
                     app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toStartOf="@+id/right_square_view"
                     app:layout_constraintTop_toTopOf="parent" />
 
                 <ImageView
@@ -241,17 +213,7 @@
                     app:layout_constraintTop_toTopOf="@+id/left_square_view"
                     app:srcCompat="@drawable/ic_image_white_24dp" />
 
-                <ImageButton
-                    android:id="@+id/remove_image_button"
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:layout_gravity="center"
-                    android:layout_margin="4dp"
-                    android:background="@color/colorPrimary"
-                    app:layout_constraintRight_toRightOf="@+id/left_square_view"
-                    app:layout_constraintTop_toTopOf="@+id/left_square_view"
-                    app:srcCompat="@drawable/ic_delete" />
-
+                <!-- primary color left square -->
                 <Button
                     android:id="@+id/image_button"
                     android:layout_width="0dp"
@@ -262,19 +224,19 @@
                     android:textSize="14sp"
                     android:textStyle="bold"
                     app:layout_constraintBottom_toBottomOf="@+id/left_square_view"
-                    app:layout_constraintHorizontal_bias="1.0"
+                    app:layout_constraintHorizontal_bias="0.0"
                     app:layout_constraintLeft_toLeftOf="@+id/left_square_view"
                     app:layout_constraintRight_toRightOf="@+id/left_square_view"
-                    app:layout_constraintTop_toTopOf="@+id/left_square_view" />
+                    app:layout_constraintTop_toTopOf="@+id/left_square_view"
+                    app:layout_constraintVertical_bias="1.0" />
 
-                <!-- primary color left square -->
                 <View
                     android:id="@+id/right_square_view"
                     android:layout_width="0dp"
                     android:layout_height="0dp"
                     android:layout_marginStart="4dp"
                     android:layout_marginEnd="8dp"
-                    android:background="@android:color/darker_gray"
+                    android:background="@color/colorGrey"
                     android:textColor="@color/colorWhite"
                     android:textSize="18sp"
                     android:textStyle="bold"
@@ -285,11 +247,12 @@
                     app:layout_constraintTop_toTopOf="parent" />
 
 
+
                 <com.google.android.gms.maps.MapView
                     android:id="@+id/map_view"
                     android:layout_width="0dp"
                     android:layout_height="0dp"
-                    android:background="@color/colorGrey"
+                    android:background="@android:color/darker_gray"
                     app:layout_constraintBottom_toBottomOf="@+id/right_square_view"
                     app:layout_constraintLeft_toLeftOf="@+id/right_square_view"
                     app:layout_constraintRight_toRightOf="@+id/right_square_view"
@@ -315,43 +278,6 @@
 
         </LinearLayout>
     </ScrollView>
-
-    <Button
-        android:id="@+id/backBtn"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginLeft="8dp"
-        android:layout_marginEnd="4dp"
-        android:layout_marginRight="4dp"
-        android:layout_marginBottom="8dp"
-        android:background="@drawable/cancelbutton"
-        android:text="@string/am_cancel_text"
-        android:textColor="@color/colorWhite"
-        android:textSize="18sp"
-        android:textStyle="bold"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/saveBtn"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toStartOf="parent" />
-
-    <Button
-        android:id="@+id/saveBtn"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="4dp"
-        android:layout_marginLeft="4dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginRight="8dp"
-        android:layout_marginBottom="8dp"
-        android:background="@drawable/savebutton"
-        android:textColor="@color/colorWhite"
-        android:textSize="18sp"
-        android:textStyle="bold"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toEndOf="@+id/backBtn" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>
