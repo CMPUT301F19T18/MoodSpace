@@ -20,11 +20,15 @@ import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.action.ViewActions.closeSoftKeyboard;
 import static androidx.test.espresso.action.ViewActions.typeText;
+import static androidx.test.espresso.assertion.ViewAssertions.matches;
+import static androidx.test.espresso.matcher.ViewMatchers.hasDescendant;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withClassName;
 import static androidx.test.espresso.matcher.ViewMatchers.withContentDescription;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
+import static androidx.test.espresso.matcher.ViewMatchers.withText;
 import static org.hamcrest.Matchers.allOf;
+import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
 
 @RunWith(AndroidJUnit4.class)
@@ -34,6 +38,7 @@ public class FollowTest {
     private String password = "p";
 
     private String username1 = "TEST_FollowUI2";
+    private String contempt = new String(Character.toChars(0x1f612));
 
     @Rule
     public ActivityTestRule<LoginActivity> activityRule =
@@ -105,7 +110,37 @@ public class FollowTest {
         onView(withId(R.id.username)).perform(typeText(username1), closeSoftKeyboard());
         onView(withId(R.id.password)).perform(typeText(password), closeSoftKeyboard());
 
+        onView(withId(R.id.login_btn)).perform(click());
         Thread.sleep(1000);
+
+        appCompatImageButton.perform(click());
+        navigationMenuItemView.perform(click());
+
+        onView(withId(R.id.accept_button)).perform(click());
+
+        appCompatImageButton.perform(click());
+        navigationMenuItemView1.perform(click());
+
+        onView(withId(R.id.username)).perform(typeText(username), closeSoftKeyboard());
+        onView(withId(R.id.password)).perform(typeText(password), closeSoftKeyboard());
+
+        onView(withId(R.id.login_btn)).perform(click());
+        Thread.sleep(1000);
+
+        appCompatImageButton.perform(click());
+
+        ViewInteraction navigationMenuItemFeed = onView(
+                allOf(childAtPosition(
+                        allOf(withId(R.id.design_navigation_view),
+                                childAtPosition(
+                                        withId(R.id.nav_view),
+                                        0)),
+                        2),
+                        isDisplayed()));
+        navigationMenuItemFeed.perform(click());
+
+        onView(withId(R.id.moodList))
+                .check(matches(hasDescendant(withText(containsString(contempt)))));
 
     }
 
