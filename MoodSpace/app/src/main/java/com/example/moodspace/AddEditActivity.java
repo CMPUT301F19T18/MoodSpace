@@ -124,9 +124,9 @@ public class AddEditActivity extends AppCompatActivity
 
         // creates emotion spinner
         final Spinner emotionSpinner = findViewById(R.id.emotionSelector);
-        List<Emotion> emotionList = Arrays.asList(Emotion.values());
+        List<EmotionWithNull> emotionWithNullList = Arrays.asList(EmotionWithNull.values());
         // last argument is initialTextWasShown (true if EditActivity, false if AddActivity)
-        final EmotionAdapter emotionAdapter = new EmotionAdapter(this, emotionList);
+        final EmotionAdapter emotionAdapter = new EmotionAdapter(this, emotionWithNullList);
         emotionSpinner.setAdapter(emotionAdapter);
         emotionSpinner.setOnItemSelectedListener(this);
 
@@ -271,7 +271,7 @@ public class AddEditActivity extends AppCompatActivity
 
             // fills in fields with previous values
             // adds for it to work with "please select emotion" position
-            int emotionIndex = emotionAdapter.getPosition(currentMood.getEmotion()) + 1;
+            int emotionIndex = emotionAdapter.getPosition(currentMood.getEmotion().toEmotionWithNull()) + 1;
             emotionSpinner.setSelection(emotionIndex);
             int socialSitIndex = socialSituationAdapter.getPosition(currentMood.getSocialSituation());
             socialSitSpinner.setSelection(socialSitIndex);
@@ -680,7 +680,7 @@ public class AddEditActivity extends AppCompatActivity
         if (i == 0) {
             return;
         }
-        selectedEmotion = (Emotion) adapterView.getItemAtPosition(i - 1);
+        selectedEmotion = ((EmotionWithNull) adapterView.getItemAtPosition(i - 1)).toEmotion();
     }
 
     @Override

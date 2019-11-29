@@ -21,14 +21,14 @@ import java.util.List;
  * https://stackoverflow.com/a/48703213
  * https://stackoverflow.com/a/41637506
  */
-public class EmotionAdapter extends ArrayAdapter<Emotion> {
+public class EmotionAdapter extends ArrayAdapter<EmotionWithNull> {
     private final String TAG = EmotionAdapter.class.getSimpleName();
     private final String INITIAL_TEXT = getContext().getString(R.string.ae_initial_emotion_text);
     private static final int RESOURCE = R.layout.emotion_spinner_row;
 
     private Context context;
 
-    public EmotionAdapter(Context context, List<Emotion> emotionList) {
+    public EmotionAdapter(Context context, List<EmotionWithNull> emotionList) {
         super(context, RESOURCE, emotionList);
         this.context = context;
     }
@@ -81,15 +81,16 @@ public class EmotionAdapter extends ArrayAdapter<Emotion> {
         }
 
         position = position - 1; // Adjust for initial selection item
-        Emotion currentItem = getItem(position);
+        EmotionWithNull currentItem = getItem(position);
         TextView emojiField = row.findViewById(R.id.emotion_spinner_row);
 
         if (currentItem == null) {
             Log.w(TAG, "Current item is null at position " + position);
         } else {
-            String parsedText = currentItem.getEmojiString() + "      " + currentItem.getEmojiName();
+            Emotion emotion = currentItem.toEmotion();
+            String parsedText = emotion.getEmojiString() + "      " + emotion.getEmojiName();
             emojiField.setText(parsedText);
-            row.setBackgroundColor(currentItem.getColorCode());
+            row.setBackgroundColor(emotion.getColorCode());
         }
         return row;
     }
