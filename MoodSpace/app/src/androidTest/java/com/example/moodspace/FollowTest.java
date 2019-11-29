@@ -123,6 +123,8 @@ public class FollowTest {
         appCompatImageButton.perform(click());
         navigationMenuItemView.perform(click());
 
+        Thread.sleep(250);
+
         onView(withId(R.id.accept_button)).perform(click());
 
         appCompatImageButton.perform(click());
@@ -154,8 +156,10 @@ public class FollowTest {
         appCompatImageButton.perform(click());
         navigationMenuItemView.perform(click());
 
+        Thread.sleep(250);
+
         ViewInteraction tabView = onView(
-                allOf(withContentDescription("I Follow"),
+                allOf(withContentDescription("Following"),
                         childAtPosition(
                                 childAtPosition(
                                         withId(R.id.tab_layout),
