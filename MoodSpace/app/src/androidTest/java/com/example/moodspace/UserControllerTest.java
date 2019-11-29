@@ -11,8 +11,10 @@ import androidx.test.platform.app.InstrumentationRegistry;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
+import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.Test;
@@ -41,9 +43,12 @@ public class UserControllerTest {
     private static final String user3 = "TEST_UserControllerTest3";
     private static final String user4 = "TEST_UserControllerTest4";
     private static final String user5 = "TEST_UserControllerTest5";
-    private static final String[] users = {user1, user2, user3, user4, user5,};
+    private static final String[] users = {user1, user2, user3, user4, user5};
     private static final FirebaseFirestore db = FirebaseFirestore.getInstance();
     private static Context context;
+
+    private static final String USER_LISTENER_KEY = "moodspace.UserControllerTest.userListenerKey";
+    private final CacheListener cacheListener = CacheListener.getInstance();
 
     @Before
     public void initializeDummy() {
@@ -81,36 +86,43 @@ public class UserControllerTest {
 
         // User should be the same
         assertEquals(newUser, bundle.get(LoginActivity.LOGIN_USER_KEY));
-
     }
 
+    /**
+     * also tests getUserSnapshot
+     */
     @Test
     public void getUserDataTest() throws InterruptedException{
         final User newUser = new User(user3, "UserDataPassword");
         uc.signUpUser(newUser);
-
         // SignUp
 
-            Thread.sleep(SLEEP_TIME);
-            // callback should be complete
-            assertEquals(cc.receivedCallbackIds.size(), 1);
-            // User sign up should be successful
-            assertTrue(cc.receivedCallbackIds.contains(UserCallbackId.LOGIN));
+        Thread.sleep(SLEEP_TIME);
+        // callback should be complete
+        assertEquals(cc.receivedCallbackIds.size(), 1);
+        // User sign up should be successful
+        assertTrue(cc.receivedCallbackIds.contains(UserCallbackId.LOGIN));
 
-            Bundle bundle = cc.receivedBundles.get(cc.receivedCallbackIds.indexOf(UserCallbackId.LOGIN));
-            assertNotNull(bundle);
-            assertTrue(bundle.containsKey(LoginActivity.LOGIN_USER_KEY));
+        Bundle bundle = cc.receivedBundles.get(cc.receivedCallbackIds.indexOf(UserCallbackId.LOGIN));
+        assertNotNull(bundle);
+        assertTrue(bundle.containsKey(LoginActivity.LOGIN_USER_KEY));
 
-            // User should be the same
-            assertEquals(newUser, bundle.get(LoginActivity.LOGIN_USER_KEY));
+        // User should be the same
+        assertEquals(newUser, bundle.get(LoginActivity.LOGIN_USER_KEY));
 
         // get user data
         uc.getUserData(newUser.getUsername(), "DATA_FETCH_SUCCESSFUL");
+        uc.getUserSnapshot(user3, USER_LISTENER_KEY, cc);
         Thread.sleep(SLEEP_TIME);
-        //The user data was right
+
+        // The user data was right
         assertEquals(cc.callbackId, "DATA_FETCH_SUCCESSFUL");
         assertEquals(newUser.getUsername(), cc.fetchedUserData.get("username"));
 
+        // The user snapshot data was right
+        assertNotNull(cc.fetchedUserSnapshot);
+        assertEquals(user3, cc.fetchedUserData.get("username"));
+        assertEquals(user3, cc.fetchedUserSnapshot.get("username"));
     }
 
     @Test
@@ -173,8 +185,15 @@ public class UserControllerTest {
         assertEquals(newUsername, newUser.getUsername());
         Paper.book().write(PAPER_USERNAME_KEY, storedUsername);
         Paper.book().write(PAPER_PASSWORD_KEY, storedPassword);
+    }
 
+    @After
+    public void cleanUp() {
+        cc.callbackId = null;
+        cc.fetchedUserData = null;
+        cc.fetchedUserSnapshot = null;
 
+        cacheListener.removeListener(USER_LISTENER_KEY);
     }
 
     @AfterClass
@@ -197,6 +216,23 @@ public class UserControllerTest {
                         }
                     });
         }
+    }
+}
 
+class DummyUserCallback extends DummyControllerCallback
+        implements UserController.CallbackUser, UserController.CallbackUserSnapshot {
+    DocumentSnapshot fetchedUserData;
+    DocumentSnapshot fetchedUserSnapshot;
+    String callbackId;
+
+    @Override
+    public void callbackUserData(DocumentSnapshot fetchedUserData, String callbackId) {
+        this.fetchedUserData = fetchedUserData;
+        this.callbackId = callbackId;
+    }
+
+    @Override
+    public void callbackUserSnapshot(@NonNull DocumentSnapshot fetchedUserData) {
+        this.fetchedUserSnapshot = fetchedUserData;
     }
 }

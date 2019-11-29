@@ -45,10 +45,10 @@ public class FollowControllerTest {
     private static final String user4 = "TEST_FollowControllerTest4";
     private static final String[] users = {user1, user2, user3, user4};
 
-    private static final String FOLLOW_LISTS_LISTENER_KEY1 = "moodspace.FollowActivity.followListsListenerKey1";
-    private static final String FOLLOW_LISTS_LISTENER_KEY2 = "moodspace.FollowActivity.followListsListenerKey2";
-    private static final String FOLLOW_LISTS_LISTENER_KEY3 = "moodspace.FollowActivity.followListsListenerKey3";
-    private static final String FOLLOW_LISTS_LISTENER_KEY4 = "moodspace.FollowActivity.followListsListenerKey4";
+    private static final String FOLLOW_LISTS_LISTENER_KEY1 = "moodspace.FollowControllerTest.followListsListenerKey1";
+    private static final String FOLLOW_LISTS_LISTENER_KEY2 = "moodspace.FollowControllerTest.followListsListenerKey2";
+    private static final String FOLLOW_LISTS_LISTENER_KEY3 = "moodspace.FollowControllerTest.followListsListenerKey3";
+    private static final String FOLLOW_LISTS_LISTENER_KEY4 = "moodspace.FollowControllerTest.followListsListenerKey4";
     private static final String[] FOLLOW_LISTENER_KEYS = {
             FOLLOW_LISTS_LISTENER_KEY1,
             FOLLOW_LISTS_LISTENER_KEY2,
