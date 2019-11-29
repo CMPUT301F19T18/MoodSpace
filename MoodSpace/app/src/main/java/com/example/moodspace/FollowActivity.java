@@ -30,13 +30,17 @@ import java.util.List;
 import io.paperdb.Paper;
 
 import static com.example.moodspace.Utils.makeInfoToast;
+import static com.example.moodspace.Utils.makeSuccessToast;
 import static com.example.moodspace.Utils.makeWarnToast;
 
 public class FollowActivity extends AppCompatActivity
-        implements ControllerCallback, FollowController.GetDataCallback {
+        implements ControllerCallback {
     public static final String FOLLOW_ACTION_KEY = "moodspace.FollowActivity.followActionKey";
     public static final String FOLLOW_ACTION_SEND_REQUEST = "moodspace.FollowActivity.followActionSendRequest";
+    public static final String FOLLOW_LISTS_LISTENER_KEY = "moodspace.FollowActivity.followListsListenerKey";
     public static final String TARGET_KEY = "moodspace.FollowActivity.targetKey";
+
+    private final CacheListener cacheListener = CacheListener.getInstance();
 
     private static final String TAG = FollowActivity.class.getSimpleName();
     private FollowController fc;
@@ -76,7 +80,7 @@ public class FollowActivity extends AppCompatActivity
         this.fc = new FollowController(this);
         uc = new UserController(this);
         setContentView(R.layout.activity_follow);
-        this.username = getIntent().getExtras().getString("username");
+        this.username = getIntent().getExtras().getString(Utils.USERNAME_KEY);
 
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -110,14 +114,14 @@ public class FollowActivity extends AppCompatActivity
                 switch (item.getItemId()) {
                     case R.id.nav_item_profile:
                         Intent intent = new Intent(FollowActivity.this, ProfileListActivity.class);
-                        intent.putExtra("username", username);
+                        intent.putExtra(Utils.USERNAME_KEY, username);
                         intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                         startActivity(intent);
                         finish();
                         return true;
                     case R.id.nav_item_feed:
                         Intent intent1 = new Intent(FollowActivity.this, ProfileListActivity.class);
-                        intent1.putExtra("username", username);
+                        intent1.putExtra(Utils.USERNAME_KEY, username);
                         intent1.putExtra("feed", true);
                         intent1.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                         startActivity(intent1);
@@ -125,14 +129,14 @@ public class FollowActivity extends AppCompatActivity
                         return true;
                     case R.id.nav_item_following:
                         Intent intent2 = new Intent(FollowActivity.this, FollowActivity.class);
-                        intent2.putExtra("username", username);
+                        intent2.putExtra(Utils.USERNAME_KEY, username);
                         intent2.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                         startActivity(intent2);
                         finish();
                         return true;
                     case R.id.nav_item_map:
                         Intent intent3 = new Intent(FollowActivity.this, MapsActivity.class);
-                        intent3.putExtra("username", username);
+                        intent3.putExtra(Utils.USERNAME_KEY, username);
                         startActivity(intent3);
                         return true;
                     case R.id.nav_item_log_out:
@@ -232,11 +236,44 @@ public class FollowActivity extends AppCompatActivity
         updateUser();
     }
 
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        cacheListener.removeListener(FOLLOW_LISTS_LISTENER_KEY);
+    }
+
     /**
      * Call getFollowData and update the users values.
      */
     public void updateUser(){
-        fc.getFollowData(username);
+        fc.getFollowData(username, FOLLOW_LISTS_LISTENER_KEY, new FollowController.GetDataCallback() {
+            @Override
+            public void callbackFollowData(@NonNull String user, @NonNull List<String> following,
+                                           @NonNull List<String> followers,
+                                           @NonNull List<String> followRequestsFrom,
+                                           @NonNull List<String> followRequestsTo) {
+
+                FollowActivity.this.following = following;
+                FollowActivity.this.followers = followers;
+                FollowActivity.this.followRequestsFrom = followRequestsFrom;
+                FollowActivity.this.followRequestsTo = followRequestsTo;
+
+                answerAdapter = new AnswerRequestAdapter(FollowActivity.this, followRequestsFrom, username, fc);
+                requestList.setAdapter(answerAdapter);
+
+                requestAdapter = new ArrayAdapter<>(FollowActivity.this, R.layout.request_content, followRequestsTo);
+                sentRequestList.setAdapter(requestAdapter);
+
+                followersAdapter = new ArrayAdapter<>(FollowActivity.this, R.layout.request_content, followers);
+                followingAdapter = new ArrayAdapter<>(FollowActivity.this, R.layout.request_content, following);
+
+                followersList.setAdapter(followersAdapter);
+                followingList.setAdapter(followingAdapter);
+
+                registerForContextMenu(followingList);
+                registerForContextMenu(sentRequestList);
+            }
+        });
     }
 
     /**
@@ -276,14 +313,14 @@ public class FollowActivity extends AppCompatActivity
         AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
         switch (item.getItemId()) {
             case R.id.cancel:
-                makeInfoToast(this, "Cancelled");
+                makeSuccessToast(this, "Cancelled");
                 this.followRequestsTo.remove(info.position);
                 this.fc.removeFollowRequest(username, unfollowId);
                 requestAdapter.notifyDataSetChanged();
                 return true;
 
             case R.id.unfollow:
-                makeInfoToast(this, "Unfollowed");
+                makeSuccessToast(this, "Unfollowed");
                 this.following.remove(info.position);
                 this.fc.removeFollower(username, unfollowId);
                 followingAdapter.notifyDataSetChanged();
@@ -310,7 +347,7 @@ public class FollowActivity extends AppCompatActivity
      */
     @Override
     public void callback(CallbackId callbackId, Bundle bundle) {
-        // TODO stub
+        View snackBarView = findViewById(R.id.follow_layout);
         if (callbackId instanceof FollowCallbackId) {
             switch ((FollowCallbackId) callbackId) {
                 case ADD_FOLLOWER_COMPLETE:
@@ -353,13 +390,24 @@ public class FollowActivity extends AppCompatActivity
             switch ((UserCallbackId) callbackId) {
                 case USERNAME_EXISTS:
                     String target;
+                    String followAction;
 
-                    // TODO add tedious null checks if we have time
-                    //  (offset them to utils function?)
-                    target = bundle.getString(TARGET_KEY);
+                    target = Utils.getStringFromBundle(bundle, TARGET_KEY, snackBarView,
+                            "Unexpected error: target key bundle should not be null",
+                            "Unexpected error: target key result should not contain a null string");
+                    if (target == null) {
+                        return;
+                    }
+
+                    followAction = Utils.getStringFromBundle(bundle, FOLLOW_ACTION_KEY, snackBarView,
+                        "Unexpected error: follow action key bundle should not be null",
+                        "Unexpected error: follow action key result should not contain a null string");
+                    if (followAction == null) {
+                        return;
+                    }
 
                     // switch for future-proofing: in case this must be checked for other actions
-                    switch (bundle.getString(FOLLOW_ACTION_KEY)) {
+                    switch (followAction) {
                         case FOLLOW_ACTION_SEND_REQUEST:
                             fc.sendFollowRequest(username, target);
                             userField.getText().clear();
@@ -371,9 +419,21 @@ public class FollowActivity extends AppCompatActivity
                     }
 
                 case USERNAME_DOESNT_EXIST:
-                    // TODO handle these here too
-                    target = bundle.getString(TARGET_KEY);
-                    switch (bundle.getString(FOLLOW_ACTION_KEY)) {
+                    target = Utils.getStringFromBundle(bundle, TARGET_KEY, snackBarView,
+                            "Unexpected error: target key bundle should not be null",
+                            "Unexpected error: target key result should not contain a null string");
+                    if (target == null) {
+                        return;
+                    }
+
+                    followAction = Utils.getStringFromBundle(bundle, FOLLOW_ACTION_KEY, snackBarView,
+                            "Unexpected error: follow action key bundle should not be null",
+                            "Unexpected error: follow action key result should not contain a null string");
+                    if (followAction == null) {
+                        return;
+                    }
+
+                    switch (followAction) {
                         case FOLLOW_ACTION_SEND_REQUEST:
                             makeWarnToast(this, "User '" + target + "' does not exist");
                         default:
@@ -392,40 +452,6 @@ public class FollowActivity extends AppCompatActivity
         } else {
             Log.w(TAG, "unrecognized callback ID: " + callbackId);
         }
-    }
-
-    /**
-     * Update the activities values from the database and set the listviews to the appropriate values.
-     * @param user
-     * @param following
-     * @param followers
-     * @param followRequestsFrom
-     * @param followRequestsTo
-     */
-    @Override
-    public void callbackFollowData(@NonNull String user, @NonNull List<String> following,
-                                   @NonNull List<String> followers,
-                                   @NonNull List<String> followRequestsFrom,
-                                   @NonNull List<String> followRequestsTo) {
-        this.following = following;
-        this.followers = followers;
-        this.followRequestsFrom = followRequestsFrom;
-        this.followRequestsTo = followRequestsTo;
-
-        this.answerAdapter = new AnswerRequestAdapter(this, followRequestsFrom, this.username, this.fc);
-        this.requestList.setAdapter(answerAdapter);
-
-        this.requestAdapter = new ArrayAdapter<>(this, R.layout.request_content, followRequestsTo);
-        this.sentRequestList.setAdapter(requestAdapter);
-
-        this.followersAdapter = new ArrayAdapter<>(this, R.layout.request_content, followers);
-        this.followingAdapter = new ArrayAdapter<>(this, R.layout.request_content, following);
-
-        this.followersList.setAdapter(followersAdapter);
-        this.followingList.setAdapter(followingAdapter);
-
-        registerForContextMenu(followingList);
-        registerForContextMenu(sentRequestList);
     }
 }
 

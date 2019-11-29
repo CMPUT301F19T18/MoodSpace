@@ -15,7 +15,9 @@
         android:text="sample text"
         android:textColor="@color/colorBlack"
         android:textSize="24sp"
-        app:layout_constraintStart_toStartOf="parent">
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
 
     </TextView>
 
@@ -27,9 +29,10 @@
         android:clickable="true"
         android:focusable="true"
         app:backgroundTint="#4CAF50"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:srcCompat="@drawable/check"
-        tools:layout_editor_absoluteY="-1dp" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/check" />
 
     <ImageButton
         android:id="@+id/decline_button"

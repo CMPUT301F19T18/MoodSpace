@@ -45,10 +45,21 @@ public class FollowControllerTest {
     private static final String user4 = "TEST_FollowControllerTest4";
     private static final String[] users = {user1, user2, user3, user4};
 
+    private static final String FOLLOW_LISTS_LISTENER_KEY1 = "moodspace.FollowActivity.followListsListenerKey1";
+    private static final String FOLLOW_LISTS_LISTENER_KEY2 = "moodspace.FollowActivity.followListsListenerKey2";
+    private static final String FOLLOW_LISTS_LISTENER_KEY3 = "moodspace.FollowActivity.followListsListenerKey3";
+    private static final String FOLLOW_LISTS_LISTENER_KEY4 = "moodspace.FollowActivity.followListsListenerKey4";
+    private static final String[] FOLLOW_LISTENER_KEYS = {
+            FOLLOW_LISTS_LISTENER_KEY1,
+            FOLLOW_LISTS_LISTENER_KEY2,
+            FOLLOW_LISTS_LISTENER_KEY3,
+            FOLLOW_LISTS_LISTENER_KEY4,
+    };
+
     @BeforeClass
     public static void initializeUsers() {
         // TODO stub
-        // implement once UserController and AddEditController is better
+        // implement once UserController and MoodController is better
 
         // NOTE: because this isn't done yet, if tests fail,
         //   arrays might have to be cleared manually in firestore.
@@ -65,8 +76,10 @@ public class FollowControllerTest {
      */
     @Test
     public void testEmptyArrays() throws InterruptedException {
-        for (String user: users) {
-            fc.getFollowData(user);
+        for (int i = 0; i < users.length; i++) {
+            String user = users[i];
+            String FOLLOW_LISTS_LISTENER_KEY = FOLLOW_LISTENER_KEYS[i];
+            fc.getFollowData(user, FOLLOW_LISTS_LISTENER_KEY);
         }
 
         Thread.sleep(LONG_SLEEP_TIME);
@@ -96,8 +109,8 @@ public class FollowControllerTest {
         // 1 => 2
         fc.addFollower(user1, user2);
         Thread.sleep(SLEEP_TIME);
-        fc.getFollowData(user1);
-        fc.getFollowData(user2);
+        fc.getFollowData(user1, FOLLOW_LISTS_LISTENER_KEY1);
+        fc.getFollowData(user2, FOLLOW_LISTS_LISTENER_KEY2);
         Thread.sleep(SLEEP_TIME);
 
         // callback should be complete
@@ -140,8 +153,8 @@ public class FollowControllerTest {
 
         fc.removeFollower(user1, user2);
         Thread.sleep(SLEEP_TIME);
-        fc.getFollowData(user1);
-        fc.getFollowData(user2);
+        fc.getFollowData(user1, FOLLOW_LISTS_LISTENER_KEY1);
+        fc.getFollowData(user2, FOLLOW_LISTS_LISTENER_KEY2);
         Thread.sleep(SLEEP_TIME);
 
         // callback should be complete
@@ -187,8 +200,8 @@ public class FollowControllerTest {
         // 3 -> 4
         fc.sendFollowRequest(user3, user4);
         Thread.sleep(SLEEP_TIME);
-        fc.getFollowData(user3);
-        fc.getFollowData(user4);
+        fc.getFollowData(user3, FOLLOW_LISTS_LISTENER_KEY3);
+        fc.getFollowData(user4, FOLLOW_LISTS_LISTENER_KEY4);
         Thread.sleep(SLEEP_TIME);
 
         // callback should be complete
@@ -231,8 +244,8 @@ public class FollowControllerTest {
 
         fc.removeFollowRequest(user3, user4);
         Thread.sleep(SLEEP_TIME);
-        fc.getFollowData(user3);
-        fc.getFollowData(user4);
+        fc.getFollowData(user3, FOLLOW_LISTS_LISTENER_KEY1);
+        fc.getFollowData(user4, FOLLOW_LISTS_LISTENER_KEY2);
         Thread.sleep(SLEEP_TIME);
 
         // callback should be complete
@@ -274,8 +287,8 @@ public class FollowControllerTest {
         FollowDataStorage data;
 
         // makes sure 3 is not following 4 and 4 is not a follower of 3
-        fc.getFollowData(user3);
-        fc.getFollowData(user4);
+        fc.getFollowData(user3, FOLLOW_LISTS_LISTENER_KEY3);
+        fc.getFollowData(user4, FOLLOW_LISTS_LISTENER_KEY4);
         Thread.sleep(SLEEP_TIME);
 
         assertTrue(cc.followDataMap.containsKey(user3));
@@ -303,7 +316,7 @@ public class FollowControllerTest {
     public void testAddFollowerToSelf() throws InterruptedException {
         fc.addFollower(user3, user3);
         Thread.sleep(SLEEP_TIME);
-        fc.getFollowData(user3);
+        fc.getFollowData(user3, FOLLOW_LISTS_LISTENER_KEY3);
         Thread.sleep(SLEEP_TIME);
 
         // callback should be complete
@@ -378,8 +391,8 @@ public class FollowControllerTest {
         assertTrue(bundle.containsKey(FollowController.IS_SUCCESSFUL_KEY));
         assertTrue(bundle.getBoolean(FollowController.IS_SUCCESSFUL_KEY));
 
-        fc.getFollowData(user2);
-        fc.getFollowData(user4);
+        fc.getFollowData(user2, FOLLOW_LISTS_LISTENER_KEY2);
+        fc.getFollowData(user4, FOLLOW_LISTS_LISTENER_KEY4);
 
         Thread.sleep(LONG_SLEEP_TIME);
 
@@ -484,12 +497,17 @@ public class FollowControllerTest {
         cc.followDataMap.clear();
         cc.followingMoodList.clear();
         cc.user = null;
+        CacheListener cacheListener = CacheListener.getInstance();
+        cacheListener.removeListener(FOLLOW_LISTS_LISTENER_KEY1);
+        cacheListener.removeListener(FOLLOW_LISTS_LISTENER_KEY2);
+        cacheListener.removeListener(FOLLOW_LISTS_LISTENER_KEY3);
+        cacheListener.removeListener(FOLLOW_LISTS_LISTENER_KEY4);
     }
 
     @AfterClass
     public static void destroyUsers() {
         // TODO stub
-        // implement once UserController and AddEditController is better
+        // implement once UserController and MoodController is better
     }
 }
 
@@ -513,13 +531,7 @@ class DummyFollowCallback extends DummyControllerCallback
 
     HashMap<String, FollowDataStorage> followDataMap = new HashMap<>();
     String user = null;
-    List<MoodOther> followingMoodList = new ArrayList<>();
-
-    @Override
-    public void callbackFollowingMoods(@NonNull String user, @NonNull ArrayList<MoodOther> followingMoodsList) {
-        this.user = user;
-        this.followingMoodList = followingMoodsList;
-    }
+    List<MoodView> followingMoodList = new ArrayList<>();
 
     @Override
     public void callbackFollowData(@NonNull String user, @NonNull List<String> following,
@@ -528,5 +540,11 @@ class DummyFollowCallback extends DummyControllerCallback
         FollowDataStorage followData
                 = new FollowDataStorage(following, followers, followRequestsFrom, followRequestsTo);
         followDataMap.put(user, followData);
+    }
+
+    @Override
+    public void callbackFollowingMoods(@NonNull String user, @NonNull ArrayList<MoodView> followingMoodsList) {
+        this.user = user;
+        this.followingMoodList = followingMoodsList;
     }
 }

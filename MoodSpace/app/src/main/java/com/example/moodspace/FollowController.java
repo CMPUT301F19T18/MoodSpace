@@ -21,6 +21,8 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
+import static com.example.moodspace.Utils.getListFromUser;
+
 /**
  * Followers can be thought of as a directed graph between users.
  * Both requests and following are represented in firestore as adjacency lists under:
@@ -67,7 +69,7 @@ public class FollowController implements ControllerCallback {
     }
 
     public interface OtherMoodsCallback {
-        void callbackFollowingMoods(@NonNull String user, @NonNull ArrayList<MoodOther> followingMoodsList);
+        void callbackFollowingMoods(@NonNull String user, @NonNull ArrayList<MoodView> followingMoodsList);
     }
 
     public interface GetDataCallback {
@@ -314,7 +316,7 @@ public class FollowController implements ControllerCallback {
      * - gets all of the users that user is following & and for each followee, gets the most recent mood
      */
     public void getFollowingMoods(final String user) {
-        final ArrayList<MoodOther> followingMoods = new ArrayList<>();
+        final ArrayList<MoodView> followingMoods = new ArrayList<>();
 
         uc.getUserData(user, new UserController.CallbackUser() {
             @Override
@@ -344,13 +346,13 @@ public class FollowController implements ControllerCallback {
                                         cc.callback(FollowCallbackId.FOLLOWEE_MOOD_READ_FAIL);
                                     } else {
                                         // no mood (can happen if user's follower has no mood)
-                                        if (task.getResult() != null ) {
+                                        if (task.getResult() != null) {
                                             // even though it's a for loop,
                                             // it should still have at most 1 mood by the limit
                                             for (QueryDocumentSnapshot doc : task.getResult()) {
                                                 Mood mood = Mood.fromDocSnapshot(doc);
-                                                MoodOther moodOther = MoodOther.fromMood(mood, followee);
-                                                followingMoods.add(moodOther);
+                                                MoodView moodView = MoodView.fromMood(mood, followee);
+                                                followingMoods.add(moodView);
                                             }
                                         }
                                     }
@@ -360,9 +362,9 @@ public class FollowController implements ControllerCallback {
                                     if (counter.isComplete()) {
                                         // sorts array by date after all moods are gotten
                                         // oldest -> newest
-                                        Collections.sort(followingMoods, new Comparator<MoodOther>() {
+                                        Collections.sort(followingMoods, new Comparator<MoodView>() {
                                             @Override
-                                            public int compare(MoodOther o1, MoodOther o2) {
+                                            public int compare(MoodView o1, MoodView o2) {
                                                 return o1.getDate().compareTo(o2.getDate());
                                             }
                                         });
@@ -379,34 +381,21 @@ public class FollowController implements ControllerCallback {
     }
 
     /**
-     * Converts an array from firestore to a regular String list
-     */
-    @NonNull
-    private List<String> getListFromUser(DocumentSnapshot fetchedUserData, String arrayName) {
-        final List<String> list = new ArrayList<>();
-        final List<?> genericList = (List<?>) fetchedUserData.get(arrayName);
-        if (genericList != null) {
-            for (Object o: genericList) {
-                list.add((String) o);
-            }
-        }
-
-        return list;
-    }
-
-    /**
      * Gets all following data (following, followers, follow requests to/from) for the given user
      */
-    public void getFollowData(final String user) {
-        uc.getUserData(user, new UserController.CallbackUser() {
+    public void getFollowData(String user, String key) {
+        getFollowData(user, key, (GetDataCallback) cc);
+    }
+    public void getFollowData(final String user, final String key, final GetDataCallback getDataCallback) {
+        uc.getUserSnapshot(user, key, new UserController.CallbackUserSnapshot() {
             @Override
-            public void callbackUserData(DocumentSnapshot fetchedUserData, String callbackId) {
+            public void callbackUserSnapshot(@NonNull DocumentSnapshot fetchedUserData) {
                 List<String> following = getListFromUser(fetchedUserData, FOLLOWING_ARRAY);
                 List<String> followers = getListFromUser(fetchedUserData, FOLLOWERS_ARRAY);
                 List<String> followRequestsFrom = getListFromUser(fetchedUserData, FOLLOW_REQUESTS_FROM_ARRAY);
                 List<String> followRequestsTo = getListFromUser(fetchedUserData, FOLLOW_REQUESTS_TO_ARRAY);
                 Log.d(TAG, "got following data for " + user);
-                ((GetDataCallback) cc).callbackFollowData(user, following, followers, followRequestsFrom, followRequestsTo);
+                getDataCallback.callbackFollowData(user, following, followers, followRequestsFrom, followRequestsTo);
             }
         });
     }
