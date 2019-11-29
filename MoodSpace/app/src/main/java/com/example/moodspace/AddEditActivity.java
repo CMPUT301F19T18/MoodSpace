@@ -21,7 +21,6 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
@@ -52,6 +51,9 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.UUID;
+
+import static com.example.moodspace.Utils.makeInfoToast;
+import static com.example.moodspace.Utils.makeWarnToast;
 
 /**
  * Activity for adding / editing moods
@@ -296,8 +298,7 @@ public class AddEditActivity extends AppCompatActivity
                     @Override
                     public void onFailure(@NonNull Exception exception) {
                         // TODO: retry
-                        Toast.makeText(AddEditActivity.this, "Failed to load existing photo",
-                                Toast.LENGTH_SHORT).show();
+                        makeWarnToast(AddEditActivity.this, "Failed to load existing photo");
                     }
                 });
             }
@@ -373,7 +374,8 @@ public class AddEditActivity extends AppCompatActivity
         saveBtn.setEnabled(false);
         // requires an emotion to be selected
         if (selectedEmotion == null) {
-            Toast.makeText(this, "Select an emotion", Toast.LENGTH_SHORT).show();
+
+            makeInfoToast(AddEditActivity.this, "Select an emotion");
             saveBtn.setEnabled(true);
             return;
         }
@@ -390,8 +392,7 @@ public class AddEditActivity extends AppCompatActivity
             reasonText = reasonEditText.getText().toString();
             String trim = reasonText.trim();
             if (!trim.isEmpty() && trim.split("\\s+").length > 3) {
-                Toast.makeText(this, "Reason must be less than 4 words",
-                        Toast.LENGTH_SHORT).show();
+                makeInfoToast(AddEditActivity.this, "Reason must be less than 4 words");
                 saveBtn.setEnabled(true);
                 return;
             }
@@ -481,9 +482,7 @@ public class AddEditActivity extends AppCompatActivity
 
         } catch (SecurityException e) {
             Log.w(TAG, Log.getStackTraceString(e));
-            Toast.makeText(this, "Unexpected error: cannot access location",
-                    Toast.LENGTH_LONG).show();
-
+            makeWarnToast(this, "Unexpected error: cannot access location");
             locationCheckBox.setChecked(false);
         }
     }
@@ -565,8 +564,7 @@ public class AddEditActivity extends AppCompatActivity
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     createImageIntent();
                 } else {
-                    Toast.makeText(this, "Cannot access photos",
-                            Toast.LENGTH_SHORT).show();
+                    makeInfoToast(this, "Cannot access photos");
                 }
                 break;
 
@@ -578,8 +576,7 @@ public class AddEditActivity extends AppCompatActivity
                     }
                 } else {
                     // unchecks location and shows a warning
-                    Toast.makeText(this, "Cannot access location",
-                            Toast.LENGTH_SHORT).show();
+                    makeInfoToast(this, "Cannot access location");
                     locationCheckBox.setChecked(false);
                 }
                 break;

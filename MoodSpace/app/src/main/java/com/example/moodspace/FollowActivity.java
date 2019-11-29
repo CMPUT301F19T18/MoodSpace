@@ -13,7 +13,6 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -23,14 +22,15 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.tabs.TabLayout;
 
 import java.util.List;
 
 import io.paperdb.Paper;
+
+import static com.example.moodspace.Utils.makeInfoToast;
+import static com.example.moodspace.Utils.makeWarnToast;
 
 public class FollowActivity extends AppCompatActivity
         implements ControllerCallback, FollowController.GetDataCallback {
@@ -109,24 +109,37 @@ public class FollowActivity extends AppCompatActivity
                         intent.putExtra("username", username);
                         intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                         startActivity(intent);
+                        finish();
+                        return true;
+                    case R.id.nav_item_feed:
+                        Intent intent1 = new Intent(FollowActivity.this, ProfileListActivity.class);
+                        intent1.putExtra("username", username);
+                        intent1.putExtra("feed", true);
+                        intent1.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                        startActivity(intent1);
+                        finish();
                         return true;
                     case R.id.nav_item_following:
-                        Toast.makeText(FollowActivity.this,
-                                "Following", Toast.LENGTH_SHORT).show();
+                        Intent intent2 = new Intent(FollowActivity.this, FollowActivity.class);
+                        intent2.putExtra("username", username);
+                        intent2.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                        startActivity(intent2);
+                        finish();
                         return true;
                     case R.id.nav_item_map:
-                        Intent intent1 = new Intent(FollowActivity.this, MapsActivity.class);
-                        intent1.putExtra("username", username);
-                        startActivity(intent1);
+                        Intent intent3 = new Intent(FollowActivity.this, MapsActivity.class);
+                        intent3.putExtra("username", username);
+                        startActivity(intent3);
                         return true;
                     case R.id.nav_item_log_out:
                         Paper.book().delete(UserController.PAPER_USERNAME_KEY);
                         Paper.book().delete(UserController.PAPER_PASSWORD_KEY);
                         Intent loginScreen = new Intent(FollowActivity.this, LoginActivity.class);
                         loginScreen.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                        finish();
                         startActivity(loginScreen);
+                        finish();
                         return true;
+
                     default:
                         return false;
                 }
@@ -192,10 +205,10 @@ public class FollowActivity extends AppCompatActivity
             public void onClick(View v) {
                 String addedUser = userField.getText().toString();
                 if (following.contains(addedUser)){
-                    Toast.makeText(FollowActivity.this, "You Already Follow Them!", Toast.LENGTH_LONG).show();
+                    makeInfoToast(FollowActivity.this, "You Already Follow Them!");
                 }
                 else if (addedUser.equals(username)){
-                    Toast.makeText(FollowActivity.this, "You Can't Follow Yourself!", Toast.LENGTH_LONG).show();
+                    makeInfoToast(FollowActivity.this, "You Can't Follow Yourself!");
                 }
                 else if (!(addedUser.length() == 0)){
                     // first checks if the user exists (see case USERNAME_EXISTS)
@@ -240,14 +253,14 @@ public class FollowActivity extends AppCompatActivity
         AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
         switch (item.getItemId()) {
             case R.id.cancel:
-                Toast.makeText(this, "Cancelled", Toast.LENGTH_LONG).show();
+                makeInfoToast(this, "Cancelled");
                 this.followRequestsTo.remove(info.position);
                 this.fc.removeFollowRequest(username, unfollowId);
                 requestAdapter.notifyDataSetChanged();
                 return true;
 
             case R.id.unfollow:
-                Toast.makeText(this, "Unfollowed", Toast.LENGTH_LONG).show();
+                makeInfoToast(this, "Unfollowed");
                 this.following.remove(info.position);
                 this.fc.removeFollower(username, unfollowId);
                 followingAdapter.notifyDataSetChanged();
@@ -330,8 +343,7 @@ public class FollowActivity extends AppCompatActivity
                     target = bundle.getString(TARGET_KEY);
                     switch (bundle.getString(FOLLOW_ACTION_KEY)) {
                         case FOLLOW_ACTION_SEND_REQUEST:
-                            Toast.makeText(this,
-                                    "User '" + target + "' does not exist", Toast.LENGTH_SHORT).show();
+                            makeWarnToast(this, "User '" + target + "' does not exist");
                         default:
                             return;
                     }
