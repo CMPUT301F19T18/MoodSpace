@@ -30,7 +30,7 @@
             android:layout_margin="16dp"
             android:clickable="true"
             android:focusable="true"
-            app:backgroundTint="@android:color/holo_blue_bright"
+            app:backgroundTint="#4867a7"
             app:elevation="6dp"
             app:layout_constraintBottom_toBottomOf="@+id/moodList"
             app:layout_constraintEnd_toEndOf="@+id/moodList"

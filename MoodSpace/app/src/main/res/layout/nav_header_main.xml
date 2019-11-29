@@ -4,19 +4,23 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:layout_gravity="bottom"
+    android:paddingBottom="16dp"
+    android:background="@drawable/landscape">
 
     <TextView
         android:id="@+id/header_text_view"
         android:layout_width="match_parent"
-        android:layout_height="100dp"
+        android:layout_height="200dp"
         tools:text="Username"
         android:gravity="bottom|start"
-        android:background="@drawable/listview_background"
-        android:textColor="@color/colorAccent"
-        android:textSize="18sp"
+        android:textColor="@color/whiteTextColor"
+        android:textSize="30sp"
         android:textStyle="bold"
-        android:padding="12dp"
+        android:layout_marginTop="5dp"
+        android:paddingTop="10dp"
+        android:paddingLeft="10dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
