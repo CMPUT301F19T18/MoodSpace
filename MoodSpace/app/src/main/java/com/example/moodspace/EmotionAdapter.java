@@ -20,7 +20,7 @@ import java.util.List;
  * https://stackoverflow.com/a/48703213
  * https://stackoverflow.com/a/41637506
  */
-public class EmotionAdapter extends ArrayAdapter<Emotion> {
+public class EmotionAdapter extends ArrayAdapter<moodSpinner> {
     private final String TAG = EmotionAdapter.class.getSimpleName();
     private final String INITIAL_TEXT = getContext().getString(R.string.ae_initial_emotion_text);
     private final int INITIAL_COLOR = Color.parseColor("#7f8c8d");
@@ -28,7 +28,7 @@ public class EmotionAdapter extends ArrayAdapter<Emotion> {
 
     private Context context;
 
-    public EmotionAdapter(Context context, List<Emotion> emotionList) {
+    public EmotionAdapter(Context context, List<moodSpinner> emotionList) {
         super(context, RESOURCE, emotionList);
         this.context = context;
     }
@@ -80,7 +80,7 @@ public class EmotionAdapter extends ArrayAdapter<Emotion> {
         }
 
         position = position - 1; // Adjust for initial selection item
-        Emotion currentItem = getItem(position);
+        moodSpinner currentItem = getItem(position);
         TextView emojiField = row.findViewById(R.id.emotion_spinner_row);
 
         if (currentItem == null) {
