@@ -1,9 +1,6 @@
 package com.example.moodspace;
 
-import android.net.sip.SipSession;
 import android.util.Log;
-
-import androidx.annotation.NonNull;
 
 import com.google.firebase.firestore.ListenerRegistration;
 
@@ -15,6 +12,7 @@ public class CacheListener {
 
     private static volatile CacheListener instance;
     private static final Object mutex = new Object();
+    private static final String TAG = CacheListener.class.getSimpleName();
     private final HashMap<String, ListenerRegistration> listeners = new HashMap<>();
 
     private CacheListener() {}
@@ -39,6 +37,7 @@ public class CacheListener {
      */
     public void setListener(String key, ListenerRegistration registration) {
         removeListener(key);
+        Log.d(TAG, "setting registration for key: " + key);
         listeners.put(key, registration);
     }
 
@@ -46,7 +45,7 @@ public class CacheListener {
         if (listeners.containsKey(key)) {
             ListenerRegistration oldRegistration = listeners.remove(key);
             if (oldRegistration != null) {
-                Log.d("EPIC", "removing registration");
+                Log.d(TAG, "removing registration for key: " + key);
                 oldRegistration.remove();
             }
         }

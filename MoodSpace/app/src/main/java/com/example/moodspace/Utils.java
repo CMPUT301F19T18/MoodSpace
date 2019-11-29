@@ -185,9 +185,9 @@ public final class Utils {
     @NonNull
     public static HashSet<String> getSetFromUser(DocumentSnapshot fetchedUserData, String arrayName) {
         final HashSet<String> set = new HashSet<>();
-        final HashSet<?> genericSet = (HashSet<?>) fetchedUserData.get(arrayName);
-        if (genericSet != null) {
-            for (Object o: genericSet) {
+        final List<?> genericList = (List<?>) fetchedUserData.get(arrayName);
+        if (genericList != null) {
+            for (Object o: genericList) {
                 set.add((String) o);
             }
         }

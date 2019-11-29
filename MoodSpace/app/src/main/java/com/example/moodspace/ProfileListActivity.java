@@ -18,7 +18,6 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
-import androidx.constraintlayout.solver.Cache;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 
@@ -27,6 +26,7 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.ListenerRegistration;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -42,8 +42,11 @@ import static com.example.moodspace.Utils.makeWarnToast;
 public class ProfileListActivity extends AppCompatActivity
         implements FilterFragment.OnFragmentInteractionListener,
         ControllerCallback, FollowController.OtherMoodsCallback {
-    private static final String TAG = "EPIC";
+    private static final String TAG = ProfileListActivity.class.getSimpleName();
     private final FirebaseFirestore db = FirebaseFirestore.getInstance();
+    private CacheListener cacheListener = CacheListener.getInstance();
+
+    private static final String MOOD_LIST_LISTENER_KEY = "moodspace.ProfileListActivity.moodListListenerKey";
 
     private MoodController mc;
     private FollowController fc;
@@ -51,7 +54,6 @@ public class ProfileListActivity extends AppCompatActivity
 
     ArrayAdapter<MoodView> moodAdapter;
     ArrayList<MoodView> moodDataList = new ArrayList<>();;
-    //HashSet<Emotion> filters = null;
     boolean[] filterChecks = new boolean[Emotion.values().length];
 
     ArrayList<MoodView> cachedMoodList;
@@ -74,9 +76,6 @@ public class ProfileListActivity extends AppCompatActivity
         mc = new MoodController(this);
         fc = new FollowController(this);
         ftc = new FilterController(this);
-
-        CacheListener cl1 = CacheListener.getInstance();
-        CacheListener cl2 = CacheListener.getInstance();
 
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
@@ -171,34 +170,16 @@ public class ProfileListActivity extends AppCompatActivity
                 }
             });
 
-            /*
-            // sets up filters
-            final Emotion[] emotionArray = Emotion.values();
-            Arrays.fill(checkedItems, true);
-            final CollectionReference cRef = db.collection("users")
-                    .document(username)
-                    .collection("Filter");
-            cRef.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                @Override
-                public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                    for (QueryDocumentSnapshot doc : task.getResult()){
-                        Emotion emotion = Emotion.valueOf(doc.getString("emotion"));
-                        for (int i = 0; i < emotionArray.length; i++){
-                            if (emotionArray[i] == emotion){
-                                checkedItems[i] = false;
-                                filterList.add(emotion);
-                            }
-                        }
-                    }
-                    update(username, filterList);
-                }
-            });
-             */
-
             // for deleting moods
             // see onCreateContextMenu, onContextItemSelected
             registerForContextMenu(moodList);
         }
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        cacheListener.removeListener(MOOD_LIST_LISTENER_KEY);
     }
 
     /**
@@ -212,7 +193,7 @@ public class ProfileListActivity extends AppCompatActivity
         Log.d(TAG, "updateData()");
 
         // gets and caches user moods
-        mc.getMoodList(username, this.getClass().getSimpleName(), new MoodController.UserMoodsCallback() {
+        mc.getMoodList(username, MOOD_LIST_LISTENER_KEY, new MoodController.UserMoodsCallback() {
             @Override
             public void callbackMoodList(@NonNull String user, @NonNull List<Mood> userMoodList) {
                 cachedMoodList = (ArrayList<MoodView>) MoodView.addUsernameToMoods(userMoodList, user);
@@ -243,28 +224,23 @@ public class ProfileListActivity extends AppCompatActivity
      * applies the filter to the mood list and properly displays it
      */
     public void initializeComplete(CompletedTaskCounter counter) {
-        // TEMPORARY HACK
+        // only increments if not initialized
         if (!counter.isComplete()) {
             counter.incrementComplete();
-            if (!counter.isComplete()) {
-                return;
-            }
         }
 
-        /*
         if (!counter.isComplete()) {
             return;
         }
-         */
 
-        // is complete, note that success isn't counted
-        updateFilters();
+        // runs if complete, note that success isn't counted
+        applyFilters();
     }
 
     /**
      * applies the filters to the cached mood list, and displays them
      */
-    public void updateFilters() {
+    public void applyFilters() {
         moodDataList.clear();
         HashSet<Emotion> filteredOutEmotions = getFilteredOutEmotions();
         for (MoodView moodView: cachedMoodList) {
@@ -370,32 +346,6 @@ public class ProfileListActivity extends AppCompatActivity
         }
     }
 
-    /*
-    // updates data from firestore
-    public void update(final String username) {
-        db.collection("users")
-                .document(username)
-                .collection("Moods")
-                .orderBy("date", Query.Direction.DESCENDING)
-                .addSnapshotListener(new EventListener<QuerySnapshot>() {
-                    @Override
-                    public void onEvent(
-                            @Nullable QuerySnapshot queryDocumentSnapshots,
-                            @Nullable FirebaseFirestoreException e
-                    ) {
-                        moodDataList.clear();
-                        for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
-                            Mood mood = Mood.fromDocSnapshot(doc);
-                            if (!filters.contains(mood.getEmotion())) {
-                                moodDataList.add(MoodView.fromMood(mood, username));
-                            }
-                        }
-                        moodAdapter.notifyDataSetChanged();
-                    }
-                });
-    }
-     */
-
     /**
      * updates filters locally and in firestore
      */
@@ -405,7 +355,7 @@ public class ProfileListActivity extends AppCompatActivity
         // copies newFilterChecks -> filterChecks
         System.arraycopy(newFilterChecks ,0, filterChecks,0, newFilterChecks.length);
 
-        updateFilters();
+        applyFilters();
     }
 
     @Override

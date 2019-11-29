@@ -82,13 +82,13 @@ public class FilterController implements ControllerCallback {
         for (int i = 0; i < initialChecks.length; i++) {
             if (initialChecks[i] != newChecks[i]) {
                 if (newChecks[i]) {
-                    // false to true means you filter the mood out
-                    // (so you add the filter to firestore)
-                    this.filterAdd(username, emotionArray[i], counter);
-                } else {
-                    // true to false means you undo the filter
+                    // false to true means you do not filter the mood out
                     // (so you remove the filter to firestore)
                     this.filterRemove(username, emotionArray[i], counter);
+                } else {
+                    // true to false means you filter the mood out
+                    // (so you add the filter to firestore)
+                    this.filterAdd(username, emotionArray[i], counter);
                 }
             }
         }
