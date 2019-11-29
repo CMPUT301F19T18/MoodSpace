@@ -62,6 +62,10 @@ public class FollowActivity extends AppCompatActivity
     ArrayAdapter followingAdapter;
     AnswerRequestAdapter answerAdapter;
 
+    /**
+     * The activity in which the user can modify who they follow, and who follows them.
+     * @param savedInstanceState
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -147,6 +151,8 @@ public class FollowActivity extends AppCompatActivity
         });
 
         tabs = findViewById(R.id.tab_layout);
+        // when a tab is clicked, show only the views related to that tab
+        // when a tab is deselected, hide the views related to that tab
         tabs.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
@@ -200,6 +206,9 @@ public class FollowActivity extends AppCompatActivity
             }
         });
 
+        // when the button is clicked, send a follow request to the entered username, if the entered
+        // username is not a participant that is already followed, or the entered username is not
+        // the user's username
         sendRequestBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -223,10 +232,19 @@ public class FollowActivity extends AppCompatActivity
         updateUser();
     }
 
+    /**
+     * Call getFollowData and update the users values.
+     */
     public void updateUser(){
         fc.getFollowData(username);
     }
 
+    /**
+     * Set up the context menu for unfollowing or cancelling, depending on the clicked view.
+     * @param menu
+     * @param v
+     * @param menuInfo
+     */
     @Override
     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
         super.onCreateContextMenu(menu, v, menuInfo);
@@ -248,6 +266,11 @@ public class FollowActivity extends AppCompatActivity
         }
     }
 
+    /**
+     * Unfollow or cancelled the long clicked item from the context menu.
+     * @param item
+     * @return
+     */
     @Override
     public boolean onContextItemSelected(@NonNull MenuItem item) {
         AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
@@ -271,11 +294,20 @@ public class FollowActivity extends AppCompatActivity
         }
     }
 
+    /**
+     * Satisfy requirements.
+     * @param callbackId
+     */
     @Override
     public void callback(CallbackId callbackId) {
         this.callback(callbackId, null);
     }
 
+    /**
+     * Satisfy requirements.
+     * @param callbackId
+     * @param bundle
+     */
     @Override
     public void callback(CallbackId callbackId, Bundle bundle) {
         // TODO stub
@@ -362,6 +394,14 @@ public class FollowActivity extends AppCompatActivity
         }
     }
 
+    /**
+     * Update the activities values from the database and set the listviews to the appropriate values.
+     * @param user
+     * @param following
+     * @param followers
+     * @param followRequestsFrom
+     * @param followRequestsTo
+     */
     @Override
     public void callbackFollowData(@NonNull String user, @NonNull List<String> following,
                                    @NonNull List<String> followers,
