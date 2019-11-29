@@ -55,7 +55,6 @@ public class EmotionAdapter extends ArrayAdapter<EmotionWithNull> {
         LayoutInflater inflater = LayoutInflater.from(context);
         final TextView view = (TextView) inflater.inflate(RESOURCE, parent, false);
         view.setText(INITIAL_TEXT);
-        view.setBackgroundColor(INITIAL_COLOR);
 
         if (dropdown) { // Hidden when the dropdown is opened
             view.setHeight(0);
