@@ -64,12 +64,15 @@ public class ViewMoodActivity extends AppCompatActivity {
         TextView moodInfo = findViewById(R.id.emotionText);
         TextView dateInfo = findViewById(R.id.date);
         TextView timeInfo = findViewById(R.id.time);
+
         String parsedDate = Utils.formatDate(currentMood.getDate());
         String parsedTime = Utils.formatTime(currentMood.getDate());
         dateInfo.setText(parsedDate);
         timeInfo.setText(parsedTime);
+
         Emotion emotion = currentMood.getEmotion();
-        moodInfo.setText(emotion.getEmojiString());
+        String parsedText = emotion.getEmojiString() + "      " + emotion.getEmojiName();
+        moodInfo.setText(parsedText);
 
         //ConstraintLayout moodLayout = findViewById(R.id.moodLayout);
         String background = emotion.getEmojiName().toLowerCase();
