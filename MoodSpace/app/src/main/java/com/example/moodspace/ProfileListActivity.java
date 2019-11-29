@@ -151,6 +151,19 @@ public class ProfileListActivity extends AppCompatActivity
 
         if (feed) {
             fc.getFollowingMoods(username);
+            moodDataList = new ArrayList<>();
+            moodAdapter = new MoodViewList(this, moodDataList);
+            final List<Emotion> filterList = new ArrayList<>();
+
+            // sets up EditMood on tapping any mood
+            moodList.setAdapter(moodAdapter);
+            moodList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                @Override
+                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                    openViewMood(username, position);
+                }
+            });
+
         } else  {
             moodDataList = new ArrayList<>();
             moodAdapter = new MoodViewList(this, moodDataList);
@@ -256,6 +269,15 @@ public class ProfileListActivity extends AppCompatActivity
         intent.putExtra("USERNAME", username);
         startActivity(intent);
     }
+
+    public void openViewMood(String username, int position) {
+        Mood mood = moodDataList.get(position);
+        Intent intent = new Intent(getApplicationContext(), ViewMoodActivity.class);
+        intent.putExtra("MOOD", mood);
+        intent.putExtra("USERNAME", username);
+        startActivity(intent);
+    }
+
 
     /**
      * Creates the toolbar.
