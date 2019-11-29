@@ -132,8 +132,7 @@ public class UserController {
     }
 
     private void getUserData(final String username, final UserController.CallbackUser ccu, final String callbackId) {
-        CollectionReference collectionReference = db.collection("users");
-        collectionReference
+        db.collection("users")
                 .document(username)
                 .get()
                 .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {

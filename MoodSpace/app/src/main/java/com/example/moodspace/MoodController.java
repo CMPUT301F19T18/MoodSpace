@@ -14,6 +14,7 @@ import androidx.annotation.Nullable;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
@@ -34,7 +35,7 @@ import java.util.List;
  * Controller class for modifying the mood event database
  */
 public class MoodController {
-    private static final String TAG = MoodController.class.getSimpleName();
+    private static final String TAG = "EPIC";
 
     private ControllerCallback cc;
 
@@ -111,6 +112,23 @@ public class MoodController {
                     ) {
                         List<Mood> moodList = new ArrayList<>();
                         if (queryDocumentSnapshots != null) {
+                            for (DocumentChange dc : queryDocumentSnapshots.getDocumentChanges()) {
+                                String id = dc.getDocument().getId();
+                                switch (dc.getType()) {
+                                    case ADDED:
+                                        Log.d(TAG, "added " + id);
+                                    case MODIFIED:
+                                        Log.d(TAG, "modified " + id);
+                                        break;
+                                    case REMOVED:
+                                        Log.d(TAG, "removed " + id);
+                                        break;
+                                    default:
+                                        Log.d(TAG, "wtf " + id);
+                                        break;
+                                }
+                            }
+
                             for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
                                 Mood mood = Mood.fromDocSnapshot(doc);
                                 moodList.add(mood);

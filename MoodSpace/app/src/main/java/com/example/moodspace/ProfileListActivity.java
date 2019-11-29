@@ -16,9 +16,9 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.constraintlayout.solver.Cache;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 
@@ -26,16 +26,10 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
-import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.FirebaseFirestoreException;
-import com.google.firebase.firestore.Query;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
-import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 
@@ -48,7 +42,7 @@ import static com.example.moodspace.Utils.makeWarnToast;
 public class ProfileListActivity extends AppCompatActivity
         implements FilterFragment.OnFragmentInteractionListener,
         ControllerCallback, FollowController.OtherMoodsCallback {
-    private static final String TAG = ProfileListActivity.class.getSimpleName();
+    private static final String TAG = "EPIC";
     private final FirebaseFirestore db = FirebaseFirestore.getInstance();
 
     private MoodController mc;
@@ -81,6 +75,8 @@ public class ProfileListActivity extends AppCompatActivity
         fc = new FollowController(this);
         ftc = new FilterController(this);
 
+        CacheListener cl1 = CacheListener.getInstance();
+        CacheListener cl2 = CacheListener.getInstance();
 
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
