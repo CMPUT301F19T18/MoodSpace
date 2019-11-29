@@ -363,10 +363,14 @@ public class ProfileListActivity extends AppCompatActivity
     public void callback(CallbackId callbackId, Bundle bundle) {
         if (callbackId instanceof FilterCallbackId) {
             switch ((FilterCallbackId) callbackId) {
-                case UPDATE_FILTER_FAIL:
+                case REMOVE_FILTER_FAIL:
+                case ADD_FILTER_FAIL:
                     makeWarnToast(this, "Error: filters could not be uploaded");
                     Log.w(TAG, "filters were not properly updated");
                     break;
+
+                case ADD_FILTER_SUCCESS:
+                case REMOVE_FILTER_SUCCESS:
                 case UPDATE_FILTERS_COMPLETE:
                     break;
                 default:

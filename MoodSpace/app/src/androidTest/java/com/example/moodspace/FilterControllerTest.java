@@ -6,10 +6,7 @@ import androidx.test.filters.LargeTest;
 
 import org.junit.runner.RunWith;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 
 /**
  * Only tests that filters work properly with firestore
@@ -22,20 +19,20 @@ import java.util.List;
  *      - fear
  *
  * TODO tests:
- *  - getMoodList
+ *  - getFilters
  *      - make sure moods match
  *  - filterAdd
  *      - add contempt
  *      - make sure callbackID matches
- *      - make sure contempt is in the mood list
+ *      - make sure contempt is in the filter list
  *  - filterRemove
  *      - remove fear
  *      - make sure callbackID matches
- *      - make sure fear is not in the mood list
+ *      - make sure fear is not in the filter list
  *  - updateFilters
  *      - remove enjoyment and add disgust
  *      - make sure callbackID (complete) matches
- *      - make sure moods match (disgust, contempt)
+ *      - make sure filter match (disgust, contempt)
  *  - cleanup:
  *      - remove disgust, contempt
  *      - remove enjoyment, fear
