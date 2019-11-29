@@ -46,12 +46,15 @@ public class FilterController implements ControllerCallback {
     /**
      * Gets the emotions that are to be filtered out
      */
-    public void getFilters(final String username) {
+    public void getFilters(String username) {
+        getFilters(username, (GetFiltersCallback) this.cc);
+    }
+    public void getFilters(final String username, final GetFiltersCallback getFiltersCallback) {
         uc.getUserData(username, new UserController.CallbackUser() {
             @Override
             public void callbackUserData(DocumentSnapshot fetchedUserData, String callbackId) {
                 final HashSet<String> filtersSet = getSetFromUser(fetchedUserData, FILTERS_ARRAY);
-                ((GetFiltersCallback) cc).callbackFilters(username, filtersSet);
+                getFiltersCallback.callbackFilters(username, filtersSet);
             }
         });
     }
@@ -121,7 +124,7 @@ public class FilterController implements ControllerCallback {
     public void filterAdd(final String username, final Emotion emotion, final CompletedTaskCounter counter) {
         db.collection("users")
                 .document(username)
-                .update(FILTERS_ARRAY, FieldValue.arrayRemove(emotion))
+                .update(FILTERS_ARRAY, FieldValue.arrayUnion(emotion))
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {

@@ -53,7 +53,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     private final FirebaseFirestore db = FirebaseFirestore.getInstance();
     TabLayout myTabs;
     private FollowController fc;
-    private ArrayList<MoodOther> followingMoodsList;
+    private ArrayList<MoodView> followingMoodsList;
 
 
     @Override
@@ -124,7 +124,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         String followingUser;
         Boolean centerCamera =  false;
 
-        for (MoodOther m: followingMoodsList) {
+        for (MoodView m: followingMoodsList) {
             lat = m.getLat();
             lon = m.getLon();
             date = m.getDate();
@@ -398,7 +398,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
     @Override
-    public void callbackFollowingMoods(@NonNull String user, @NonNull ArrayList<MoodOther> followingMoodsList) {
+    public void callbackFollowingMoods(@NonNull String user, @NonNull ArrayList<MoodView> followingMoodsList) {
             this.followingMoodsList = followingMoodsList;
     }
 }

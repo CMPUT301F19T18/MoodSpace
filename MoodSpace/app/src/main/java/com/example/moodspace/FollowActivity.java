@@ -30,6 +30,7 @@ import java.util.List;
 import io.paperdb.Paper;
 
 import static com.example.moodspace.Utils.makeInfoToast;
+import static com.example.moodspace.Utils.makeSuccessToast;
 import static com.example.moodspace.Utils.makeWarnToast;
 
 public class FollowActivity extends AppCompatActivity
@@ -253,14 +254,14 @@ public class FollowActivity extends AppCompatActivity
         AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
         switch (item.getItemId()) {
             case R.id.cancel:
-                makeInfoToast(this, "Cancelled");
+                makeSuccessToast(this, "Cancelled");
                 this.followRequestsTo.remove(info.position);
                 this.fc.removeFollowRequest(username, unfollowId);
                 requestAdapter.notifyDataSetChanged();
                 return true;
 
             case R.id.unfollow:
-                makeInfoToast(this, "Unfollowed");
+                makeSuccessToast(this, "Unfollowed");
                 this.following.remove(info.position);
                 this.fc.removeFollower(username, unfollowId);
                 followingAdapter.notifyDataSetChanged();

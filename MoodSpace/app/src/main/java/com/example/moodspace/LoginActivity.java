@@ -124,7 +124,7 @@ public class LoginActivity extends AppCompatActivity
 
                 if (inLoginState) {
                     if (usernameText.length() == 0 || passwordText.length() == 0) {
-                        makeInfoToast(LoginActivity.this, "Please enter a username and a password");
+                        makeWarnToast(LoginActivity.this, "Please enter a username and a password");
                         confirmButton.setEnabled(true);
                         return;
                     }
@@ -236,12 +236,12 @@ public class LoginActivity extends AppCompatActivity
                     break;
 
                 case USERNAME_EXISTS:
-                    makeInfoToast(this, "This username is taken");
+                    makeWarnToast(this, "This username is taken");
                     confirmButton.setEnabled(true);
                     return;
 
                 case INCORRECT_PASSWORD:
-                    makeInfoToast(this, "Incorrect password, please try again");
+                    makeWarnToast(this, "Incorrect password, please try again");
                     confirmButton.setEnabled(true);
                     return;
 

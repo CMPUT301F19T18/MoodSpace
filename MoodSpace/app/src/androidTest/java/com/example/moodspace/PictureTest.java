@@ -136,7 +136,7 @@ public class PictureTest {
 
     @Test
     public void testUpload() throws InterruptedException {
-        AddEditController aec = new AddEditController(null);
+        MoodController aec = new MoodController(null);
         UploadTask uploadTask = aec.uploadPhoto(file.getAbsolutePath(), "picture_test");
         Thread.sleep(5000);
         assertTrue(uploadTask.isComplete());

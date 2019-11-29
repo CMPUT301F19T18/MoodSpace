@@ -48,7 +48,7 @@ public class FollowControllerTest {
     @BeforeClass
     public static void initializeUsers() {
         // TODO stub
-        // implement once UserController and AddEditController is better
+        // implement once UserController and MoodController is better
 
         // NOTE: because this isn't done yet, if tests fail,
         //   arrays might have to be cleared manually in firestore.
@@ -489,7 +489,7 @@ public class FollowControllerTest {
     @AfterClass
     public static void destroyUsers() {
         // TODO stub
-        // implement once UserController and AddEditController is better
+        // implement once UserController and MoodController is better
     }
 }
 
@@ -513,10 +513,10 @@ class DummyFollowCallback extends DummyControllerCallback
 
     HashMap<String, FollowDataStorage> followDataMap = new HashMap<>();
     String user = null;
-    List<MoodOther> followingMoodList = new ArrayList<>();
+    List<MoodView> followingMoodList = new ArrayList<>();
 
     @Override
-    public void callbackFollowingMoods(@NonNull String user, @NonNull List<MoodOther> followingMoodsList) {
+    public void callbackFollowingMoods(@NonNull String user, @NonNull List<MoodView> followingMoodsList) {
         this.user = user;
         this.followingMoodList = followingMoodsList;
     }

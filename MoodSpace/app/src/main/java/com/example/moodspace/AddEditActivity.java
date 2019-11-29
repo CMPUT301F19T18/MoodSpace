@@ -60,7 +60,8 @@ import static com.example.moodspace.Utils.makeWarnToast;
  * - editing is also used to view the details of your own moods
  */
 public class AddEditActivity extends AppCompatActivity
-        implements AdapterView.OnItemSelectedListener, OnMapReadyCallback {
+        implements AdapterView.OnItemSelectedListener, OnMapReadyCallback,
+        ControllerCallback {
     private static final String MAPVIEW_BUNDLE_KEY = "moodspace.AddEditActivity.mapViewBundleKey";
 
     private static final int PICK_IMAGE = 1;
@@ -70,7 +71,7 @@ public class AddEditActivity extends AppCompatActivity
     private static final long MAX_DOWNLOAD_LIMIT = 30 * 1024 * 1024;
     private static final String TAG = AddEditActivity.class.getSimpleName();
 
-    private AddEditController aec;
+    private MoodController mc;
     private FirebaseStorage fbStorage = FirebaseStorage.getInstance();
 
     // can be null if reusing a downloaded photo while editing
@@ -109,7 +110,7 @@ public class AddEditActivity extends AppCompatActivity
         setContentView(R.layout.activity_add_edit_mood);
 
         username = getIntent().getStringExtra(Utils.USERNAME_KEY);
-        aec = new AddEditController(this);
+        mc = new MoodController(this);
         currentMood = (Mood) getIntent().getSerializableExtra("MOOD");
 
         // gets all necessary views
@@ -417,14 +418,14 @@ public class AddEditActivity extends AppCompatActivity
 
         Mood mood = new Mood(id, date, selectedEmotion, reasonText, hasPhoto, socialSit, lat, lon);
         if (AddEditActivity.this.isAddActivity()) {
-            aec.addMood(username, mood);
+            mc.addMood(username, mood);
         } else {
-            aec.updateMood(username, mood);
+            mc.updateMood(username, mood);
         }
 
         // only uploads if the photo hasn't changed for optimization purposes
         if (hasPhoto && AddEditActivity.this.changedPhoto) {
-            aec.uploadPhoto(inputPhotoPath, id);
+            mc.uploadPhoto(inputPhotoPath, id);
         }
 
         finish();
@@ -586,7 +587,7 @@ public class AddEditActivity extends AppCompatActivity
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == PICK_IMAGE && resultCode == RESULT_OK) {
-            this.inputPhotoPath = aec.getPhotoPath(data, getContentResolver());
+            this.inputPhotoPath = mc.getPhotoPath(data, getContentResolver());
 
             // TODO: preview image in add/edit
             // TODO: async
@@ -650,5 +651,15 @@ public class AddEditActivity extends AppCompatActivity
                 googleMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
             }
         }
+    }
+
+    @Override
+    public void callback(CallbackId callbackId) {
+        callback(callbackId, null);
+    }
+
+    @Override
+    public void callback(CallbackId callbackId, Bundle bundle) {
+        // TODO stub
     }
 }

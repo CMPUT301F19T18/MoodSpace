@@ -69,7 +69,7 @@ public class FollowController implements ControllerCallback {
     }
 
     public interface OtherMoodsCallback {
-        void callbackFollowingMoods(@NonNull String user, @NonNull ArrayList<MoodOther> followingMoodsList);
+        void callbackFollowingMoods(@NonNull String user, @NonNull ArrayList<MoodView> followingMoodsList);
     }
 
     public interface GetDataCallback {
@@ -316,7 +316,7 @@ public class FollowController implements ControllerCallback {
      * - gets all of the users that user is following & and for each followee, gets the most recent mood
      */
     public void getFollowingMoods(final String user) {
-        final ArrayList<MoodOther> followingMoods = new ArrayList<>();
+        final ArrayList<MoodView> followingMoods = new ArrayList<>();
 
         uc.getUserData(user, new UserController.CallbackUser() {
             @Override
@@ -351,8 +351,8 @@ public class FollowController implements ControllerCallback {
                                             // it should still have at most 1 mood by the limit
                                             for (QueryDocumentSnapshot doc : task.getResult()) {
                                                 Mood mood = Mood.fromDocSnapshot(doc);
-                                                MoodOther moodOther = MoodOther.fromMood(mood, followee);
-                                                followingMoods.add(moodOther);
+                                                MoodView moodView = MoodView.fromMood(mood, followee);
+                                                followingMoods.add(moodView);
                                             }
                                         }
                                     }
@@ -362,9 +362,9 @@ public class FollowController implements ControllerCallback {
                                     if (counter.isComplete()) {
                                         // sorts array by date after all moods are gotten
                                         // oldest -> newest
-                                        Collections.sort(followingMoods, new Comparator<MoodOther>() {
+                                        Collections.sort(followingMoods, new Comparator<MoodView>() {
                                             @Override
-                                            public int compare(MoodOther o1, MoodOther o2) {
+                                            public int compare(MoodView o1, MoodView o2) {
                                                 return o1.getDate().compareTo(o2.getDate());
                                             }
                                         });
