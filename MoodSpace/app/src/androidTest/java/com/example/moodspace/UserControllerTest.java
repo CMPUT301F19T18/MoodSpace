@@ -174,8 +174,8 @@ public class UserControllerTest {
     public void rememberUserTest() throws InterruptedException{
         final User newUser = new User(user5, "UserDataPassword");
         Paper.init(context);
-        String storedUsername = Paper.book().read(PAPER_USERNAME_KEY);
-        String storedPassword = Paper.book().read(PAPER_PASSWORD_KEY);
+        String storedUsername = "";
+        String storedPassword = "";
         uc.rememberUser(newUser);
         Thread.sleep(SLEEP_TIME);
 

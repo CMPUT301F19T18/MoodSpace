@@ -12,7 +12,6 @@ public enum Emotion {
     SURPRISE(7, 0x1F62E, "#3cafaf", "Surprise");
 
 
-
     private final int id;
     private final int emojiCode;
     private final int colorCode;
@@ -48,6 +47,10 @@ public enum Emotion {
             emotionStringArray[i] = emotionArray[i].getEmojiName() + " " + emotionArray[i].getEmojiString();
         }
         return emotionStringArray;
+    }
+
+    public EmotionWithNull toEmotionWithNull() {
+        return EmotionWithNull.valueOf(this.name());
     }
 
     @Override
