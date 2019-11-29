@@ -55,7 +55,7 @@ public class EmotionAdapter extends ArrayAdapter<Emotion> {
     @Override
     public int getCount() {
         // Adjust for initial selection item
-        return super.getCount() + 1;
+        return super.getCount();
     }
 
     private View initialSelection(@NonNull ViewGroup parent, boolean dropdown) {
