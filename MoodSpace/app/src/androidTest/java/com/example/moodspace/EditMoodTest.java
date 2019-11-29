@@ -76,6 +76,8 @@ public class EditMoodTest {
         onView(withId(R.id.reason_text)).perform(typeText("Quiet"), closeSoftKeyboard());
         onView(withId(R.id.saveBtn)).perform(click());
 
+        Thread.sleep(250);
+
         // Verify and set mood to Anger, make social situation "With another person" and reason to "Gaming"
         onData(anything())
                 .inAdapterView(allOf(withId(R.id.moodList), isCompletelyDisplayed()))
@@ -91,6 +93,8 @@ public class EditMoodTest {
         onData(anything()).atPosition(2).perform(click());
         onView(withId(R.id.reason_text)).perform(replaceText("Gaming"), closeSoftKeyboard());
         onView(withId(R.id.saveBtn)).perform(click());
+
+        Thread.sleep(250);
 
         // Verify and set the mood to fear, social situation to "With two to several people" and reason to "Movie night"
         onData(anything())
@@ -108,6 +112,8 @@ public class EditMoodTest {
         onView(withId(R.id.reason_text)).perform(replaceText("Movie night"), closeSoftKeyboard());
         onView(withId(R.id.saveBtn)).perform(click());
 
+        Thread.sleep(250);
+
         // Verify the mood info, change the fields and press back button.
         onData(anything())
                 .inAdapterView(allOf(withId(R.id.moodList), isCompletelyDisplayed()))
@@ -122,13 +128,15 @@ public class EditMoodTest {
         onData(anything()).atPosition(1).perform(click());
         onView(withId(R.id.reason_text)).perform(replaceText("Feeling ill"), closeSoftKeyboard());
         onView(withId(R.id.backBtn)).perform(click());
-        Thread.sleep(2500);
+
+        Thread.sleep(1000);
 
         // Verify that the data remained the same, then change the fields this time.
         onData(anything())
                 .inAdapterView(allOf(withId(R.id.moodList), isCompletelyDisplayed()))
                 .atPosition(0).perform(click());
-        Thread.sleep(2500);
+        Thread.sleep(1000);
+
         onView(withId(R.id.situationText)).check(matches(withChild((withText(containsString("With two to several people"))))));
         onView(withId(R.id.reason_text)).check(matches(withText(containsString("Movie night"))));
         onView(withId(R.id.emotionSelector)).check(matches(withChild(withText(containsString(fear)))));
@@ -140,6 +148,8 @@ public class EditMoodTest {
         onView(withId(R.id.reason_text)).perform(replaceText("Spring Festival"), closeSoftKeyboard());
         onView(withId(R.id.saveBtn)).perform(click());
 
+        Thread.sleep(250);
+
         // Verify for the final time that the changes have been saved, then delete the mood.
         onData(anything())
                 .inAdapterView(allOf(withId(R.id.moodList), isCompletelyDisplayed()))
@@ -149,12 +159,14 @@ public class EditMoodTest {
         onView(withId(R.id.reason_text)).check(matches(withText(containsString("Spring Festival"))));
         onView(withId(R.id.emotionSelector)).check(matches(withChild(withText(containsString(surprise)))));
         onView(withId(R.id.backBtn)).perform(click());
-        Thread.sleep(2500);
+
+        Thread.sleep(1500);
 
         onData(anything())
                 .inAdapterView(allOf(withId(R.id.moodList), isCompletelyDisplayed()))
                 .atPosition(0).perform(longClick());
         onView(withText("Delete")).perform(click());
-        Thread.sleep(2500);
+
+        Thread.sleep(1500);
     }
 }
