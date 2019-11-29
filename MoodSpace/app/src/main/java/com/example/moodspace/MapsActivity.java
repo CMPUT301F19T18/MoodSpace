@@ -54,6 +54,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     TabLayout myTabs;
     private FollowController fc;
     private ArrayList<MoodOther> followingMoodsList;
+    private Boolean centerCamera = false; // to center the camera at the latest mood in the mood history
 
 
     @Override
@@ -213,7 +214,11 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                                         .title(emotion.getEmojiString())
                                         .snippet(ts.toString())
                                         .icon(color));
-                                mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
+                                if(!centerCamera){
+                                    centerCamera = true;
+                                    mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
+                                }
+
                             }
                         }
                     }
