@@ -293,7 +293,6 @@ public class AddEditActivity extends AppCompatActivity
             // displays the location checkbox if a location was already stored
             if (currentMood.getLat() != null && currentMood.getLon() != null) {
                 locationCheckBox.setVisibility(View.VISIBLE);
-
                 if (currentMood.getHasLocation()) {
                     locationCheckBox.setChecked(true);
                     placeholderText.setVisibility(View.GONE);
