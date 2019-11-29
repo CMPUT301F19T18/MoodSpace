@@ -55,7 +55,7 @@ public class ProfileListActivity extends AppCompatActivity
     private ViewController vc;
     private FollowController fc;
     ArrayAdapter<MoodOther> moodAdapter;
-    ArrayList<MoodOther> moodDataList;
+    ArrayList<MoodOther> moodDataList = new ArrayList<>();
     final boolean[] checkedItems = new boolean[Emotion.values().length];
 
     private String moodId;
@@ -102,7 +102,11 @@ public class ProfileListActivity extends AppCompatActivity
                 drawerLayout.closeDrawers();
                 switch (item.getItemId()) {
                     case R.id.nav_item_profile:
-                        makeInfoToast(ProfileListActivity.this, "Profile");
+                        Intent intent0 = new Intent(ProfileListActivity.this, ProfileListActivity.class);
+                        intent0.putExtra("username", username);
+                        intent0.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                        startActivity(intent0);
+                        finish();
                         return true;
                     case R.id.nav_item_following:
                         Intent intent = new Intent(ProfileListActivity.this, FollowActivity.class);
@@ -149,11 +153,22 @@ public class ProfileListActivity extends AppCompatActivity
             }
         });
 
+        moodAdapter = new MoodViewList(this, moodDataList);
+
         if (feed) {
             fc.getFollowingMoods(username);
+            addBtn.setVisibility(View.GONE);
+
+            // sets up EditMood on tapping any mood
+            moodList.setAdapter(moodAdapter);
+            moodList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                @Override
+                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                    openViewMood(username, position);
+                }
+            });
+
         } else  {
-            moodDataList = new ArrayList<>();
-            moodAdapter = new MoodViewList(this, moodDataList);
             final List<Emotion> filterList = new ArrayList<>();
 
             // sets up EditMood on tapping any mood
@@ -257,6 +272,16 @@ public class ProfileListActivity extends AppCompatActivity
         startActivity(intent);
     }
 
+    public void openViewMood(String username, int position) {
+        MoodOther moodOther = moodDataList.get(position);
+        Intent intent = new Intent(getApplicationContext(), ViewMoodActivity.class);
+        intent.putExtra("MOOD", moodOther);
+        intent.putExtra("USERNAME", moodOther.getUsername());
+        intent.putExtra("username", username);
+        startActivity(intent);
+    }
+
+
     /**
      * Creates the toolbar.
      */
@@ -333,7 +358,10 @@ public class ProfileListActivity extends AppCompatActivity
 
     @Override
     public void callbackFollowingMoods(@NonNull String user, @NonNull ArrayList<MoodOther> followingMoodsList) {
-        moodAdapter = new MoodViewList(this, followingMoodsList);
+        moodDataList.clear();
+        moodDataList.addAll(followingMoodsList);
+
         moodList.setAdapter(moodAdapter);
+        moodAdapter.notifyDataSetChanged();
     }
 }
