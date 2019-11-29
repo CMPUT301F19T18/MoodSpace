@@ -213,11 +213,14 @@ public class AddEditActivity extends AppCompatActivity
             }
         };
 
+        final TextView placeholder_location = findViewById(R.id.placeholder_msg);
+        final View right_box = findViewById(R.id.right_square_view);
         // sets up checkbox button
         locationCheckBox.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 boolean attachLocation = locationCheckBox.isChecked();
+                placeholder_location.setVisibility(View.GONE);
 
                 // attempts to grant the permission if not granted yet
                 boolean locationPermission = checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION)
@@ -241,6 +244,7 @@ public class AddEditActivity extends AppCompatActivity
         });
 
         Toolbar toolbar = findViewById(R.id.toolbar);
+
 
         // sets up add/edit specific attributes
         if (this.isAddActivity()) {
@@ -270,6 +274,9 @@ public class AddEditActivity extends AppCompatActivity
                 TextView locationText = findViewById(R.id.locationText);
                 locationText.setVisibility(View.GONE);
                 locationCheckBox.setVisibility(View.GONE);
+                mapView.setVisibility(View.GONE);
+                placeholder_location.setVisibility(View.GONE);
+                right_box.setVisibility(View.GONE);
             }
 
 
