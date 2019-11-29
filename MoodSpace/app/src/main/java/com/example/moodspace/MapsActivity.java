@@ -156,15 +156,15 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
                 for (Mood mood: userMoodList) {
                     Double lat = mood.getLat();
-                    Double lon = mood.getLat();
+                    Double lon = mood.getLon();
                     Emotion emotion = mood.getEmotion();
-                    Date ts = mood.getDate();
+                    String ts = mood.getDate().toString();
 
-                    if (lat != null && lon != null){
+                    if (lat != null && lon != null) {
                         LatLng latLng = new LatLng(lat, lon);
                         mMap.addMarker(new MarkerOptions().position(latLng)
                                 .title(emotion.getEmojiString())
-                                .snippet(ts.toString())
+                                .snippet(ts)
                                 .icon(LocationController.getColor(emotion)));
 
                         // centers camera at the latest mood
