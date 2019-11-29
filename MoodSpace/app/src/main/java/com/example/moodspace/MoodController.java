@@ -18,6 +18,7 @@ import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
@@ -41,6 +42,7 @@ public class MoodController {
 
     private final FirebaseFirestore db = FirebaseFirestore.getInstance();
     private FirebaseStorage fbStorage = FirebaseStorage.getInstance();
+    private CacheListener cacheListener = CacheListener.getInstance();
 
     public interface UserMoodsCallback {
         void callbackMoodList(@NonNull String user, @NonNull List<Mood> userMoodList);
@@ -96,11 +98,12 @@ public class MoodController {
     /**
      * gets a sorted (most to least recent) list of moods for any given user
      */
-    public void getMoodList(String username) {
-        getMoodList(username, (UserMoodsCallback) this.cc);
+    public void getMoodList(String username, String key) {
+        getMoodList(username, key, (UserMoodsCallback) this.cc);
     }
-    public void getMoodList(final String username, final UserMoodsCallback userMoodsCallback) {
-        db.collection("users")
+    public void getMoodList(final String username, final String key, final UserMoodsCallback userMoodsCallback) {
+        ListenerRegistration registration
+                = db.collection("users")
                 .document(username)
                 .collection("Moods")
                 .orderBy("date", Query.Direction.DESCENDING)
@@ -139,6 +142,8 @@ public class MoodController {
                         userMoodsCallback.callbackMoodList(username, moodList);
                     }
                 });
+        cacheListener.setListener(key, registration);
+
     }
 
     // TODO move elsewhere

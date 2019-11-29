@@ -212,7 +212,7 @@ public class ProfileListActivity extends AppCompatActivity
         Log.d(TAG, "updateData()");
 
         // gets and caches user moods
-        mc.getMoodList(username, new MoodController.UserMoodsCallback() {
+        mc.getMoodList(username, this.getClass().getSimpleName(), new MoodController.UserMoodsCallback() {
             @Override
             public void callbackMoodList(@NonNull String user, @NonNull List<Mood> userMoodList) {
                 cachedMoodList = (ArrayList<MoodView>) MoodView.addUsernameToMoods(userMoodList, user);
