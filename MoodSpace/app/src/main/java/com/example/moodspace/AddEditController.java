@@ -9,7 +9,6 @@ import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.provider.MediaStore;
 import android.util.Log;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 
@@ -23,6 +22,8 @@ import com.google.firebase.storage.UploadTask;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+
+import static com.example.moodspace.Utils.makeWarnToast;
 
 /**
  * Controller class for modifying the mood event database
@@ -90,8 +91,7 @@ public class AddEditController {
         // https://www.viralpatel.net/pick-image-from-galary-android-app/
         Uri photoUri = data.getData();
         if (photoUri == null) {
-            Toast.makeText(context, "Unexpected error: photo data shouldn't be null",
-                    Toast.LENGTH_LONG).show();
+            makeWarnToast(context, "Unexpected error: photo data shouldn't be null");
             return null;
         }
 
@@ -99,8 +99,7 @@ public class AddEditController {
         Cursor cursor = contentResolver.query(photoUri, filePathColumn,
                 null, null, null);
         if (cursor == null) {
-            Toast.makeText(context, "Unexpected error: photo cursor shouldn't be null",
-                    Toast.LENGTH_LONG).show();
+            makeWarnToast(context, "Unexpected error: photo cursor shouldn't be null");
             return null;
         }
         cursor.moveToFirst();
@@ -111,8 +110,7 @@ public class AddEditController {
 
         File photoFile = new File(photoPath);
         if (!photoFile.isFile()) {
-            Toast.makeText(context, "Unexpected error: picture file path not found",
-                    Toast.LENGTH_LONG).show();
+            makeWarnToast(context, "Unexpected error: picture file path not found");
             return null;
         }
 
