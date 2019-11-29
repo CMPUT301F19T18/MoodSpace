@@ -2,8 +2,10 @@ package com.example.moodspace;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -51,6 +53,10 @@ public class ViewMoodActivity extends AppCompatActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            getWindow().setFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS,
+                    WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+        }
         setContentView(R.layout.activity_view_mood);
 
         setupMapView(savedInstanceState);
@@ -65,7 +71,7 @@ public class ViewMoodActivity extends AppCompatActivity
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
-        toolbar.setTitle(otherUsername);
+        toolbar.setTitle(otherUsername + "'s Mood");
 
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
@@ -100,7 +106,11 @@ public class ViewMoodActivity extends AppCompatActivity
         socialsitInfo.setText(socialSit.getDescription());
 
         String reasonTxt = currentMood.getReasonText();
-        reasonInfo.setText(reasonTxt);
+        if (reasonTxt == "") {
+            reasonInfo.setText("Not Provided");
+        } else {
+            reasonInfo.setText(reasonTxt);
+        }
 
         View leftsquareView = findViewById(R.id.left_square_view);
         View rightsquareView = findViewById(R.id.right_square_view);
@@ -133,6 +143,11 @@ public class ViewMoodActivity extends AppCompatActivity
 
         if (currentMood.getHasLocation()) {
             mapView.setVisibility(View.VISIBLE);
+            placeholderMsg.setVisibility(View.GONE);
+        } else {
+            rightsquareView.setVisibility(View.GONE);
+            placeholderMsg.setVisibility(View.GONE);
+            mapView.setVisibility(View.GONE);
         }
     }
 
