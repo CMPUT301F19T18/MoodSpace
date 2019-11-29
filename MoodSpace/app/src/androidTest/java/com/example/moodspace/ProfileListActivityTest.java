@@ -78,7 +78,6 @@ public class ProfileListActivityTest {
                 .inAdapterView(allOf(withId(R.id.moodList), isCompletelyDisplayed()))
                 .atPosition(0).perform(click());
         onView(withId(R.id.emotionSelector)).check(matches(not(withSpinnerText(containsString("angry")))));
-
     }
 
 }
