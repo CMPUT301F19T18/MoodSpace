@@ -21,7 +21,6 @@ public class MoodViewList extends ArrayAdapter<MoodView> {
 
     private ArrayList<MoodView> listOfMoods;
     private Context context;
-    private String username;
 
     public MoodViewList(Context context, ArrayList<MoodView> listOfMoods) {
         super(context,0,listOfMoods);
