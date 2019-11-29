@@ -83,7 +83,9 @@ public class EmotionAdapter extends ArrayAdapter<EmotionWithNull> {
             Emotion emotion = currentItem.toEmotion();
             String parsedText = emotion.getEmojiString() + "      " + emotion.getEmojiName();
             emojiField.setText(parsedText);
-            row.setBackgroundColor(emotion.getColorCode());
+            String background = emotion.getEmojiName().toLowerCase();
+            int id = context.getResources().getIdentifier(background,"drawable", context.getPackageName());
+            row.setBackgroundResource(id);
         }
         return row;
     }
