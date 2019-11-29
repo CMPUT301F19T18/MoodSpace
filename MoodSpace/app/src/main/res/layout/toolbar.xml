@@ -4,7 +4,7 @@
     android:id="@+id/toolbar"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="#8da5cb"
+    android:background="#132661"
     android:minHeight="?attr/actionBarSize"
     android:paddingTop="24dp"
     app:titleTextAppearance="@style/TitleBarTextColor"
