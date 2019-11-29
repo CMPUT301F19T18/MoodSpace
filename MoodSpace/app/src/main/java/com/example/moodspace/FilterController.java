@@ -26,7 +26,7 @@ import static com.example.moodspace.Utils.getSetFromUser;
 public class FilterController implements ControllerCallback {
     private static final String TAG = FilterController.class.getSimpleName();
     private final FirebaseFirestore db = FirebaseFirestore.getInstance();
-    private static final String FILTERS_ARRAY = "filters";
+    private static final String FILTERS_ARRAY = "Filters";
 
     public static final String IS_SUCCESSFUL_KEY = "moodspace.FilterController.isSuccessfulKey";
 
@@ -105,6 +105,7 @@ public class FilterController implements ControllerCallback {
                     @Override
                     public void onSuccess(Void aVoid) {
                         Log.d(TAG, String.format("successfully removed %s from %s", emotion.getEmojiName(), username));
+                        cc.callback(FilterCallbackId.REMOVE_FILTER_SUCCESS);
                         filterComplete(counter, username, true);
                     }
                 })
@@ -112,7 +113,7 @@ public class FilterController implements ControllerCallback {
                     @Override
                     public void onFailure(@NonNull Exception e) {
                         Log.d(TAG, String.format("failed to remove %s from %s", emotion.getEmojiName(), username));
-                        cc.callback(FilterCallbackId.UPDATE_FILTER_FAIL);
+                        cc.callback(FilterCallbackId.REMOVE_FILTER_FAIL);
                         filterComplete(counter, username, false);
                     }
                 });
@@ -129,6 +130,7 @@ public class FilterController implements ControllerCallback {
                     @Override
                     public void onSuccess(Void aVoid) {
                         Log.d(TAG, String.format("successfully add %s from %s", emotion.getEmojiName(), username));
+                        cc.callback(FilterCallbackId.ADD_FILTER_SUCCESS);
                         filterComplete(counter, username, true);
                     }
                 })
@@ -136,7 +138,7 @@ public class FilterController implements ControllerCallback {
                     @Override
                     public void onFailure(@NonNull Exception e) {
                         Log.d(TAG, String.format("failed to add %s from %s", emotion.getEmojiName(), username));
-                        cc.callback(FilterCallbackId.UPDATE_FILTER_FAIL);
+                        cc.callback(FilterCallbackId.ADD_FILTER_FAIL);
                         filterComplete(counter, username, false);
                     }
                 });

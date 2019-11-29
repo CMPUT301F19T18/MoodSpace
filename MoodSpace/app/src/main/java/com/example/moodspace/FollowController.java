@@ -346,7 +346,7 @@ public class FollowController implements ControllerCallback {
                                         cc.callback(FollowCallbackId.FOLLOWEE_MOOD_READ_FAIL);
                                     } else {
                                         // no mood (can happen if user's follower has no mood)
-                                        if (task.getResult() != null ) {
+                                        if (task.getResult() != null) {
                                             // even though it's a for loop,
                                             // it should still have at most 1 mood by the limit
                                             for (QueryDocumentSnapshot doc : task.getResult()) {
@@ -387,7 +387,6 @@ public class FollowController implements ControllerCallback {
         getFollowData(user, key, (GetDataCallback) cc);
     }
     public void getFollowData(final String user, final String key, final GetDataCallback getDataCallback) {
-        Log.d(TAG, "hello");
         uc.getUserSnapshot(user, key, new UserController.CallbackUserSnapshot() {
             @Override
             public void callbackUserSnapshot(@NonNull DocumentSnapshot fetchedUserData) {

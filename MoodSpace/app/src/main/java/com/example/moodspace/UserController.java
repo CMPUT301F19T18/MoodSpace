@@ -166,6 +166,9 @@ public class UserController {
                 });
     }
 
+    /**
+     * Fetches the user data from firestore given the username and listens for changes
+     */
     public void getUserSnapshot(final String username, final String key,
                                  final CallbackUserSnapshot callbackUserSnapshot) {
         ListenerRegistration registration
