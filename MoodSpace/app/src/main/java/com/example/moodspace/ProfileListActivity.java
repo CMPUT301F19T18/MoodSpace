@@ -16,28 +16,18 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
-import com.google.firebase.firestore.CollectionReference;
-import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.FirebaseFirestoreException;
-import com.google.firebase.firestore.Query;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
-import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 
 import io.paperdb.Paper;
@@ -50,17 +40,24 @@ public class ProfileListActivity extends AppCompatActivity
         implements FilterFragment.OnFragmentInteractionListener,
         ControllerCallback, FollowController.OtherMoodsCallback {
     private static final String TAG = ProfileListActivity.class.getSimpleName();
-    private final FirebaseFirestore db = FirebaseFirestore.getInstance();
+    private final CacheListener cacheListener = CacheListener.getInstance();
 
-    private ViewController vc;
+    private static final String MOOD_LIST_LISTENER_KEY = "moodspace.ProfileListActivity.moodListListenerKey";
+
+    private MoodController mc;
     private FollowController fc;
-    ArrayAdapter<MoodOther> moodAdapter;
-    ArrayList<MoodOther> moodDataList = new ArrayList<>();
-    final boolean[] checkedItems = new boolean[Emotion.values().length];
+    private FilterController ftc;
+
+    ArrayAdapter<MoodView> moodAdapter;
+    ArrayList<MoodView> moodDataList = new ArrayList<>();
+    boolean[] filterChecks = new boolean[Emotion.values().length];
+
+    ArrayList<MoodView> cachedMoodList;
+    final ArrayList<Emotion> cachedEmotionList = new ArrayList<>(Arrays.asList(Emotion.values()));
 
     private String moodId;
     private String username;
-    private boolean feed;
+    private boolean feed = false;
     ListView moodList;
 
 
@@ -72,11 +69,15 @@ public class ProfileListActivity extends AppCompatActivity
                     WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
         }
         setContentView(R.layout.activity_profile_list);
-        vc = new ViewController(this);
+        mc = new MoodController(this);
         fc = new FollowController(this);
+        ftc = new FilterController(this);
 
-        username = getIntent().getExtras().getString("username");
-        feed = getIntent().getExtras().getBoolean("feed");
+        Bundle extras = getIntent().getExtras();
+        if (extras != null) {
+            username = extras.getString(Utils.USERNAME_KEY);
+            feed = extras.getBoolean("feed");
+        }
 
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -103,21 +104,21 @@ public class ProfileListActivity extends AppCompatActivity
                 switch (item.getItemId()) {
                     case R.id.nav_item_profile:
                         Intent intent0 = new Intent(ProfileListActivity.this, ProfileListActivity.class);
-                        intent0.putExtra("username", username);
+                        intent0.putExtra(Utils.USERNAME_KEY, username);
                         intent0.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                         startActivity(intent0);
                         finish();
                         return true;
                     case R.id.nav_item_following:
                         Intent intent = new Intent(ProfileListActivity.this, FollowActivity.class);
-                        intent.putExtra("username", username);
+                        intent.putExtra(Utils.USERNAME_KEY, username);
                         intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                         startActivity(intent);
                         finish();
                         return true;
                     case R.id.nav_item_feed:
                         Intent intent1 = new Intent(ProfileListActivity.this, ProfileListActivity.class);
-                        intent1.putExtra("username", username);
+                        intent1.putExtra(Utils.USERNAME_KEY, username);
                         intent1.putExtra("feed", true);
                         intent1.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                         startActivity(intent1);
@@ -125,7 +126,7 @@ public class ProfileListActivity extends AppCompatActivity
                         return true;
                     case R.id.nav_item_map:
                         Intent intent3 = new Intent(ProfileListActivity.this, MapsActivity.class);
-                        intent3.putExtra("username", username);
+                        intent3.putExtra(Utils.USERNAME_KEY, username);
                         startActivity(intent3);
                         finish();
                         return true;
@@ -159,7 +160,7 @@ public class ProfileListActivity extends AppCompatActivity
             fc.getFollowingMoods(username);
             addBtn.setVisibility(View.GONE);
 
-            // sets up EditMood on tapping any mood
+            // sets up ViewMood on tapping any mood
             moodList.setAdapter(moodAdapter);
             moodList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                 @Override
@@ -167,12 +168,13 @@ public class ProfileListActivity extends AppCompatActivity
                     openViewMood(username, position);
                 }
             });
+        } else {
+            moodAdapter = new MoodViewList(this, moodDataList);
+            moodList.setAdapter(moodAdapter);
 
-        } else  {
-            final List<Emotion> filterList = new ArrayList<>();
+            updateData();
 
             // sets up EditMood on tapping any mood
-            moodList.setAdapter(moodAdapter);
             moodList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                 @Override
                 public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -180,41 +182,90 @@ public class ProfileListActivity extends AppCompatActivity
                 }
             });
 
-            // sets up filters
-            final Emotion[] emotionArray = Emotion.values();
-            Arrays.fill(checkedItems, true);
-            final CollectionReference cRef = db.collection("users")
-                    .document(username)
-                    .collection("Filter");
-            cRef.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                @Override
-                public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                    for (QueryDocumentSnapshot doc : task.getResult()){
-                        Emotion emotion = Emotion.valueOf(doc.getString("emotion"));
-                        for (int i = 0; i < emotionArray.length; i++){
-                            if (emotionArray[i] == emotion){
-                                checkedItems[i] = false;
-                                filterList.add(emotion);
-                            }
-                        }
-                    }
-                    update(username, filterList);
-                }
-            });
-
+            // for deleting moods
+            // see onCreateContextMenu, onContextItemSelected
             registerForContextMenu(moodList);
         }
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        cacheListener.removeListener(MOOD_LIST_LISTENER_KEY);
+    }
+
+    /**
+     * updates filters and moods from firestore
+     * - note that if a refresh feature is ever implemented, this can be called
+     */
+    public void updateData() {
+        // used so both have to be updated before the filters are applied
+        final CompletedTaskCounter counter = new CompletedTaskCounter(2);
+
+        // gets and caches user moods
+        mc.getMoodList(username, MOOD_LIST_LISTENER_KEY, new MoodController.UserMoodsCallback() {
+            @Override
+            public void callbackMoodList(@NonNull String user, @NonNull List<Mood> userMoodList) {
+                cachedMoodList = (ArrayList<MoodView>) MoodView.addUsernameToMoods(userMoodList, user);
+                initializeComplete(counter);
+            }
+        });
+
+        // gets and caches filters
+        ftc.getFilters(username, new FilterController.GetFiltersCallback() {
+            @Override
+            public void callbackFilters(@NonNull String user, @NonNull HashSet<String> filters) {
+                HashSet<Emotion> emotionFilters = new HashSet<>();
+                for (String emotionString: filters) {
+                    Emotion emotion = Emotion.valueOf(emotionString);
+                    emotionFilters.add(emotion);
+                }
+                setChecksFromSet(emotionFilters);
+                initializeComplete(counter);
+
+            }
+        });
+    }
+
+    /**
+     * applies the filter to the mood list and properly displays it
+     */
+    public void initializeComplete(CompletedTaskCounter counter) {
+        // only increments if not initialized
+        if (!counter.isComplete()) {
+            counter.incrementComplete();
+        }
+
+        if (!counter.isComplete()) {
+            return;
+        }
+
+        // runs if complete, note that success isn't counted
+        applyFilters();
+    }
+
+    /**
+     * applies the filters to the cached mood list, and displays them
+     */
+    public void applyFilters() {
+        moodDataList.clear();
+        HashSet<Emotion> filteredOutEmotions = getFilteredOutEmotions();
+        for (MoodView moodView: cachedMoodList) {
+            if (!filteredOutEmotions.contains(moodView.getEmotion())) {
+                moodDataList.add(moodView);
+            }
+        }
+        moodAdapter.notifyDataSetChanged();
 
     }
 
     @Override
     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
         super.onCreateContextMenu(menu, v, menuInfo);
-        AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo)menuInfo;
+        AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) menuInfo;
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.menu_list, menu);
         int index = info.position;
-        Log.d(TAG, moodDataList.get(index).getId());
         moodId = moodDataList.get(index).getId();
     }
 
@@ -224,26 +275,7 @@ public class ProfileListActivity extends AppCompatActivity
         switch (item.getItemId()) {
             case R.id.delete:
                 moodDataList.remove(info.position);
-                db.collection("users")
-                        .document(username)
-                        .collection("Moods")
-                        .document(moodId)
-                        .delete()
-                        .addOnSuccessListener(new OnSuccessListener<Void>() {
-                            @Override
-                            public void onSuccess(Void aVoid) {
-                                Log.d(TAG, "Data deletion successful");
-                                makeSuccessToast(ProfileListActivity.this, "Deleted mood");
-                            }
-                        })
-                        .addOnFailureListener(new OnFailureListener() {
-                            @Override
-                            public void onFailure(@NonNull Exception e) {
-                                Log.d(TAG, "Data deletion failed:");
-                                Log.d(TAG, Log.getStackTraceString(e));
-                                makeWarnToast(ProfileListActivity.this, "Error: did not delete mood");
-                            }
-                        });
+                mc.deleteMood(username, moodId);
                 moodAdapter.notifyDataSetChanged();
                 return true;
 
@@ -257,7 +289,7 @@ public class ProfileListActivity extends AppCompatActivity
      */
     public void openAddMood(String username) {
         Intent intent = new Intent(this, AddEditActivity.class);
-        intent.putExtra("USERNAME", username);
+        intent.putExtra(Utils.USERNAME_KEY, username);
         startActivity(intent);
     }
 
@@ -268,16 +300,15 @@ public class ProfileListActivity extends AppCompatActivity
         Mood mood = moodDataList.get(position);
         Intent intent = new Intent(getApplicationContext(), AddEditActivity.class);
         intent.putExtra("MOOD", mood);
-        intent.putExtra("USERNAME", username);
+        intent.putExtra(Utils.USERNAME_KEY, username);
         startActivity(intent);
     }
 
     public void openViewMood(String username, int position) {
-        MoodOther moodOther = moodDataList.get(position);
+        MoodView moodView = moodDataList.get(position);
         Intent intent = new Intent(getApplicationContext(), ViewMoodActivity.class);
-        intent.putExtra("MOOD", moodOther);
-        intent.putExtra("USERNAME", moodOther.getUsername());
-        intent.putExtra("username", username);
+        intent.putExtra("MOOD", moodView);
+        intent.putExtra(Utils.USERNAME_KEY, username);
         startActivity(intent);
     }
 
@@ -288,8 +319,8 @@ public class ProfileListActivity extends AppCompatActivity
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        if (!(feed)){
-                getMenuInflater().inflate(R.menu.toolbar_menu, menu);
+        if (!feed) {
+            getMenuInflater().inflate(R.menu.toolbar_menu, menu);
         }
         return true;
     }
@@ -301,7 +332,7 @@ public class ProfileListActivity extends AppCompatActivity
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.filter:
-                new FilterFragment(username, checkedItems)
+                new FilterFragment(username, filterChecks)
                         .show(getSupportFragmentManager(), "FILTER");
                 return true;
             default:
@@ -311,39 +342,16 @@ public class ProfileListActivity extends AppCompatActivity
         }
     }
 
-    // updates data from firestore
-    public void update(final String username, final List<Emotion> filterList) {
-        db.collection("users")
-                .document(username)
-                .collection("Moods")
-                .orderBy("date", Query.Direction.DESCENDING)
-                .addSnapshotListener(new EventListener<QuerySnapshot>() {
-                    @Override
-                    public void onEvent(
-                            @Nullable QuerySnapshot queryDocumentSnapshots,
-                            @Nullable FirebaseFirestoreException e
-                    ) {
-                        moodDataList.clear();
-                        for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
-                            Mood mood = Mood.fromDocSnapshot(doc);
-                            if (!(filterList.contains(mood.getEmotion()))){
-                                moodDataList.add(MoodOther.fromMood(mood, username));
-                            }
-                        }
-                        moodAdapter.notifyDataSetChanged();
-                    }
-                });
-    }
+    /**
+     * updates filters locally and in firestore
+     */
+    public void onOkPressed(boolean[] newFilterChecks) {
+        ftc.updateFilters(username, filterChecks.clone(), newFilterChecks);
 
-    public void onOkPressed(boolean[] checkedItems){
-        final Emotion[] emotionArray = Emotion.values();
-        List<Emotion> filterList = new ArrayList<>();
-        for (int i = 0; i < checkedItems.length; i++){
-            if (checkedItems[i] == false) {
-                filterList.add(emotionArray[i]);
-            }
-        }
-        update(username, filterList);
+        // copies newFilterChecks -> filterChecks
+        System.arraycopy(newFilterChecks ,0, filterChecks,0, newFilterChecks.length);
+
+        applyFilters();
     }
 
     @Override
@@ -353,15 +361,81 @@ public class ProfileListActivity extends AppCompatActivity
 
     @Override
     public void callback(CallbackId callbackId, Bundle bundle) {
+        if (callbackId instanceof FilterCallbackId) {
+            switch ((FilterCallbackId) callbackId) {
+                case REMOVE_FILTER_FAIL:
+                case ADD_FILTER_FAIL:
+                    makeWarnToast(this, "Error: filters could not be uploaded");
+                    Log.w(TAG, "filters were not properly updated");
+                    break;
+
+                case ADD_FILTER_SUCCESS:
+                case REMOVE_FILTER_SUCCESS:
+                case UPDATE_FILTERS_COMPLETE:
+                    break;
+                default:
+                    Log.w(TAG, "unrecognized callback ID: " + callbackId);
+            }
+        } else if (callbackId instanceof MoodCallbackId) {
+            switch ((MoodCallbackId) callbackId) {
+                case DELETE_SUCCESS:
+                    makeSuccessToast(ProfileListActivity.this, "Deleted mood");
+                    break;
+                case DELETE_FAIL:
+                    makeWarnToast(ProfileListActivity.this, "Error: could not delete mood");
+                    break;
+                default:
+                    Log.w(TAG, "unrecognized callback ID: " + callbackId);
+            }
+
+        } else if (callbackId instanceof UserCallbackId) {
+            switch ((UserCallbackId) callbackId) {
+                case USER_READ_DATA_FAIL:
+                case USER_TASK_NULL:
+                case USER_NONEXISTENT:
+                    makeWarnToast(this, "Error: unable to read user data");
+                    Log.w(TAG, "Error: unable to read user data, callbackId=" + callbackId);
+                    break;
+                default:
+                    Log.w(TAG, "unrecognized callback ID: " + callbackId);
+            }
+        } else {
+            Log.w(TAG, "unrecognized callback ID: " + callbackId);
+        }
         // TODO stub
     }
 
     @Override
-    public void callbackFollowingMoods(@NonNull String user, @NonNull ArrayList<MoodOther> followingMoodsList) {
+    public void callbackFollowingMoods(@NonNull String user, @NonNull ArrayList<MoodView> followingMoodsList) {
         moodDataList.clear();
         moodDataList.addAll(followingMoodsList);
-
         moodList.setAdapter(moodAdapter);
         moodAdapter.notifyDataSetChanged();
     }
+
+    // gets the boolean array for the filter fragment
+    private void setChecksFromSet(HashSet<Emotion> filters) {
+        Arrays.fill(filterChecks, true);
+
+        for (Emotion emotion: filters) {
+            int i = cachedEmotionList.indexOf(emotion);
+            filterChecks[i] = false;
+        }
+    }
+
+    // saves the current filters hashset given the checks from the filter fragment
+    private HashSet<Emotion> getFilteredOutEmotions() {
+        HashSet<Emotion> filters = new HashSet<>();
+        final Emotion[] emotionArray = Emotion.values();
+
+        for (int i = 0; i < filterChecks.length; i++){
+            // only adds to the filters if it is unselected (false)
+            if (!filterChecks[i]) {
+                filters.add(emotionArray[i]);
+            }
+        }
+
+        return filters;
+    }
+
 }

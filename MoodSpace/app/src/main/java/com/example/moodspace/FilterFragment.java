@@ -15,15 +15,13 @@ import androidx.fragment.app.DialogFragment;
 public class FilterFragment extends DialogFragment {
     private static final String TAG = FilterFragment.class.getSimpleName();
 
-    private FilterController fc;
-
     private OnFragmentInteractionListener listener;
     private String username;
     private boolean[] checkedItems;
 
-    public FilterFragment(String user, boolean[] checkedItems) {
+    public FilterFragment(String user, boolean[] initialChecks) {
         this.username = user;
-        this.checkedItems = checkedItems;
+        this.checkedItems = initialChecks.clone();
     }
 
     public interface OnFragmentInteractionListener {
@@ -31,9 +29,9 @@ public class FilterFragment extends DialogFragment {
     }
 
     @Override
-    public void onAttach(Context context) {
+    public void onAttach(@NonNull Context context) {
         super.onAttach(context);
-        if (context instanceof OnFragmentInteractionListener){
+        if (context instanceof OnFragmentInteractionListener) {
             listener = (OnFragmentInteractionListener) context;
         } else {
             throw new RuntimeException(context.toString()
@@ -41,34 +39,27 @@ public class FilterFragment extends DialogFragment {
         }
     }
 
+    /**
+     * creates the dialog box to set filters
+     *
+     * @return simply whether each checkbox is checked or not
+     */
     @NonNull
     @Override
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
-        fc = new FilterController(FilterFragment.this.getActivity());
         String[] emotionStrings = Emotion.getEmojiList();
         AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
-        builder.setMultiChoiceItems(emotionStrings, checkedItems, new DialogInterface.OnMultiChoiceClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which, boolean isChecked) {
-                if (isChecked) {
-                    // If the user checked the item, filter it out
-                    fc.filterOut(which, username);
-                } else {
-                    // Else, remove the item from the filter
-                    fc.filterIn(which, username);
-                }
-            }
-        });
-        return builder
-                .setTitle("Filter Moods")
-                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+        return builder.setTitle("Filter Moods")
+                .setMultiChoiceItems(emotionStrings, checkedItems, new DialogInterface.OnMultiChoiceClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int i, boolean isChecked) {
+                        checkedItems[i] = isChecked;
+                    }
+                }).setPositiveButton("OK", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
-                        listener.onOkPressed(getCheckedItems());
-                    }}).create();
-    }
-
-    public boolean[] getCheckedItems(){
-        return this.checkedItems;
+                        listener.onOkPressed(checkedItems);
+                    }
+                }).create();
     }
 }

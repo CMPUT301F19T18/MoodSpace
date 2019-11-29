@@ -2,8 +2,8 @@ package com.example.moodspace;
 
 public class CompletedTaskCounter {
     private int limit;
-    private int complete = 0;
-    private int success = 0;
+    private int completedTasks = 0;
+    private int successfulTasks = 0;
 
     public CompletedTaskCounter(int limit) {
         if (limit <= 0) {
@@ -17,24 +17,36 @@ public class CompletedTaskCounter {
     }
 
     public void incrementComplete() {
-        if (complete + 1 > limit) {
+        if (completedTasks + 1 > limit) {
             throw new IllegalArgumentException("Did not expect to increment complete past limit=" + limit);
         }
-        complete++;
+        completedTasks++;
     }
 
     public void incrementSuccess() {
-        if (success + 1 > limit) {
+        if (successfulTasks + 1 > limit) {
             throw new IllegalArgumentException("Did not expect to increment success past limit=" + limit);
         }
-        success++;
+        successfulTasks++;
+    }
+
+    public void reset() {
+        this.completedTasks = this.successfulTasks = 0;
+    }
+
+    public int getCompletedTasks() {
+        return this.completedTasks;
+    }
+
+    public int getSuccessfulTasks() {
+        return this.successfulTasks;
     }
 
     public boolean isComplete() {
-        return complete == limit;
+        return completedTasks == limit;
     }
 
     public boolean isSuccess() {
-        return success == limit;
+        return successfulTasks == limit;
     }
 }
