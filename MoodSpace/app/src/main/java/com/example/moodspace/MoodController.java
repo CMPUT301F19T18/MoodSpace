@@ -115,27 +115,6 @@ public class MoodController {
                     ) {
                         List<Mood> moodList = new ArrayList<>();
                         if (queryDocumentSnapshots != null) {
-                            /*
-                            String source = queryDocumentSnapshots.getMetadata().hasPendingWrites()
-                                    ? "Local" : "Server";
-                            for (DocumentChange dc : queryDocumentSnapshots.getDocumentChanges()) {
-                                String id = dc.getDocument().getId();
-                                switch (dc.getType()) {
-                                    case ADDED:
-                                        Log.d(TAG, source + ": added " + id);
-                                    case MODIFIED:
-                                        Log.d(TAG, source + ": modified " + id);
-                                        break;
-                                    case REMOVED:
-                                        Log.d(TAG, source + ": removed " + id);
-                                        break;
-                                    default:
-                                        Log.d(TAG, source + ": this shouldn't happen but okay " + id);
-                                        break;
-                                }
-                            }
-                             */
-
                             for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
                                 Mood mood = Mood.fromDocSnapshot(doc);
                                 moodList.add(mood);

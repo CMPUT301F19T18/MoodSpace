@@ -44,7 +44,7 @@ public class ProfileListActivity extends AppCompatActivity
         ControllerCallback, FollowController.OtherMoodsCallback {
     private static final String TAG = ProfileListActivity.class.getSimpleName();
     private final FirebaseFirestore db = FirebaseFirestore.getInstance();
-    private CacheListener cacheListener = CacheListener.getInstance();
+    private final CacheListener cacheListener = CacheListener.getInstance();
 
     private static final String MOOD_LIST_LISTENER_KEY = "moodspace.ProfileListActivity.moodListListenerKey";
 
@@ -190,14 +190,11 @@ public class ProfileListActivity extends AppCompatActivity
         // used so both have to be updated before the filters are applied
         final CompletedTaskCounter counter = new CompletedTaskCounter(2);
 
-        Log.d(TAG, "updateData()");
-
         // gets and caches user moods
         mc.getMoodList(username, MOOD_LIST_LISTENER_KEY, new MoodController.UserMoodsCallback() {
             @Override
             public void callbackMoodList(@NonNull String user, @NonNull List<Mood> userMoodList) {
                 cachedMoodList = (ArrayList<MoodView>) MoodView.addUsernameToMoods(userMoodList, user);
-                Log.d(TAG, "callbackMoodList()");
                 initializeComplete(counter);
             }
         });
@@ -211,9 +208,7 @@ public class ProfileListActivity extends AppCompatActivity
                     Emotion emotion = Emotion.valueOf(emotionString);
                     emotionFilters.add(emotion);
                 }
-                Log.d(TAG, "emotion filters: " + emotionFilters);
                 setChecksFromSet(emotionFilters);
-                Log.d(TAG, "callbackFilters()");
                 initializeComplete(counter);
 
             }
@@ -259,7 +254,6 @@ public class ProfileListActivity extends AppCompatActivity
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.menu_list, menu);
         int index = info.position;
-        //Log.d(TAG, moodDataList.get(index).getId());
         moodId = moodDataList.get(index).getId();
     }
 

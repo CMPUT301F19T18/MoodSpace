@@ -38,6 +38,7 @@ import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import io.paperdb.Paper;
 
@@ -45,14 +46,22 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     private static final String TAG = MapsActivity.class.getSimpleName();
 
     private static final String MAPVIEW_BUNDLE_KEY = "moodspace.MapsActivity.mapViewBundleKey";
+    private static final String MOOD_LIST_LISTENER_KEY = "moodspace.ProfileListActivity.moodListListenerKey";
 
+    private final FirebaseFirestore db = FirebaseFirestore.getInstance();
+    private final CacheListener cacheListener = CacheListener.getInstance();
+
+    private FollowController fc;
+    private MoodController mc;
+
+    // location variables
     private GoogleMap mMap;
     MapView mMapView;
     private FusedLocationProviderClient fusedLocationProviderClient;
-    private String username;
-    private final FirebaseFirestore db = FirebaseFirestore.getInstance();
+
     TabLayout myTabs;
-    private FollowController fc;
+
+    private String username;
     private ArrayList<MoodView> followingMoodsList;
 
 
@@ -68,6 +77,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         username = getIntent().getExtras().getString(Utils.USERNAME_KEY);
         fc = new FollowController(this);
+        mc = new MoodController(this);
 
         Toolbar toolbar = findViewById(R.id.toolbar);
         toolbar.setTitle("Map");
@@ -85,6 +95,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                         break;
                     case 1:
                         displayFollowingMoods();
+                        break;
                     default:
                         Log.w(TAG, "unknown tab");
                 }
@@ -108,71 +119,68 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         //TODO make tabs and using mode and onclicklisteners refresh map with new markers
         //TODO marker color should be mood specific and should have a popup of username and emoji
         //TODO maybe on click viewactivity will open with that mood
-
-
-
     }
 
 
     private void displayFollowingMoods() {
-        Double lat;
-        Double lon;
-        Date date;
-        Emotion emotion;
-        String ts;
-        BitmapDescriptor color;
-        String followingUser;
-        Boolean centerCamera =  false;
+        boolean centerCamera = false;
 
         for (MoodView m: followingMoodsList) {
-            lat = m.getLat();
-            lon = m.getLon();
-            date = m.getDate();
-            ts = date.toString();
-            emotion = m.getEmotion();
-            followingUser = m.getUsername();
-
-            switch (emotion.getEmojiName()){
-                case "Enjoyment":
-                    color = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_YELLOW);
-                    break;
-                case "Sadness":
-                    color = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE);
-                    break;
-                case "Anger":
-                    color = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED);
-                    break;
-                case "Fear":
-                    color = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_VIOLET);
-                    break;
-                case "Disgust":
-                    color = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN);
-                    break;
-                case "Contempt":
-                    color = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE);
-                    break;
-                default:
-                    color = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_CYAN);
-                    break;
-            }
+            Double lat = m.getLat();
+            Double lon = m.getLon();
+            String ts = m.getDate().toString();
+            Emotion emotion = m.getEmotion();
+            String followingUser = m.getUsername();
 
             if (lat != null && lon != null) {
                 LatLng latLng = new LatLng(lat, lon);
                 mMap.addMarker(new MarkerOptions().position(latLng)
                         .title(followingUser + emotion.getEmojiString())
                         .snippet(ts)
-                        .icon(color));
-                if(!centerCamera){
-                    // centers camera at the latest mood
+                        .icon(LocationController.getColor(emotion)));
+
+                // centers camera at the latest mood
+                if (!centerCamera) {
                     centerCamera = true;
                     mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
                 }
             }
-
         }
     }
 
     private void displayOwnMoods() {
+        mc.getMoodList(username, MOOD_LIST_LISTENER_KEY, new MoodController.UserMoodsCallback() {
+            @Override
+            public void callbackMoodList(@NonNull String user, @NonNull List<Mood> userMoodList) {
+                boolean centerCamera = false;
+
+                for (Mood mood: userMoodList) {
+                    Double lat = mood.getLat();
+                    Double lon = mood.getLat();
+                    Emotion emotion = mood.getEmotion();
+                    Date ts = mood.getDate();
+
+                    if (lat != null && lon != null){
+                        LatLng latLng = new LatLng(lat, lon);
+                        mMap.addMarker(new MarkerOptions().position(latLng)
+                                .title(emotion.getEmojiString())
+                                .snippet(ts.toString())
+                                .icon(LocationController.getColor(emotion)));
+
+                        // centers camera at the latest mood
+                        if (!centerCamera) {
+                            centerCamera = true;
+                            mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
+                        }
+
+                    }
+                }
+            }
+        });
+
+
+
+        /*
         db.collection("users")
                 .document(username)
                 .collection("Moods")
@@ -196,6 +204,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                             Date ts = doc.getTimestamp("date").toDate();
                             Emotion emotion = Emotion.valueOf(doc.getString("emotion"));
                             BitmapDescriptor color;
+
                             switch (emotion.getEmojiName()){
                                 case "Enjoyment":
                                     color = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_YELLOW);
@@ -235,6 +244,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                         }
                     }
                 });
+
+         */
     }
 
 
@@ -329,7 +340,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
     @Override
-    public void onSaveInstanceState(Bundle outState) {
+    public void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
 
         Bundle mapViewBundle = outState.getBundle(MAPVIEW_BUNDLE_KEY);
@@ -362,14 +373,17 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     @Override
     public void onPause() {
-        mMapView.onPause();
         super.onPause();
+        mMapView.onPause();
     }
 
     @Override
     public void onDestroy() {
-        mMapView.onDestroy();
         super.onDestroy();
+        mMapView.onDestroy();
+
+        cacheListener.removeListener(MOOD_LIST_LISTENER_KEY);
+
     }
 
     @Override
