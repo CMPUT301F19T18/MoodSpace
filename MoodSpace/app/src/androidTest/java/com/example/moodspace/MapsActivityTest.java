@@ -36,6 +36,10 @@ import static org.hamcrest.Matchers.is;
 
 import static org.junit.Assert.assertEquals;
 
+/**
+ * checks with UI Automator if appropriate markers are present on the screen
+ */
+
 @RunWith(AndroidJUnit4.class)
 @LargeTest
 public class MapsActivityTest {
