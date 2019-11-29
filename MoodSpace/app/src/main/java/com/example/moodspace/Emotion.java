@@ -50,6 +50,10 @@ public enum Emotion {
         return emotionStringArray;
     }
 
+    public EmotionWithNull toEmotionWithNull() {
+        return EmotionWithNull.valueOf(this.name());
+    }
+
     @Override
     public String toString() {
         return "Emotion{" +
