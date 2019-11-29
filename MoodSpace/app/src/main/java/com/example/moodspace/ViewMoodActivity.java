@@ -1,48 +1,35 @@
 package com.example.moodspace;
 
-import android.content.Context;
-import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.os.Build;
 import android.os.Bundle;
-import android.provider.ContactsContract;
-import android.util.Log;
-import android.view.MenuItem;
 import android.view.View;
-import android.view.WindowManager;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
-import androidx.constraintlayout.widget.ConstraintLayout;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
+import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
-import org.w3c.dom.Text;
-
 import java.util.ArrayList;
-
-import io.paperdb.Paper;
 
 import static com.example.moodspace.Utils.makeWarnToast;
 
-public class ViewMoodActivity extends AppCompatActivity {
+public class ViewMoodActivity extends AppCompatActivity
+        implements OnMapReadyCallback {
 
     private static final String TAG = ViewMoodActivity.class.getSimpleName();
     private String otherUsername;
@@ -53,20 +40,20 @@ public class ViewMoodActivity extends AppCompatActivity {
     private static final long MAX_DOWNLOAD_LIMIT = 30 * 1024 * 1024;
     private boolean hasPhoto = false;
     private boolean changedPhoto = false;
+
     private static final String MAPVIEW_BUNDLE_KEY = "moodspace.AddEditActivity.mapViewBundleKey";
     private GoogleMap gMap;
-
-
-
+    private MapView mapView;
 
     ArrayAdapter<MoodOther> moodAdapter;
     ArrayList<MoodOther> moodDataList;
-    MapView mapView = findViewById(R.id.map_view);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_view_mood);
+
+        setupMapView(savedInstanceState);
 
         otherUsername = getIntent().getExtras().getString("USERNAME");
         username = getIntent().getExtras().getString("username");
@@ -93,6 +80,7 @@ public class ViewMoodActivity extends AppCompatActivity {
         TextView reasonInfo = findViewById(R.id.reason_text);
         TextView dateInfo = findViewById(R.id.date);
         TextView timeInfo = findViewById(R.id.time);
+        mapView = findViewById(R.id.map_view);
 
         String parsedDate = Utils.formatDate(currentMood.getDate());
         String parsedTime = Utils.formatTime(currentMood.getDate());
@@ -145,13 +133,7 @@ public class ViewMoodActivity extends AppCompatActivity {
 
         if (currentMood.getHasLocation()) {
             mapView.setVisibility(View.VISIBLE);
-
-
         }
-
-
-
-
     }
 
     private void setupMapView(Bundle savedInstanceState) {
@@ -166,7 +148,7 @@ public class ViewMoodActivity extends AppCompatActivity {
         mapView = findViewById(R.id.map_view);
         mapView.onCreate(mapViewBundle);
 
-//        mapView.getMapAsync(ViewMoodActivity.this);
+        mapView.getMapAsync(ViewMoodActivity.this);
 
     }
     @Override
@@ -200,6 +182,27 @@ public class ViewMoodActivity extends AppCompatActivity {
     }
 
 
+    @Override
+    public void onLowMemory() {
+        super.onLowMemory();
+        mapView.onLowMemory();
+    }
+
+
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+
+        Bundle mapViewBundle = outState.getBundle(MAPVIEW_BUNDLE_KEY);
+        if (mapViewBundle == null) {
+            mapViewBundle = new Bundle();
+            outState.putBundle(MAPVIEW_BUNDLE_KEY, mapViewBundle);
+        }
+
+        mapView.onSaveInstanceState(mapViewBundle);
+    }
+
+
     private void setPreviewImage(Bitmap bm, boolean changedPhoto) {
         ImageView imageView = findViewById(R.id.image_view);
         Button imageButton = findViewById(R.id.image_button);
@@ -212,4 +215,16 @@ public class ViewMoodActivity extends AppCompatActivity {
     }
 
 
+    @Override
+    public void onMapReady(GoogleMap googleMap) {
+        this.gMap = googleMap;
+        Double lat = currentMood.getLat();
+        Double lon = currentMood.getLon();
+
+        if (lat != null && lon != null) {
+            LatLng latLng = new LatLng(lat, lon);
+            googleMap.addMarker(new MarkerOptions().position(latLng));
+            googleMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
+        }
+    }
 }
