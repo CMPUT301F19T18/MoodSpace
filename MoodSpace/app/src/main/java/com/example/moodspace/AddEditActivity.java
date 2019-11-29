@@ -14,6 +14,7 @@ import android.os.Looper;
 import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.ImageButton;
@@ -60,7 +61,7 @@ import static com.example.moodspace.Utils.makeWarnToast;
  * - editing is also used to view the details of your own moods
  */
 public class AddEditActivity extends AppCompatActivity
-        implements OnMapReadyCallback {
+        implements AdapterView.OnItemSelectedListener, OnMapReadyCallback {
     private static final String MAPVIEW_BUNDLE_KEY = "moodspace.AddEditActivity.mapViewBundleKey";
 
     private static final int PICK_IMAGE = 1;
@@ -79,11 +80,11 @@ public class AddEditActivity extends AppCompatActivity
     private boolean hasPhoto = false;
     private boolean changedPhoto = false;
     private Mood currentMood = null;
+    private Emotion selectedEmotion = null;
 
     private TextInputEditText reasonEditText;
     private CheckBox locationCheckBox;
     private Spinner socialSitSpinner;
-    private Spinner emotionSpinner;
     private Button saveBtn;
 
     // location variables
@@ -119,14 +120,15 @@ public class AddEditActivity extends AppCompatActivity
         reasonEditText = findViewById(R.id.reason_text);
         locationCheckBox = findViewById(R.id.checkbox_location);
         socialSitSpinner = findViewById(R.id.situationSelector);
-        emotionSpinner = findViewById(R.id.emotionSelector);
         saveBtn = findViewById(R.id.saveBtn);
 
         // creates emotion spinner
-        List<EmotionWithNull> emotionList = Arrays.asList(EmotionWithNull.values());
+        final Spinner emotionSpinner = findViewById(R.id.emotionSelector);
+        List<Emotion> emotionList = Arrays.asList(Emotion.values());
         // last argument is initialTextWasShown (true if EditActivity, false if AddActivity)
         final EmotionAdapter emotionAdapter = new EmotionAdapter(this, emotionList);
         emotionSpinner.setAdapter(emotionAdapter);
+        emotionSpinner.setOnItemSelectedListener(this);
 
         // creates social situation spinner
         List<SocialSituation> socialSitList = Arrays.asList(SocialSituation.values());
@@ -269,7 +271,7 @@ public class AddEditActivity extends AppCompatActivity
 
             // fills in fields with previous values
             // adds for it to work with "please select emotion" position
-            int emotionIndex = emotionAdapter.getPosition(currentMood.getEmotion().toEmotionWithNull());
+            int emotionIndex = emotionAdapter.getPosition(currentMood.getEmotion()) + 1;
             emotionSpinner.setSelection(emotionIndex);
             int socialSitIndex = socialSituationAdapter.getPosition(currentMood.getSocialSituation());
             socialSitSpinner.setSelection(socialSitIndex);
@@ -390,13 +392,11 @@ public class AddEditActivity extends AppCompatActivity
     private void attemptSaveMood(boolean bypassLocationNull) {
         saveBtn.setEnabled(false);
         // requires an emotion to be selected
-        EmotionWithNull emotionWithNull = (EmotionWithNull) emotionSpinner.getSelectedItem();
-        if (emotionWithNull == EmotionWithNull.NULL) {
+        if (selectedEmotion == null) {
             makeInfoToast(AddEditActivity.this, "Select an emotion");
             saveBtn.setEnabled(true);
             return;
         }
-        Emotion selectedEmotion = emotionWithNull.toEmotion();
 
         boolean hasPhoto = this.hasPhoto;
         SocialSituation socialSit = (SocialSituation) socialSitSpinner.getSelectedItem();
@@ -673,6 +673,18 @@ public class AddEditActivity extends AppCompatActivity
         this.changedPhoto |= changedPhoto;
         this.hasPhoto = true;
     }
+
+    @Override
+    public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+        // subtracts by one to work with "please select an emotion"
+        if (i == 0) {
+            return;
+        }
+        selectedEmotion = (Emotion) adapterView.getItemAtPosition(i - 1);
+    }
+
+    @Override
+    public void onNothingSelected(AdapterView<?> adapterView) {}
 
     @Override
     public void onMapReady(GoogleMap googleMap) {

@@ -9,7 +9,8 @@ public enum Emotion {
     DISGUST(4, 0x1F922,"#4f9429", "Disgust"),
     FEAR(5, 0x1F631, "#5a3b85", "Fear"),
     CONTEMPT(6, 0x1f612, "#e9663d", "Contempt"),
-    SURPRISE(7, 0x1F62E, "#3cafaf", "Surprise");
+    SURPRISE(7, 0x1F62E, "#3cafaf", "Surprise"),
+    NULL(8,0x1f62E,"#3cafaf","Surprise");
 
 
 
