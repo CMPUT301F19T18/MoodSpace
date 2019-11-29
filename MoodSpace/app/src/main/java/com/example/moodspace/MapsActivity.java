@@ -54,7 +54,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     TabLayout myTabs;
     private FollowController fc;
     private ArrayList<MoodOther> followingMoodsList;
-    private Boolean centerCamera = false; // to center the camera at the latest mood in the mood history
 
 
     @Override
@@ -160,7 +159,10 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                         .title(followingUser + emotion.getEmojiString())
                         .snippet(ts)
                         .icon(color));
-                mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
+                if(m == followingMoodsList.get(0)){
+                    // centers camera at the latest mood
+                    mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
+                }
             }
 
         }
@@ -174,6 +176,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 .addSnapshotListener(new EventListener<QuerySnapshot>() {
                     @Override
                     public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException e) {
+                        Boolean centerCamera = false; // to center the camera at the latest mood in the mood history
 
                         for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
                             Double lat = null;
