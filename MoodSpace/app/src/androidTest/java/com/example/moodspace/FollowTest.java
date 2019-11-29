@@ -12,16 +12,20 @@ import androidx.test.rule.ActivityTestRule;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeMatcher;
+import org.hamcrest.core.AllOf;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import static androidx.test.espresso.Espresso.onData;
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.action.ViewActions.closeSoftKeyboard;
+import static androidx.test.espresso.action.ViewActions.longClick;
 import static androidx.test.espresso.action.ViewActions.typeText;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.ViewMatchers.hasDescendant;
+import static androidx.test.espresso.matcher.ViewMatchers.isCompletelyDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withClassName;
 import static androidx.test.espresso.matcher.ViewMatchers.withContentDescription;
@@ -30,6 +34,7 @@ import static androidx.test.espresso.matcher.ViewMatchers.withText;
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.core.IsAnything.anything;
 
 @RunWith(AndroidJUnit4.class)
 @LargeTest
@@ -141,6 +146,33 @@ public class FollowTest {
 
         onView(withId(R.id.moodList))
                 .check(matches(hasDescendant(withText(containsString(contempt)))));
+
+        appCompatImageButton.perform(click());
+        navigationMenuItemView.perform(click());
+
+        ViewInteraction tabView = onView(
+                allOf(withContentDescription("I Follow"),
+                        childAtPosition(
+                                childAtPosition(
+                                        withId(R.id.tab_layout),
+                                        0),
+                                3),
+                        isDisplayed()));
+        tabView.perform(click());
+
+        onData(anything())
+                .inAdapterView(AllOf.allOf(withId(R.id.following_listview), isCompletelyDisplayed()))
+                .atPosition(0).perform(longClick());
+
+        ViewInteraction textView = onView(
+                allOf(withId(android.R.id.title), withText("Unfollow"),
+                        childAtPosition(
+                                childAtPosition(
+                                        withId(android.R.id.content),
+                                        0),
+                                0),
+                        isDisplayed()));
+        textView.perform(click());
 
     }
 
