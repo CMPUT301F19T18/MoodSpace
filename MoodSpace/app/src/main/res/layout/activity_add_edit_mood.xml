@@ -192,7 +192,7 @@
                 <TextView
                     android:id="@+id/locationText"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:layout_height="match_parent"
                     android:fontFamily="cursive"
                     android:padding="4dp"
                     android:text="Location"
@@ -231,14 +231,14 @@
                     android:layout_width="0dp"
                     android:layout_height="0dp"
                     android:layout_marginStart="8dp"
-                    android:background="@color/colorPrimary"
+                    android:background="@color/colorGrey"
                     android:textColor="@color/colorWhite"
                     android:textSize="18sp"
                     android:textStyle="bold"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintDimensionRatio="1:1"
-                    app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintEnd_toStartOf="@+id/right_square_view"
+                    app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
 
                 <ImageView
@@ -285,7 +285,7 @@
                     android:layout_height="0dp"
                     android:layout_marginStart="4dp"
                     android:layout_marginEnd="8dp"
-                    android:background="@color/colorGrey"
+                    android:background="@android:color/darker_gray"
                     android:textColor="@color/colorWhite"
                     android:textSize="18sp"
                     android:textStyle="bold"
@@ -296,12 +296,11 @@
                     app:layout_constraintTop_toTopOf="parent" />
 
 
-
                 <com.google.android.gms.maps.MapView
                     android:id="@+id/map_view"
                     android:layout_width="0dp"
                     android:layout_height="0dp"
-                    android:background="@android:color/darker_gray"
+                    android:background="@color/colorGrey"
                     app:layout_constraintBottom_toBottomOf="@+id/right_square_view"
                     app:layout_constraintLeft_toLeftOf="@+id/right_square_view"
                     app:layout_constraintRight_toRightOf="@+id/right_square_view"

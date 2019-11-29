@@ -102,7 +102,11 @@ public class ProfileListActivity extends AppCompatActivity
                 drawerLayout.closeDrawers();
                 switch (item.getItemId()) {
                     case R.id.nav_item_profile:
-                        makeInfoToast(ProfileListActivity.this, "Profile");
+                        Intent intent0 = new Intent(ProfileListActivity.this, ProfileListActivity.class);
+                        intent0.putExtra("username", username);
+                        intent0.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                        startActivity(intent0);
+                        finish();
                         return true;
                     case R.id.nav_item_following:
                         Intent intent = new Intent(ProfileListActivity.this, FollowActivity.class);

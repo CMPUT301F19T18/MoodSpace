@@ -51,7 +51,9 @@
                     tools:layout_conversion_absoluteHeight="16dp"
                     tools:layout_editor_absoluteY="56dp"
                     tools:layout_editor_absoluteX="0dp"
-                    tools:layout_conversion_absoluteWidth="206dp" />
+                    tools:layout_conversion_absoluteWidth="206dp"
+                    app:layout_constraintDimensionRatio="1:1"
+                    />
 
                 <TextView
                     android:id="@+id/time"

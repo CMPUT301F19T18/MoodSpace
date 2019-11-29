@@ -23,11 +23,18 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.constraintlayout.widget.ConstraintLayout;
 
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.MapView;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
+
+import org.w3c.dom.Text;
 
 import java.util.ArrayList;
 
@@ -46,11 +53,15 @@ public class ViewMoodActivity extends AppCompatActivity {
     private static final long MAX_DOWNLOAD_LIMIT = 30 * 1024 * 1024;
     private boolean hasPhoto = false;
     private boolean changedPhoto = false;
+    private static final String MAPVIEW_BUNDLE_KEY = "moodspace.AddEditActivity.mapViewBundleKey";
+    private GoogleMap gMap;
+
+
 
 
     ArrayAdapter<MoodOther> moodAdapter;
     ArrayList<MoodOther> moodDataList;
-
+    MapView mapView = findViewById(R.id.map_view);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -104,7 +115,9 @@ public class ViewMoodActivity extends AppCompatActivity {
         reasonInfo.setText(reasonTxt);
 
         View leftsquareView = findViewById(R.id.left_square_view);
+        View rightsquareView = findViewById(R.id.right_square_view);
         ImageView image = findViewById(R.id.image_view);
+        TextView placeholderMsg = findViewById(R.id.placeholder_msg);
         Button imageButton = findViewById(R.id.image_button);
 
         if (currentMood.getHasPhoto()) {
@@ -131,6 +144,8 @@ public class ViewMoodActivity extends AppCompatActivity {
         }
 
         if (currentMood.getHasLocation()) {
+            mapView.setVisibility(View.VISIBLE);
+
 
         }
 
@@ -138,6 +153,52 @@ public class ViewMoodActivity extends AppCompatActivity {
 
 
     }
+
+    private void setupMapView(Bundle savedInstanceState) {
+        // *** IMPORTANT ***
+        // MapView requires that the Bundle you pass contain _ONLY_ MapView SDK
+        // objects or sub-Bundles.
+
+        Bundle mapViewBundle = null;
+        if (savedInstanceState != null) {
+            mapViewBundle = savedInstanceState.getBundle(MAPVIEW_BUNDLE_KEY);
+        }
+        mapView = findViewById(R.id.map_view);
+        mapView.onCreate(mapViewBundle);
+
+//        mapView.getMapAsync(ViewMoodActivity.this);
+
+    }
+    @Override
+    public void onResume() {
+        super.onResume();
+        mapView.onResume();
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        mapView.onStart();
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        mapView.onStop();
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        mapView.onPause();
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        mapView.onDestroy();
+    }
+
 
     private void setPreviewImage(Bitmap bm, boolean changedPhoto) {
         ImageView imageView = findViewById(R.id.image_view);
@@ -149,5 +210,6 @@ public class ViewMoodActivity extends AppCompatActivity {
         this.changedPhoto |= changedPhoto;
         this.hasPhoto = true;
     }
+
 
 }

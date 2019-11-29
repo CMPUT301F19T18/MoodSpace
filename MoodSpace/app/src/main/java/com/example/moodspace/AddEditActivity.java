@@ -276,18 +276,23 @@ public class AddEditActivity extends AppCompatActivity
             int socialSitIndex = socialSituationAdapter.getPosition(currentMood.getSocialSituation());
             socialSitSpinner.setSelection(socialSitIndex);
             reasonEditText.setText(currentMood.getReasonText());
+            TextView placeholderText = findViewById(R.id.placeholder_msg);
+            TextView locationText = findViewById(R.id.locationText);
             if (currentMood.getHasLocation()) {
                 locationCheckBox.setVisibility(View.VISIBLE);
                 locationCheckBox.setChecked(true);
+                placeholderText.setVisibility(View.GONE);
+
             } else {
-                TextView locationText = findViewById(R.id.locationText);
-                locationText.setVisibility(View.GONE);
                 locationCheckBox.setVisibility(View.GONE);
                 mapView.setVisibility(View.GONE);
-                placeholder_location.setVisibility(View.GONE);
+                placeholderText.setVisibility(View.GONE);
+                locationText.setVisibility(View.GONE);
                 right_box.setVisibility(View.GONE);
             }
 
+            View leftsquareView = findViewById(R.id.left_square_view);
+            ImageView image = findViewById(R.id.image_view);
 
             // downloads photo: can't figure out how to separate this task into the controller
             // Create a storage reference from our app
@@ -308,6 +313,10 @@ public class AddEditActivity extends AppCompatActivity
                         makeWarnToast(AddEditActivity.this, "Failed to load existing photo");
                     }
                 });
+            } else {
+                leftsquareView.setVisibility(View.GONE);
+                image.setVisibility(View.GONE);
+                imageButton.setVisibility(View.GONE);
             }
 
             // displays date and time
