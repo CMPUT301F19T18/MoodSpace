@@ -120,6 +120,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         String ts;
         BitmapDescriptor color;
         String followingUser;
+        Boolean centerCamera =  false;
 
         for (MoodOther m: followingMoodsList) {
             lat = m.getLat();
@@ -159,8 +160,9 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                         .title(followingUser + emotion.getEmojiString())
                         .snippet(ts)
                         .icon(color));
-                if(m == followingMoodsList.get(0)){
+                if(!centerCamera){
                     // centers camera at the latest mood
+                    centerCamera = true;
                     mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
                 }
             }
