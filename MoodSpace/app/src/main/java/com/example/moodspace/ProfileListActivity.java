@@ -49,7 +49,7 @@ public class ProfileListActivity extends AppCompatActivity
     private FilterController ftc;
 
     ArrayAdapter<MoodView> moodAdapter;
-    ArrayList<MoodView> moodDataList = new ArrayList<>();;
+    ArrayList<MoodView> moodDataList = new ArrayList<>();
     boolean[] filterChecks = new boolean[Emotion.values().length];
 
     ArrayList<MoodView> cachedMoodList;
@@ -103,7 +103,11 @@ public class ProfileListActivity extends AppCompatActivity
                 drawerLayout.closeDrawers();
                 switch (item.getItemId()) {
                     case R.id.nav_item_profile:
-                        makeInfoToast(ProfileListActivity.this, "Profile");
+                        Intent intent0 = new Intent(ProfileListActivity.this, ProfileListActivity.class);
+                        intent0.putExtra(Utils.USERNAME_KEY, username);
+                        intent0.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                        startActivity(intent0);
+                        finish();
                         return true;
                     case R.id.nav_item_following:
                         Intent intent = new Intent(ProfileListActivity.this, FollowActivity.class);
@@ -150,8 +154,20 @@ public class ProfileListActivity extends AppCompatActivity
             }
         });
 
+        moodAdapter = new MoodViewList(this, moodDataList);
+
         if (feed) {
             fc.getFollowingMoods(username);
+            addBtn.setVisibility(View.GONE);
+
+            // sets up ViewMood on tapping any mood
+            moodList.setAdapter(moodAdapter);
+            moodList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                @Override
+                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                    openViewMood(username, position);
+                }
+            });
         } else {
             moodAdapter = new MoodViewList(this, moodDataList);
             moodList.setAdapter(moodAdapter);
@@ -288,6 +304,15 @@ public class ProfileListActivity extends AppCompatActivity
         startActivity(intent);
     }
 
+    public void openViewMood(String username, int position) {
+        MoodView moodView = moodDataList.get(position);
+        Intent intent = new Intent(getApplicationContext(), ViewMoodActivity.class);
+        intent.putExtra("MOOD", moodView);
+        intent.putExtra(Utils.USERNAME_KEY, username);
+        startActivity(intent);
+    }
+
+
     /**
      * Creates the toolbar.
      */
@@ -378,8 +403,10 @@ public class ProfileListActivity extends AppCompatActivity
 
     @Override
     public void callbackFollowingMoods(@NonNull String user, @NonNull ArrayList<MoodView> followingMoodsList) {
-        moodAdapter = new MoodViewList(this, followingMoodsList);
+        moodDataList.clear();
+        moodDataList.addAll(followingMoodsList);
         moodList.setAdapter(moodAdapter);
+        moodAdapter.notifyDataSetChanged();
     }
 
     // gets the boolean array for the filter fragment

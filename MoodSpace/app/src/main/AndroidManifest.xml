@@ -50,6 +50,12 @@
             android:name=".AddEditActivity"
             android:configChanges="orientation|screenSize|keyboard" />
         <activity android:name=".FollowActivity" />
+
+        <activity android:name=".ViewMoodActivity"
+            android:configChanges="orientation|screenSize|keyboard"
+            android:parentActivityName=".ProfileListActivity">
+        </activity>
     </application>
+
 
 </manifest>

@@ -13,6 +13,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -23,10 +24,10 @@ import java.util.List;
 public class EmotionAdapter extends ArrayAdapter<Emotion> {
     private final String TAG = EmotionAdapter.class.getSimpleName();
     private final String INITIAL_TEXT = getContext().getString(R.string.ae_initial_emotion_text);
-    private final int INITIAL_COLOR = Color.parseColor("#7f8c8d");
     private static final int RESOURCE = R.layout.emotion_spinner_row;
 
     private Context context;
+
 
     public EmotionAdapter(Context context, List<Emotion> emotionList) {
         super(context, RESOURCE, emotionList);
@@ -61,7 +62,6 @@ public class EmotionAdapter extends ArrayAdapter<Emotion> {
         LayoutInflater inflater = LayoutInflater.from(context);
         final TextView view = (TextView) inflater.inflate(RESOURCE, parent, false);
         view.setText(INITIAL_TEXT);
-        view.setBackgroundColor(INITIAL_COLOR);
 
         if (dropdown) { // Hidden when the dropdown is opened
             view.setHeight(0);
@@ -74,7 +74,8 @@ public class EmotionAdapter extends ArrayAdapter<Emotion> {
         // Distinguish "real" spinner items (that can be reused) from initial selection item
         View row;
         if (convertView == null || (convertView instanceof TextView)) {
-            row = LayoutInflater.from(getContext()).inflate(R.layout.emotion_spinner_row, parent, false);
+            LayoutInflater inflater = LayoutInflater.from(context);
+            row = inflater.inflate(RESOURCE, parent, false);
         } else {
             row = convertView;
         }
@@ -86,9 +87,12 @@ public class EmotionAdapter extends ArrayAdapter<Emotion> {
         if (currentItem == null) {
             Log.w(TAG, "Current item is null at position " + position);
         } else {
+            String background = currentItem.getEmojiName().toLowerCase();
+            int id = context.getResources().getIdentifier(background,"drawable", context.getPackageName());
             String parsedText = currentItem.getEmojiString() + "      " + currentItem.getEmojiName();
             emojiField.setText(parsedText);
-            row.setBackgroundColor(currentItem.getColorCode());
+            row.setBackgroundResource(id);
+
         }
         return row;
     }

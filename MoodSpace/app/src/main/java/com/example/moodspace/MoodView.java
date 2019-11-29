@@ -10,16 +10,18 @@ import java.util.List;
 public class MoodView extends Mood {
     private String username;
 
-    public MoodView(String id, Date date, Emotion emotion, String reasonText, boolean hasPhoto,
-                    SocialSituation socialSituation, String username, Double lat, Double lon) {
+    public MoodView(String id, Date date, Emotion emotion, String reasonText,
+                    boolean hasPhoto, boolean hasLocation,
+                    SocialSituation socialSituation, Double lat, Double lon, String username) {
 
-        super(id, date, emotion, reasonText, hasPhoto, socialSituation, lat, lon);
+        super(id, date, emotion, reasonText, hasPhoto, hasLocation, socialSituation, lat, lon);
         this.username = username;
     }
 
     public static MoodView fromMood(Mood mood, String username) {
-        return new MoodView(mood.getId(), mood.getDate(), mood.getEmotion(), mood.getReasonText(),
-                mood.getHasPhoto(), mood.getSocialSituation(), username, mood.getLat(), mood.getLon());
+        return new MoodView(mood.getId(), mood.getDate(), mood.getEmotion(),
+                mood.getReasonText(), mood.getHasPhoto(), mood.getHasLocation(),
+                mood.getSocialSituation(), mood.getLat(), mood.getLon(), username);
     }
 
     public static List<MoodView> addUsernameToMoods(List<Mood> moodList, String username) {
