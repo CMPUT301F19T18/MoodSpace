@@ -21,9 +21,10 @@ public class Mood implements Serializable {
     private Date date;
     private String reasonText;
     private boolean hasPhoto;
+    private boolean hasLocation;
     private SocialSituation socialSituation;
-    private double lat;
-    private double lon;
+    private Double lat;
+    private Double lon;
 
 
     // apparently you need this?
@@ -31,13 +32,14 @@ public class Mood implements Serializable {
     public Mood() {
     }
 
-    public Mood(String id, Date date, Emotion emotion, String reasonText, boolean hasPhoto,
-                SocialSituation socialSituation, double lat, double lon) {
+    public Mood(String id, Date date, Emotion emotion, String reasonText, boolean hasPhoto, boolean hasLocation,
+                SocialSituation socialSituation, Double lat, Double lon) {
         this.id = id;
         this.emotion = emotion;
         this.date = date;
         this.reasonText = reasonText;
         this.hasPhoto = hasPhoto;
+        this.hasLocation = hasLocation;
         this.socialSituation = socialSituation;
         this.lat = lat;
         this.lon = lon;
@@ -58,6 +60,15 @@ public class Mood implements Serializable {
         }
         String reason = doc.getString("reasonText");
         Boolean hasPhoto = doc.getBoolean("hasPhoto");
+        if (hasPhoto == null) { // backwards compatibility
+            hasPhoto = false;
+        }
+
+        Boolean hasLocation = doc.getBoolean("hasLocation");
+        if (hasLocation == null) {
+            hasLocation = false;
+        }
+
         SocialSituation socialSit;
         // TODO get rid once database is wiped
         try { // backwards compatibility
@@ -67,21 +78,18 @@ public class Mood implements Serializable {
             Log.d(TAG, Log.getStackTraceString(ex));
             socialSit = SocialSituation.NOT_PROVIDED;
         }
-        if (hasPhoto == null) { // backwards compatibility
-            hasPhoto = false;
-        }
-        double lat;
-        double lon;
+
+        Double lat = null;
+        Double lon = null;
         try {
             lat = doc.getDouble("lat");
             lon = doc.getDouble("lon");
         } catch (Exception ex) {
-            lat = -1000;
-            lon = -1000;
+            Log.d(TAG, "cannot get location");
         }
 
         String id = doc.getId();
-        return new Mood(id, date, emotion, reason, hasPhoto, socialSit, lat, lon);
+        return new Mood(id, date, emotion, reason, hasPhoto, hasLocation, socialSit, lat, lon);
 
     }
 
@@ -106,15 +114,19 @@ public class Mood implements Serializable {
         return this.hasPhoto;
     }
 
+    public boolean getHasLocation() {
+        return this.hasLocation;
+    }
+
     public SocialSituation getSocialSituation() {
         return socialSituation;
     }
 
-    public double getLat() {
+    public Double getLat() {
         return lat;
     }
 
-    public double getLon() {
+    public Double getLon() {
         return lon;
     }
 

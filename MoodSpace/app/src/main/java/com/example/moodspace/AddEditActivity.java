@@ -1,19 +1,18 @@
 package com.example.moodspace;
 
 import android.Manifest;
-import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Looper;
 import android.util.Log;
 import android.view.View;
-
 import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.Button;
@@ -22,21 +21,25 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationCallback;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -50,36 +53,50 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.UUID;
 
+import static com.example.moodspace.Utils.makeInfoToast;
+import static com.example.moodspace.Utils.makeWarnToast;
+
 /**
  * Activity for adding / editing moods
  * - editing is also used to view the details of your own moods
  */
 public class AddEditActivity extends AppCompatActivity
         implements AdapterView.OnItemSelectedListener, OnMapReadyCallback {
+    private static final String MAPVIEW_BUNDLE_KEY = "moodspace.AddEditActivity.mapViewBundleKey";
+
     private static final int PICK_IMAGE = 1;
     private static final int GALLERY_PERMISSIONS_REQUEST = 1;
+    private static final int FINE_LOCATION_PERMISSIONS_REQUEST = 2;
     // TODO: change back down to 8 when jpgs can be uploaded properly
     private static final long MAX_DOWNLOAD_LIMIT = 30 * 1024 * 1024;
     private static final String TAG = AddEditActivity.class.getSimpleName();
 
     private AddEditController aec;
+    private FirebaseStorage fbStorage = FirebaseStorage.getInstance();
 
     // can be null if reusing a downloaded photo while editing
+    private String username;
     private String inputPhotoPath = null;
     private boolean hasPhoto = false;
     private boolean changedPhoto = false;
     private Mood currentMood = null;
     private Emotion selectedEmotion = null;
 
-    private FirebaseStorage fbStorage = FirebaseStorage.getInstance();
+    private TextInputEditText reasonEditText;
+    private CheckBox locationCheckBox;
+    private Spinner socialSitSpinner;
+    private Button saveBtn;
 
-    //Location variables
-    private MapView mMapView;
-    private static final String MAPVIEW_BUNDLE_KEY = "MapViewBundleKey";
-    private static final int MY_PERMISSIONS_REQUEST_FINE_LOCATION = 110;
-    private FusedLocationProviderClient fusedLocationProviderClient;
-    private boolean attachLocation = true;
-    private boolean locationCheckDenied = false;
+    // location variables
+    private GoogleMap gMap;
+    private MapView mapView;
+    private LocationCallback locationCallback;
+    private LocationManager locationManager;
+    private FusedLocationProviderClient fusedLocationClient;
+    private Location currentLocation = null;
+    private Marker currentMarker;
+    private AlertDialog gpsAlert;
+    private AlertDialog locationAlert;
 
     /**
      * Initializes all input methods for adding a mood.
@@ -93,31 +110,27 @@ public class AddEditActivity extends AppCompatActivity
                     WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
         }
         setContentView(R.layout.activity_add_edit_mood);
-
         setupMapView(savedInstanceState);
 
-        final String username = getIntent().getStringExtra("USERNAME");
+        username = getIntent().getStringExtra("USERNAME");
         aec = new AddEditController(this);
         currentMood = (Mood) getIntent().getSerializableExtra("MOOD");
 
-        if(isAddActivity()){
-            mMapView.setVisibility(mMapView.GONE);
-        }
-        else{
-            CheckBox locCheck = findViewById(R.id.checkbox_location);
-            locCheck.setVisibility(locCheck.GONE);
-        }
+        // gets all necessary views
+        reasonEditText = findViewById(R.id.reason_text);
+        locationCheckBox = findViewById(R.id.locationCheckbox);
+        socialSitSpinner = findViewById(R.id.situationText);
+        saveBtn = findViewById(R.id.saveBtn);
 
         // creates emotion spinner
         final Spinner emotionSpinner = findViewById(R.id.emotionSelector);
-        List<Emotion> emotionList = Arrays.asList(Emotion.values());
+        List<EmotionWithNull> emotionWithNullList = Arrays.asList(EmotionWithNull.values());
         // last argument is initialTextWasShown (true if EditActivity, false if AddActivity)
-        final EmotionAdapter emotionAdapter = new EmotionAdapter(this, emotionList);
+        final EmotionAdapter emotionAdapter = new EmotionAdapter(this, emotionWithNullList);
         emotionSpinner.setAdapter(emotionAdapter);
         emotionSpinner.setOnItemSelectedListener(this);
 
         // creates social situation spinner
-        final Spinner socialSitSpinner = findViewById(R.id.situationSelector);
         List<SocialSituation> socialSitList = Arrays.asList(SocialSituation.values());
         SocialSituationAdapter socialSituationAdapter = new SocialSituationAdapter(this, socialSitList);
         socialSitSpinner.setAdapter(socialSituationAdapter);
@@ -125,76 +138,10 @@ public class AddEditActivity extends AppCompatActivity
         // sets up save button
         // upon clicking the okay button, there will be an intent
         // to another activity to fill out the required information.
-        final Button saveBtn = findViewById(R.id.saveBtn);
-        final TextInputEditText reasonEditText = findViewById(R.id.reason_text);
         saveBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
-                // requires an emotion to be selected
-                if (selectedEmotion == null) {
-                    Toast.makeText(AddEditActivity.this, "Select an emotion", Toast.LENGTH_SHORT).show();
-                    return;
-                }
-
-                String reasonText;
-                if (reasonEditText.getText() == null) {
-                    reasonText = null;
-                } else {
-                    reasonText = reasonEditText.getText().toString();
-
-                    // validates reasonText input (checks <= 3 words, 20 characters enforced by ui)
-                    // https://stackoverflow.com/a/5864174
-                    String trim = reasonText.trim();
-                    if (!trim.isEmpty() && trim.split("\\s+").length > 3) {
-                        Toast.makeText(AddEditActivity.this, "Reason must be less than 4 words",
-                                Toast.LENGTH_SHORT).show();
-                        return;
-                    }
-                }
-
-                String id;
-                Date date;
-                boolean hasPhoto = AddEditActivity.this.hasPhoto;
-                SocialSituation socialSit = (SocialSituation) socialSitSpinner.getSelectedItem();
-                double lat = -1000;
-                double lon = -1000;
-
-                // reuses parameters if editing
-                if (AddEditActivity.this.isAddActivity()) {
-                    id = UUID.randomUUID().toString();
-                    date = new Date();
-
-                    if(attachLocation) {
-                        Location loc = getDeviceLocation();
-                        lat = loc.getLatitude();
-                        lon = loc.getLongitude();
-                    }
-
-
-
-                } else {
-                    //TODO Display message location not provided instead of empty map (Maybe)
-                    id = currentMood.getId();
-                    date = currentMood.getDate();
-                    lat = currentMood.getLat();
-                    lon = currentMood.getLon();
-                }
-
-                Mood mood = new Mood(id, date, selectedEmotion, reasonText, hasPhoto, socialSit, lat, lon);
-                if (AddEditActivity.this.isAddActivity()) {
-                    aec.addMood(username, mood);
-
-                } else {
-                    aec.updateMood(username, mood);
-                }
-
-                // only uploads if the photo hasn't changed for optimization purposes
-                if (hasPhoto && AddEditActivity.this.changedPhoto) {
-                    aec.uploadPhoto(inputPhotoPath, id);
-                }
-
-                finish();
+                attemptSaveMood(false);
             }
         });
 
@@ -252,27 +199,100 @@ public class AddEditActivity extends AppCompatActivity
         });
 
         // TODO See for map stuff if want the ability to remove attached location in edit mood
+        // TODO move to controller?
+        // sets up map stuff
+        locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
+        locationCallback = new LocationCallback() {
+            @Override
+            public void onLocationResult(LocationResult locationResult) {
+                Log.d(TAG, "location result success");
+                if (locationResult == null) {
+                    return;
+                }
+                for (Location location : locationResult.getLocations()) {
+                    Log.d(TAG, "location result: " + location);
+                    if (location != null) {
+                        updateCurrentLocation(location);
+                    }
+                }
+            }
+        };
 
+        final TextView placeholder_location = findViewById(R.id.placeholder_msg);
+        final View right_box = findViewById(R.id.right_square_view);
+        // sets up checkbox button
+        locationCheckBox.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (isAddActivity()) {
+                    boolean attachLocation = locationCheckBox.isChecked();
+                    if (attachLocation) {
+                        placeholder_location.setVisibility(View.GONE);
+                        mapView.setVisibility(View.VISIBLE);
 
-        Toolbar toolbar = findViewById(R.id.toolbar);
+                        // attempts to grant the permission if not granted yet
+                        boolean locationPermission = checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION)
+                                == PackageManager.PERMISSION_GRANTED;
+                        if (!locationPermission) {
+                            // requests permission
+                            ActivityCompat.requestPermissions(AddEditActivity.this,
+                                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                                    FINE_LOCATION_PERMISSIONS_REQUEST);
+                            return;
+                        } else {
+                            // gets location here since location permission is granted
+                            // https://stackoverflow.com/a/10917500
+                            startGettingLocation();
+                        }
+                    }
+                } else {
+                    placeholder_location.setVisibility(View.VISIBLE);
+                    stopGettingLocation();
+                }
+            }
+        });
+
+    Toolbar toolbar = findViewById(R.id.toolbar);
+
 
         // sets up add/edit specific attributes
         if (this.isAddActivity()) {
             toolbar.setTitle("Add Mood");
             saveBtn.setText(getString(R.string.am_ok_text));
             backBtn.setText(getString(R.string.am_cancel_text));
+
+            // no map as there is no location set currently
+            mapView.setVisibility(View.GONE);
         } else {
             toolbar.setTitle("Edit Mood");
             saveBtn.setText(getString(R.string.em_ok_text));
             backBtn.setText(getString(R.string.em_cancel_text));
 
+
             // fills in fields with previous values
             // adds for it to work with "please select emotion" position
-            int emotionIndex = emotionAdapter.getPosition(currentMood.getEmotion()) + 1;
+            int emotionIndex = emotionAdapter.getPosition(currentMood.getEmotion().toEmotionWithNull()) + 1;
             emotionSpinner.setSelection(emotionIndex);
             int socialSitIndex = socialSituationAdapter.getPosition(currentMood.getSocialSituation());
             socialSitSpinner.setSelection(socialSitIndex);
             reasonEditText.setText(currentMood.getReasonText());
+            TextView placeholderText = findViewById(R.id.placeholder_msg);
+            TextView locationText = findViewById(R.id.locationText);
+            if (currentMood.getHasLocation()) {
+                locationCheckBox.setVisibility(View.VISIBLE);
+                locationCheckBox.setChecked(true);
+                placeholderText.setVisibility(View.GONE);
+
+            } else {
+                locationCheckBox.setVisibility(View.GONE);
+                mapView.setVisibility(View.GONE);
+                placeholderText.setVisibility(View.GONE);
+                locationText.setVisibility(View.GONE);
+                right_box.setVisibility(View.GONE);
+            }
+
+            View leftsquareView = findViewById(R.id.left_square_view);
+            ImageView image = findViewById(R.id.image_view);
 
             // downloads photo: can't figure out how to separate this task into the controller
             // Create a storage reference from our app
@@ -290,10 +310,13 @@ public class AddEditActivity extends AppCompatActivity
                     @Override
                     public void onFailure(@NonNull Exception exception) {
                         // TODO: retry
-                        Toast.makeText(AddEditActivity.this, "Failed to load existing photo",
-                                Toast.LENGTH_SHORT).show();
+                        makeWarnToast(AddEditActivity.this, "Failed to load existing photo");
                     }
                 });
+            } else {
+                leftsquareView.setVisibility(View.GONE);
+                image.setVisibility(View.GONE);
+                imageButton.setVisibility(View.GONE);
             }
 
             // displays date and time
@@ -303,74 +326,257 @@ public class AddEditActivity extends AppCompatActivity
             String parsedTime = Utils.formatTime(currentMood.getDate());
             dateInfo.setText(parsedDate);
             timeInfo.setText(parsedTime);
-        }
 
+            // removes the checkbox
+            locationCheckBox.setVisibility(View.GONE);
+        }
         setSupportActionBar(toolbar);
     }
 
-    private Location getDeviceLocation() throws SecurityException {
-        // TODO: fix app crash if user denies location permission
-        LocationManager locationManager = (LocationManager)
-                getSystemService(Context.LOCATION_SERVICE);
-        Criteria criteria = new Criteria();
-
-
-
-
-        if (!locationCheckDenied){
-            try {
-                Location location = locationManager.getLastKnownLocation(locationManager
-                        .getBestProvider(criteria, false));
-                return location;
-            }
-            catch (Exception ex){
-
-            }
-    }
-        Location loc = new Location("LocDenied");
-        loc.setLongitude(-1000);
-        loc.setLatitude(-1000);
-        return loc;
-
-
-
-
+    @Override
+    public void onResume() {
+        super.onResume();
+        mapView.onResume();
     }
 
-    public void onCheckboxClicked(View view) {
-        // Is the view now checked?
-        boolean checked = ((CheckBox) view).isChecked();
+    @Override
+    public void onStart() {
+        super.onStart();
+        mapView.onStart();
+    }
 
-        // Check which checkbox was clicked
-        switch(view.getId()) {
-            case R.id.checkbox_location:
-                if (checked){
-                    attachLocation = true;
-                }
+    @Override
+    public void onStop() {
+        super.onStop();
+        mapView.onStop();
+    }
 
-            else{
-                    attachLocation = false;
-                }
+    @Override
+    public void onPause() {
+        super.onPause();
+        mapView.onPause();
+    }
 
-                break;
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        mapView.onDestroy();
 
+        if (gpsAlert != null) {
+            gpsAlert.dismiss();
         }
+        if (locationAlert != null) {
+            locationAlert.dismiss();
+        }
+    }
+
+    @Override
+    public void onLowMemory() {
+        super.onLowMemory();
+        mapView.onLowMemory();
+    }
+
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+
+        Bundle mapViewBundle = outState.getBundle(MAPVIEW_BUNDLE_KEY);
+        if (mapViewBundle == null) {
+            mapViewBundle = new Bundle();
+            outState.putBundle(MAPVIEW_BUNDLE_KEY, mapViewBundle);
+        }
+
+        mapView.onSaveInstanceState(mapViewBundle);
+    }
+
+    private void attemptSaveMood(boolean bypassLocationNull) {
+        saveBtn.setEnabled(false);
+        // requires an emotion to be selected
+        if (selectedEmotion == null) {
+            makeInfoToast(AddEditActivity.this, "Select an emotion");
+            saveBtn.setEnabled(true);
+            return;
+        }
+
+        boolean hasPhoto = this.hasPhoto;
+        SocialSituation socialSit = (SocialSituation) socialSitSpinner.getSelectedItem();
+
+        String reasonText;
+        if (reasonEditText.getText() == null) {
+            reasonText = null;
+        } else {
+            // validates reasonText input (checks <= 3 words, 20 characters enforced by ui)
+            // https://stackoverflow.com/a/5864174
+            reasonText = reasonEditText.getText().toString();
+            String trim = reasonText.trim();
+            if (!trim.isEmpty() && trim.split("\\s+").length > 3) {
+                makeInfoToast(AddEditActivity.this, "Reason must be less than 4 words");
+                saveBtn.setEnabled(true);
+                return;
+            }
+        }
+
+        String id;
+        Date date;
+        Double lat = null;
+        Double lon = null;
+        boolean hasLocation = false;
+        // reuses parameters if editing
+        if (isAddActivity()) {
+            id = UUID.randomUUID().toString();
+            date = new Date();
+            if (locationCheckBox.isChecked()) {
+                if (currentLocation == null) {
+                    if (!bypassLocationNull) {
+                        // creates a dialog to confirm that you want to add the mood
+                        // even though location was not recorded
+                        createLocationVerifyAlert();
+                        return;
+                    }
+                    lat = lon = null;
+                    hasLocation = false;
+                } else {
+                    lat = currentLocation.getLatitude();
+                    lon = currentLocation.getLongitude();
+                    hasLocation = true;
+                }
+            }
+            stopGettingLocation();
+        } else {
+            //TODO Display message location not provided instead of empty map (Maybe)
+            id = currentMood.getId();
+            date = currentMood.getDate();
+            lat = currentMood.getLat();
+            lon = currentMood.getLon();
+            hasLocation = locationCheckBox.isChecked();
+        }
+
+        Mood mood = new Mood(id, date, selectedEmotion, reasonText, hasPhoto, hasLocation, socialSit, lat, lon);
+        if (isAddActivity()) {
+            aec.addMood(username, mood);
+        } else {
+            aec.updateMood(username, mood);
+        }
+
+        // only uploads if the photo hasn't changed for optimization purposes
+        if (hasPhoto && changedPhoto) {
+            aec.uploadPhoto(inputPhotoPath, id);
+        }
+
+        finish();
+    }
+
+    private void updateCurrentLocation(@NonNull Location location) {
+        this.currentLocation = location;
+        double lat = currentLocation.getLatitude();
+        double lng = currentLocation.getLongitude();
+
+        LatLng latLng = new LatLng(lat, lng);
+        if (currentMarker == null) {
+            currentMarker = gMap.addMarker(new MarkerOptions().position(latLng));
+        } else {
+            currentMarker.setPosition(latLng);
+        }
+        gMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
+    }
+
+    // TODO move to some controller
+    private void startGettingLocation() {
+        try {
+            // checks if the gps is enabled
+            // https://stackoverflow.com/a/843716
+            if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+                createGPSAlert();
+                locationCheckBox.setChecked(false);
+                return;
+            }
+
+            // gets last known location to initialize
+            fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
+            fusedLocationClient.getLastLocation()
+                    .addOnSuccessListener(AddEditActivity.this, new OnSuccessListener<Location>() {
+                        @Override
+                        public void onSuccess(Location location) {
+                            Log.d(TAG, "last location: " + location);
+                            if (location != null) {
+                                updateCurrentLocation(location);
+                            }
+                        }
+                    });
+
+            // interval of 5 to 10 seconds
+            LocationRequest locationRequest = new LocationRequest();
+            locationRequest.setInterval(10 * 10000);
+            locationRequest.setFastestInterval(5 * 1000);
+            locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+
+            fusedLocationClient.requestLocationUpdates(locationRequest, locationCallback, Looper.myLooper());
+
+        } catch (SecurityException e) {
+            Log.w(TAG, Log.getStackTraceString(e));
+            makeWarnToast(this, "Unexpected error: cannot access location");
+            locationCheckBox.setChecked(false);
+        }
+    }
+
+    // TODO move to some controller
+    private void stopGettingLocation() {
+        if (fusedLocationClient != null) {
+            fusedLocationClient.removeLocationUpdates(locationCallback);
+        }
+    }
+
+    private void createGPSAlert() {
+        final AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setMessage("Your GPS (location) is disabled, do you want to enable it?")
+                .setCancelable(false)
+                .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                    public void onClick(final DialogInterface dialog, final int id) {
+                        startActivity(new Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS));
+                    }
+                })
+                .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                    public void onClick(final DialogInterface dialog, final int id) {
+                        dialog.cancel();
+                    }
+                });
+        gpsAlert = builder.create();
+        gpsAlert.show();
+    }
+
+    private void createLocationVerifyAlert() {
+        final AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setMessage("Location is enabled but has not been recorded. Do you still want to post?")
+                .setCancelable(false)
+                .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                    public void onClick(final DialogInterface dialog, final int id) {
+                        attemptSaveMood(true);
+                    }
+                })
+                .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                    public void onClick(final DialogInterface dialog, final int id) {
+                        dialog.cancel();
+                        saveBtn.setEnabled(true);
+                    }
+                });
+        locationAlert = builder.create();
+        locationAlert.show();
     }
 
     private void setupMapView(Bundle savedInstanceState) {
         // *** IMPORTANT ***
         // MapView requires that the Bundle you pass contain _ONLY_ MapView SDK
         // objects or sub-Bundles.
+
         Bundle mapViewBundle = null;
         if (savedInstanceState != null) {
             mapViewBundle = savedInstanceState.getBundle(MAPVIEW_BUNDLE_KEY);
         }
-        mMapView = (MapView) findViewById(R.id.map_view);
-        mMapView.onCreate(mapViewBundle);
+        mapView = findViewById(R.id.map_view);
+        mapView.onCreate(mapViewBundle);
 
-        mMapView.getMapAsync(AddEditActivity.this);
+        mapView.getMapAsync(AddEditActivity.this);
 
-        fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
     }
 
     private boolean isAddActivity() {
@@ -383,26 +589,33 @@ public class AddEditActivity extends AppCompatActivity
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
                                            @NonNull int[] grantResults) {
-        if (requestCode == GALLERY_PERMISSIONS_REQUEST) {
-            if (grantResults.length > 0
-                    && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                createImageIntent();
-            } else {
-                Toast.makeText(this, "Cannot access photos",
-                        Toast.LENGTH_SHORT).show();
-            }
+        switch (requestCode) {
+
+            case GALLERY_PERMISSIONS_REQUEST:
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    createImageIntent();
+                } else {
+                    makeInfoToast(this, "Cannot access photos");
+                }
+                break;
+
+            case FINE_LOCATION_PERMISSIONS_REQUEST:
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    if (isAddActivity()) {
+                        startGettingLocation();
+                    }
+                } else {
+                    // unchecks location and shows a warning
+                    makeInfoToast(this, "Cannot access location");
+                    locationCheckBox.setChecked(false);
+                }
+                break;
+
+            default:
+                Log.w(TAG, "unknown permission");
         }
-        else if (requestCode == MY_PERMISSIONS_REQUEST_FINE_LOCATION) {
-            if (grantResults.length > 0 &&
-                    grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                // TODO stub?
-            } else {
-                locationCheckDenied = true;
-            }
-        }
-
-
-
     }
 
     private void createImageIntent() {
@@ -432,7 +645,6 @@ public class AddEditActivity extends AppCompatActivity
             Bitmap bm = BitmapFactory.decodeFile(inputPhotoPath);
             Log.d(TAG, "finish decode");
             this.setPreviewImage(bm, true);
-
         }
     }
 
@@ -468,98 +680,26 @@ public class AddEditActivity extends AppCompatActivity
         if (i == 0) {
             return;
         }
-        selectedEmotion = (Emotion) adapterView.getItemAtPosition(i - 1);
+        selectedEmotion = ((EmotionWithNull) adapterView.getItemAtPosition(i - 1)).toEmotion();
     }
 
     @Override
     public void onNothingSelected(AdapterView<?> adapterView) {}
 
-
-    @Override
-    public void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-
-        Bundle mapViewBundle = outState.getBundle(MAPVIEW_BUNDLE_KEY);
-        if (mapViewBundle == null) {
-            mapViewBundle = new Bundle();
-            outState.putBundle(MAPVIEW_BUNDLE_KEY, mapViewBundle);
-        }
-
-        mMapView.onSaveInstanceState(mapViewBundle);
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-        mMapView.onResume();
-    }
-
-    @Override
-    public void onStart() {
-        super.onStart();
-        mMapView.onStart();
-    }
-
-    @Override
-    public void onStop() {
-        super.onStop();
-        mMapView.onStop();
-    }
-
-
-    @Override
-    public void onPause() {
-        mMapView.onPause();
-        super.onPause();
-    }
-
-    @Override
-    public void onDestroy() {
-        mMapView.onDestroy();
-        super.onDestroy();
-    }
-
-    @Override
-    public void onLowMemory() {
-        super.onLowMemory();
-        mMapView.onLowMemory();
-    }
-
-
     @Override
     public void onMapReady(GoogleMap googleMap) {
-        //TODO: right zoom level or the target button to do that
-        double lat = -1000;
-        double lon = -1000;
+        this.gMap = googleMap;
+        // TODO: right zoom level or the target button to do that
+        // TODO possibly display in AddActivity
+        if (!isAddActivity()) {
+            Double lat = currentMood.getLat();
+            Double lon = currentMood.getLon();
 
-
-        if(!isAddActivity()){
-            lat = currentMood.getLat();
-            lon = currentMood.getLon();
-
-            if (lat != -1000){
-                LatLng sydney = new LatLng(lat,lon);
-                googleMap.addMarker(new MarkerOptions().position(sydney));
-                googleMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
+            if (lat != null && lon != null) {
+                LatLng latLng = new LatLng(lat, lon);
+                googleMap.addMarker(new MarkerOptions().position(latLng));
+                googleMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
             }
-        }
-        else {
-            askForLocationPermission();
-        }
-
-    }
-
-    private void askForLocationPermission() {
-        if (checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for Activity#requestPermissions for more details.
-
-            ActivityCompat.requestPermissions(AddEditActivity.this,
-                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
-                    MY_PERMISSIONS_REQUEST_FINE_LOCATION);
         }
     }
 }

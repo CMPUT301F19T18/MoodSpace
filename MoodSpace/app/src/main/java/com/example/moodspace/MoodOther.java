@@ -8,16 +8,18 @@ import java.util.Date;
 public class MoodOther extends Mood {
     private String username;
 
-    public MoodOther(String id, Date date, Emotion emotion, String reasonText, boolean hasPhoto,
-                     SocialSituation socialSituation, String username, double lat, double lon) {
+    public MoodOther(String username, String id, Date date, Emotion emotion, String reasonText,
+                     boolean hasPhoto, boolean hasLocation,
+                     SocialSituation socialSituation, Double lat, Double lon) {
 
-        super(id, date, emotion, reasonText, hasPhoto, socialSituation, lat, lon);
+        super(id, date, emotion, reasonText, hasPhoto, hasLocation, socialSituation, lat, lon);
         this.username = username;
     }
 
     public static MoodOther fromMood(Mood mood, String username) {
-        return new MoodOther(mood.getId(), mood.getDate(), mood.getEmotion(), mood.getReasonText(),
-                mood.getHasPhoto(), mood.getSocialSituation(), username, mood.getLat(), mood.getLon());
+        return new MoodOther(username, mood.getId(), mood.getDate(), mood.getEmotion(), mood.getReasonText(),
+                mood.getHasPhoto(), mood.getHasLocation(), mood.getSocialSituation(),
+                mood.getLat(), mood.getLon());
     }
 
     public String getUsername() {

@@ -14,7 +14,6 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -43,6 +42,10 @@ import java.util.List;
 
 import io.paperdb.Paper;
 
+import static com.example.moodspace.Utils.makeInfoToast;
+import static com.example.moodspace.Utils.makeSuccessToast;
+import static com.example.moodspace.Utils.makeWarnToast;
+
 public class ProfileListActivity extends AppCompatActivity
         implements FilterFragment.OnFragmentInteractionListener,
         ControllerCallback, FollowController.OtherMoodsCallback {
@@ -52,7 +55,7 @@ public class ProfileListActivity extends AppCompatActivity
     private ViewController vc;
     private FollowController fc;
     ArrayAdapter<MoodOther> moodAdapter;
-    ArrayList<MoodOther> moodDataList;
+    ArrayList<MoodOther> moodDataList = new ArrayList<>();
     final boolean[] checkedItems = new boolean[Emotion.values().length];
 
     private String moodId;
@@ -99,7 +102,14 @@ public class ProfileListActivity extends AppCompatActivity
                 drawerLayout.closeDrawers();
                 switch (item.getItemId()) {
                     case R.id.nav_item_profile:
-                        Intent intent = new Intent(ProfileListActivity.this, ProfileListActivity.class);
+                        Intent intent0 = new Intent(ProfileListActivity.this, ProfileListActivity.class);
+                        intent0.putExtra("username", username);
+                        intent0.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                        startActivity(intent0);
+                        finish();
+                        return true;
+                    case R.id.nav_item_following:
+                        Intent intent = new Intent(ProfileListActivity.this, FollowActivity.class);
                         intent.putExtra("username", username);
                         intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                         startActivity(intent);
@@ -111,13 +121,6 @@ public class ProfileListActivity extends AppCompatActivity
                         intent1.putExtra("feed", true);
                         intent1.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                         startActivity(intent1);
-                        finish();
-                        return true;
-                    case R.id.nav_item_following:
-                        Intent intent2 = new Intent(ProfileListActivity.this, FollowActivity.class);
-                        intent2.putExtra("username", username);
-                        intent2.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                        startActivity(intent2);
                         finish();
                         return true;
                     case R.id.nav_item_map:
@@ -150,11 +153,22 @@ public class ProfileListActivity extends AppCompatActivity
             }
         });
 
+        moodAdapter = new MoodViewList(this, moodDataList);
+
         if (feed) {
             fc.getFollowingMoods(username);
+            addBtn.setVisibility(View.GONE);
+
+            // sets up EditMood on tapping any mood
+            moodList.setAdapter(moodAdapter);
+            moodList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                @Override
+                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                    openViewMood(username, position);
+                }
+            });
+
         } else  {
-            moodDataList = new ArrayList<>();
-            moodAdapter = new MoodViewList(this, moodDataList);
             final List<Emotion> filterList = new ArrayList<>();
 
             // sets up EditMood on tapping any mood
@@ -209,7 +223,6 @@ public class ProfileListActivity extends AppCompatActivity
         AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
         switch (item.getItemId()) {
             case R.id.delete:
-                Toast.makeText(this, "Deleted mood", Toast.LENGTH_LONG).show();
                 moodDataList.remove(info.position);
                 db.collection("users")
                         .document(username)
@@ -220,12 +233,15 @@ public class ProfileListActivity extends AppCompatActivity
                             @Override
                             public void onSuccess(Void aVoid) {
                                 Log.d(TAG, "Data deletion successful");
+                                makeSuccessToast(ProfileListActivity.this, "Deleted mood");
                             }
                         })
                         .addOnFailureListener(new OnFailureListener() {
                             @Override
                             public void onFailure(@NonNull Exception e) {
-                                Log.d(TAG, "Data deletion failed" + e.toString());
+                                Log.d(TAG, "Data deletion failed:");
+                                Log.d(TAG, Log.getStackTraceString(e));
+                                makeWarnToast(ProfileListActivity.this, "Error: did not delete mood");
                             }
                         });
                 moodAdapter.notifyDataSetChanged();
@@ -240,7 +256,7 @@ public class ProfileListActivity extends AppCompatActivity
      * Opens add Mood intent.
      */
     public void openAddMood(String username) {
-        Intent intent = new Intent(this, com.example.moodspace.AddEditActivity.class);
+        Intent intent = new Intent(this, AddEditActivity.class);
         intent.putExtra("USERNAME", username);
         startActivity(intent);
     }
@@ -255,6 +271,16 @@ public class ProfileListActivity extends AppCompatActivity
         intent.putExtra("USERNAME", username);
         startActivity(intent);
     }
+
+    public void openViewMood(String username, int position) {
+        MoodOther moodOther = moodDataList.get(position);
+        Intent intent = new Intent(getApplicationContext(), ViewMoodActivity.class);
+        intent.putExtra("MOOD", moodOther);
+        intent.putExtra("USERNAME", moodOther.getUsername());
+        intent.putExtra("username", username);
+        startActivity(intent);
+    }
+
 
     /**
      * Creates the toolbar.
@@ -332,7 +358,10 @@ public class ProfileListActivity extends AppCompatActivity
 
     @Override
     public void callbackFollowingMoods(@NonNull String user, @NonNull ArrayList<MoodOther> followingMoodsList) {
-        moodAdapter = new MoodViewList(this, followingMoodsList);
+        moodDataList.clear();
+        moodDataList.addAll(followingMoodsList);
+
         moodList.setAdapter(moodAdapter);
+        moodAdapter.notifyDataSetChanged();
     }
 }

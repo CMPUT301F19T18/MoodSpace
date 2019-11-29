@@ -1,14 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<TextView android:id="@+id/social_sit_spinner_row"
+<TextView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    tools:text="Alone"
+    android:id="@+id/social_sit_spinner_row"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:padding="12dp"
-    android:shadowColor="#00000000"
-    android:background="@color/colorPrimary"
-    android:textColor="@color/colorAccent"
+    android:padding="15dp"
+    android:textColor="@android:color/background_dark"
     android:textSize="20sp"
     android:textStyle="bold"
-    xmlns:android="http://schemas.android.com/apk/res/android" />
+    tools:text="Alone" />
 
