@@ -349,6 +349,9 @@ public class AddEditActivity extends AppCompatActivity
         if (gpsAlert != null) {
             gpsAlert.dismiss();
         }
+        if (locationAlert != null) {
+            locationAlert.dismiss();
+        }
     }
 
     @Override
@@ -527,8 +530,8 @@ public class AddEditActivity extends AppCompatActivity
                         saveBtn.setEnabled(true);
                     }
                 });
-        gpsAlert = builder.create();
-        gpsAlert.show();
+        locationAlert = builder.create();
+        locationAlert.show();
     }
 
     private void setupMapView(Bundle savedInstanceState) {
