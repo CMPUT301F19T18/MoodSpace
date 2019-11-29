@@ -173,6 +173,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 .addSnapshotListener(new EventListener<QuerySnapshot>() {
                     @Override
                     public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException e) {
+                        boolean foundFirstLocation = false;
+
                         for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
                             Double lat = null;
                             Double lon = null;
@@ -216,7 +218,10 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                                         .title(emotion.getEmojiString())
                                         .snippet(ts.toString())
                                         .icon(color));
-                                mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
+                                if (!foundFirstLocation) {
+                                    mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
+                                    foundFirstLocation = true;
+                                }
                             }
                         }
                     }
