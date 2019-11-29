@@ -55,7 +55,7 @@
                 android:id="@+id/follow_tab"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="I Follow" />
+                android:text="Following" />
 
         </com.google.android.material.tabs.TabLayout>
 

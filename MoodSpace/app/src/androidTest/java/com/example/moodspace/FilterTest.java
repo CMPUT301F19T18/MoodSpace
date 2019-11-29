@@ -35,8 +35,8 @@ import static org.hamcrest.core.IsNot.not;
 /**
  * Users:
  *  - TEST_FilterTest
- *      - happy
- *      - angry
+ *      - enjoyment
+ *      - anger
  *      - can view all
  *
  * TODO tests:
@@ -56,7 +56,7 @@ import static org.hamcrest.core.IsNot.not;
 public class FilterTest {
     private String username = "TEST_FilterTest";
     private String password = "TEST_FilterTest";
-    private String angry = new String(Character.toChars(0x1F621));
+    private String anger = new String(Character.toChars(0x1F621));
     private String enjoyment = new String(Character.toChars(0x1F604));
 
     @Rule
@@ -76,7 +76,7 @@ public class FilterTest {
                 .check(matches(hasDescendant(withText(containsString(enjoyment)))));
 
         onView(withId(R.id.moodList))
-                .check(matches((hasDescendant(withText(containsString(angry))))));
+                .check(matches((hasDescendant(withText(containsString(anger))))));
 
 
         onView(withId(R.id.filter)).perform(click());
@@ -104,7 +104,7 @@ public class FilterTest {
                 .check(matches(hasDescendant(withText(containsString(enjoyment)))));
 
         onView(withId(R.id.moodList))
-                .check(matches(not(hasDescendant(withText(containsString(angry))))));
+                .check(matches(not(hasDescendant(withText(containsString(anger))))));
 
         onView(withId(R.id.filter)).perform(click());
 
@@ -131,7 +131,7 @@ public class FilterTest {
 
 
         onView(withId(R.id.moodList))
-                .check(matches((hasDescendant(withText(containsString(angry))))));
+                .check(matches((hasDescendant(withText(containsString(anger))))));
     }
 
     private static Matcher<View> childAtPosition(
