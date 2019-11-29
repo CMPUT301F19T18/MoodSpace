@@ -108,7 +108,7 @@ public class AddEditActivity extends AppCompatActivity
         }
         setContentView(R.layout.activity_add_edit_mood);
 
-        username = getIntent().getStringExtra("USERNAME");
+        username = getIntent().getStringExtra(Utils.USERNAME_KEY);
         aec = new AddEditController(this);
         currentMood = (Mood) getIntent().getSerializableExtra("MOOD");
 
@@ -332,6 +332,9 @@ public class AddEditActivity extends AppCompatActivity
         if (gpsAlert != null) {
             gpsAlert.dismiss();
         }
+        if (locationAlert != null) {
+            locationAlert.dismiss();
+        }
     }
 
     @Override
@@ -506,8 +509,8 @@ public class AddEditActivity extends AppCompatActivity
                         saveBtn.setEnabled(true);
                     }
                 });
-        gpsAlert = builder.create();
-        gpsAlert.show();
+        locationAlert = builder.create();
+        locationAlert.show();
     }
 
     private void setupMapView(Bundle savedInstanceState) {

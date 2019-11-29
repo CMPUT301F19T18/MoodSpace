@@ -4,17 +4,10 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
-import androidx.core.app.ActivityCompat;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 
-import android.Manifest;
-import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.location.Criteria;
-import android.location.Location;
-import android.location.LocationManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
@@ -22,7 +15,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
@@ -36,6 +28,7 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.material.navigation.NavigationView;
+import com.google.android.material.tabs.TabLayout;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
@@ -43,11 +36,12 @@ import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
+import java.util.ArrayList;
 import java.util.Date;
 
 import io.paperdb.Paper;
 
-public class MapsActivity extends AppCompatActivity implements OnMapReadyCallback {
+public class MapsActivity extends AppCompatActivity implements OnMapReadyCallback, ControllerCallback, FollowController.OtherMoodsCallback {
     private static final String TAG = MapsActivity.class.getSimpleName();
 
     private static final String MAPVIEW_BUNDLE_KEY = "moodspace.MapsActivity.mapViewBundleKey";
@@ -56,10 +50,10 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     MapView mMapView;
     private FusedLocationProviderClient fusedLocationProviderClient;
     private String username;
-    private int MY_PERMISSIONS_REQUEST_FINE_LOCATION = 123;
     private final FirebaseFirestore db = FirebaseFirestore.getInstance();
-    private int mode = 0; // 0 means own moods and 1 means following moods
-    private boolean locationCheckDenied = false;
+    TabLayout myTabs;
+    private FollowController fc;
+    private ArrayList<MoodOther> followingMoodsList;
 
 
     @Override
@@ -73,18 +67,109 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
 
         username = getIntent().getExtras().getString(Utils.USERNAME_KEY);
+        fc = new FollowController(this);
+
         Toolbar toolbar = findViewById(R.id.toolbar);
         toolbar.setTitle("Map");
         setSupportActionBar(toolbar);
         setupNavBar(toolbar);
+        myTabs = findViewById(R.id.tabs);
+        myTabs.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
+            @Override
+            public void onTabSelected(TabLayout.Tab tab) {
+                mMap.clear();
+                int position = tab.getPosition();
+                switch (position){
+                    case 0:
+                        displayOwnMoods();
+                        break;
+                    case 1:
+                        displayFollowingMoods();
+                    default:
+                        Log.w(TAG, "unknown tab");
+                }
+                
+            }
+
+            @Override
+            public void onTabUnselected(TabLayout.Tab tab) {
+                mMap.clear();
+            }
+
+            @Override
+            public void onTabReselected(TabLayout.Tab tab) {
+
+            }
+        });
         setupMapView(savedInstanceState);
+        displayOwnMoods();
+        fc.getFollowingMoods(username);
 
         //TODO make tabs and using mode and onclicklisteners refresh map with new markers
         //TODO marker color should be mood specific and should have a popup of username and emoji
         //TODO maybe on click viewactivity will open with that mood
-        displayOwnMoods();
 
 
+
+    }
+
+
+    private void displayFollowingMoods() {
+        Double lat;
+        Double lon;
+        Date date;
+        Emotion emotion;
+        String ts;
+        BitmapDescriptor color;
+        String followingUser;
+        Boolean centerCamera =  false;
+
+        for (MoodOther m: followingMoodsList) {
+            lat = m.getLat();
+            lon = m.getLon();
+            date = m.getDate();
+            ts = date.toString();
+            emotion = m.getEmotion();
+            followingUser = m.getUsername();
+
+            switch (emotion.getEmojiName()){
+                case "Enjoyment":
+                    color = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_YELLOW);
+                    break;
+                case "Sadness":
+                    color = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE);
+                    break;
+                case "Anger":
+                    color = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED);
+                    break;
+                case "Fear":
+                    color = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_VIOLET);
+                    break;
+                case "Disgust":
+                    color = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN);
+                    break;
+                case "Contempt":
+                    color = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE);
+                    break;
+                default:
+                    color = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_CYAN);
+                    break;
+            }
+
+            if (lat != null && lon != null) {
+                LatLng latLng = new LatLng(lat, lon);
+                mMap.addMarker(new MarkerOptions().position(latLng)
+                        .title(followingUser + emotion.getEmojiString())
+                        .snippet(ts)
+                        .icon(color));
+                if(!centerCamera){
+                    // centers camera at the latest mood
+                    centerCamera = true;
+                    mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
+                }
+            }
+
+        }
     }
 
     private void displayOwnMoods() {
@@ -95,6 +180,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 .addSnapshotListener(new EventListener<QuerySnapshot>() {
                     @Override
                     public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException e) {
+                        boolean centerCamera = false; // to center the camera at the latest mood in the mood history
+
                         for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
                             Double lat = null;
                             Double lon = null;
@@ -138,7 +225,12 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                                         .title(emotion.getEmojiString())
                                         .snippet(ts.toString())
                                         .icon(color));
-                                mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
+
+                                if(!centerCamera){
+                                    centerCamera = true;
+                                    mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
+                                }
+
                             }
                         }
                     }
@@ -289,8 +381,24 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     @Override
     public void onMapReady(GoogleMap googleMap) {
         // if you want own current location in maps activity fsr
-        // askForLocationPermission();
         mMap = googleMap;
 
+    }
+
+    // Call Back Methods
+
+    @Override
+    public void callback(CallbackId callbackId) {
+        this.callback(callbackId, null);
+    }
+
+    @Override
+    public void callback(CallbackId callbackId, Bundle bundle) {
+        // TODO stub
+    }
+
+    @Override
+    public void callbackFollowingMoods(@NonNull String user, @NonNull ArrayList<MoodOther> followingMoodsList) {
+            this.followingMoodsList = followingMoodsList;
     }
 }
