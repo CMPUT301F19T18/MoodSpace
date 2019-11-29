@@ -77,6 +77,8 @@ public class FollowTest {
                         isDisplayed()));
         navigationMenuItemView.perform(click());
 
+        Thread.sleep(250);
+
         ViewInteraction tabView2 = onView(
                 allOf(withContentDescription("Send Request"),
                         childAtPosition(
@@ -121,6 +123,8 @@ public class FollowTest {
         appCompatImageButton.perform(click());
         navigationMenuItemView.perform(click());
 
+        Thread.sleep(250);
+
         onView(withId(R.id.accept_button)).perform(click());
 
         appCompatImageButton.perform(click());
@@ -144,14 +148,18 @@ public class FollowTest {
                         isDisplayed()));
         navigationMenuItemFeed.perform(click());
 
+        Thread.sleep(250);
+
         onView(withId(R.id.moodList))
                 .check(matches(hasDescendant(withText(containsString(contempt)))));
 
         appCompatImageButton.perform(click());
         navigationMenuItemView.perform(click());
 
+        Thread.sleep(250);
+
         ViewInteraction tabView = onView(
-                allOf(withContentDescription("I Follow"),
+                allOf(withContentDescription("Following"),
                         childAtPosition(
                                 childAtPosition(
                                         withId(R.id.tab_layout),
