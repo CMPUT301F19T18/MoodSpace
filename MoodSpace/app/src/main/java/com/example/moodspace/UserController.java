@@ -43,25 +43,6 @@ public class UserController {
         void callbackUserData(DocumentSnapshot fetchedUserData, final String callbackId);
     }
 
-    /*
-    public void checkUserExists(final User user) {
-        Query query = db.collection("users").whereEqualTo("username", user.getUsername());
-        query.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                if (task.getResult() != null && task.getResult().size() > 0) {
-                    Log.d(TAG, "Username " + user.getUsername() + " is taken");
-                    cc.callback(UserCallbackId.USERNAME_TAKEN);
-                } else {
-                    Log.d(TAG, "Username " + user.getUsername() + " is not taken");
-                    cc.callback(UserCallbackId.USERNAME_NOT_TAKEN,
-                            newUserBundle(SignUpActivity.SIGN_UP_USER_KEY, user));
-                }
-            }
-        });
-    }
-     */
-
     /**
      * Checks if the username exists already in the database
      */
